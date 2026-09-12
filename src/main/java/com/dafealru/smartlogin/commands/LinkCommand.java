@@ -21,16 +21,22 @@ public class LinkCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can link Discord accounts.");
+            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Solo los jugadores pueden vincular cuentas.</#F5D0FE>"));
+            return true;
+        }
+
+        if (!plugin.getDiscordManager().isBotConfigured()) {
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>No hay ningún bot de Discord configurado o vinculado en el servidor.</#F5D0FE>"));
             return true;
         }
 
         String code = plugin.getDiscordManager().generateLinkCode(player);
-        player.sendMessage(Component.text("════════════ 🤖 DISCORD LINKING ════════════", NamedTextColor.AQUA, TextDecoration.BOLD));
-        player.sendMessage(Component.text("Your 6-digit Discord verification code is: ", NamedTextColor.WHITE)
-                .append(Component.text(code, NamedTextColor.GOLD, TextDecoration.BOLD)));
-        player.sendMessage(Component.text("Send this code to the Discord Bot to verify your account!", NamedTextColor.GRAY));
-        player.sendMessage(Component.text("═══════════════════════════════════════════", NamedTextColor.AQUA));
+        player.sendMessage(Component.empty());
+        player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — VINCULACIÓN DISCORD ] ━━━━━━━━━━━━</bold></gradient>"));
+        player.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>Tu código de verificación de 6 dígitos es: </#E9D5FF><#C084FC><bold>" + code + "</bold></#C084FC>"));
+        player.sendMessage(plugin.getLocaleManager().parse("  <gray>Envía este código al bot de Discord del servidor para verificar tu cuenta.</gray>"));
+        player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
+        player.sendMessage(Component.empty());
         return true;
     }
 }

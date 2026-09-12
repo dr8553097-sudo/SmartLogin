@@ -299,7 +299,7 @@ public class SetupWizardManager {
             adminCurrentStep.remove(player.getUniqueId());
 
             player.sendMessage(Component.empty());
-            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Configuración básica inicial completada con éxito!</green>"));
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ ¡Configuración básica inicial completada con éxito!</#E9D5FF>"));
 
             // Check if admin is unauthenticated / non-premium needing register/login
             if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
@@ -312,36 +312,36 @@ public class SetupWizardManager {
                         if (profile == null || profile.getPasswordHash() == null || profile.getPasswordHash().trim().isEmpty()) {
                             // Non-premium unregistered admin -> NEEDS /register
                             Title regTitle = Title.title(
-                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡REGISTRO PENDIENTE!</bold></gradient>"),
-                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <light_purple><bold>/register <contraseña> <repetir></bold></light_purple></#E9D5FF>"),
+                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>"),
+                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>"),
                                     Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(4), Duration.ofMillis(500))
                             );
                             player.showTitle(regTitle);
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                             player.sendMessage(Component.empty());
-                            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <light_purple>Por favor regístrate en el servidor usando: <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></light_purple>"));
+                            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Por favor regístrate en el servidor usando: <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>"));
                             plugin.getAuthHudManager().startHud(player, true);
                         } else {
                             // Registered admin -> NEEDS /login
                             Title logTitle = Title.title(
                                     plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
-                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <light_purple><bold>/login <contraseña></bold></light_purple></#E9D5FF>"),
+                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"),
                                     Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(4), Duration.ofMillis(500))
                             );
                             player.showTitle(logTitle);
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                             player.sendMessage(Component.empty());
-                            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <light_purple>Por favor inicia sesión usando: <#C084FC><bold>/login <contraseña></bold></#C084FC></light_purple>"));
+                            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Por favor inicia sesión usando: <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"));
                             plugin.getAuthHudManager().startHud(player, false);
                         }
                     }, 30L);
                 });
             } else {
-                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <gray>Abre el panel en cualquier momento con </gray><light_purple><click:run_command:/smartlogin gui>/smartlogin gui</click></light_purple>"));
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Abre el panel en cualquier momento con </#E9D5FF><#C084FC><click:run_command:/smartlogin gui>/smartlogin gui</click></#C084FC>"));
             }
             player.sendMessage(Component.empty());
         } else {
-            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Configuración básica inicial completada con éxito!</green>"));
+            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ ¡Configuración básica inicial completada con éxito!</#E9D5FF>"));
         }
     }
 }

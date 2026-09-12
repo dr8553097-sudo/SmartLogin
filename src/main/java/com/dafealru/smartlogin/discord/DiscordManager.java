@@ -25,6 +25,12 @@ public class DiscordManager {
         this.plugin = plugin;
     }
 
+    public boolean isBotConfigured() {
+        boolean enabled = plugin.getModularConfig().getDiscordConfig().getBoolean("enabled", false);
+        String token = plugin.getModularConfig().getDiscordConfig().getString("bot-token", "");
+        return enabled && token != null && !token.isEmpty() && !token.contains("YOUR_DISCORD") && !token.contains("TOKEN");
+    }
+
     public String generateLinkCode(Player player) {
         String existing = pendingLinkCodesReverse.get(player.getUniqueId());
         if (existing != null) return existing;

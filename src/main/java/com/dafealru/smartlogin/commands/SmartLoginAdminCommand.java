@@ -86,10 +86,13 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                 plugin.getModularConfig().saveConfig();
                 if (sender instanceof Player player) {
                     plugin.getDatabaseManager().deleteProfile(player.getUniqueId());
+                    plugin.getDatabaseManager().loadProfileByName(player.getName()).thenAccept(p -> {
+                        if (p != null) plugin.getDatabaseManager().deleteProfile(p.getUuid());
+                    });
                     plugin.getAuthManager().uncache(player.getUniqueId());
                     plugin.getAuthManager().setAuthenticated(player.getUniqueId(), false);
                 }
-                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Estado del setup y cuenta reiniciados. ¡El asistente cinemático y registro se iniciarán al entrar!</green>"));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Estado del setup y cuenta reiniciados. ¡El asistente cinemático y registro se iniciarán al entrar!</#E9D5FF>"));
                 break;
             case "finishsetup":
                 plugin.getSetupWizardManager().finishSetup(sender);
@@ -97,9 +100,9 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
             case "setspawn":
                 if (sender instanceof Player player) {
                     plugin.getSpawnManager().setAuthSpawn(player.getLocation());
-                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Ubicación del spawn de autenticación establecida en tu posición.</green>"));
+                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Ubicación del spawn de autenticación establecida en tu posición.</#E9D5FF>"));
                 } else {
-                    sender.sendMessage("Solo los jugadores pueden ejecutar /smartlogin setspawn.");
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Solo los jugadores pueden ejecutar /smartlogin setspawn.</#F5D0FE>"));
                 }
                 break;
             case "history":
@@ -107,7 +110,7 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                 if (args.length > 1) {
                     plugin.getAuditManager().showPlayerHistory(sender, args[1]);
                 } else {
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin history <usuario></red>"));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin history <usuario></#F5D0FE>"));
                 }
                 break;
             case "setpassword":
@@ -117,13 +120,13 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                     String newPass = args[2];
                     plugin.getAuditManager().setPlayerPassword(target, newPass).thenAccept(ok -> {
                         if (ok) {
-                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Contraseña de <yellow>" + target + "</yellow> actualizada correctamente.</green>"));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Contraseña de <#C084FC>" + target + "</#C084FC> actualizada correctamente.</#E9D5FF>"));
                         } else {
-                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró al jugador en la base de datos.</red>"));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ No se encontró al jugador en la base de datos.</#F5D0FE>"));
                         }
                     });
                 } else {
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin setpassword <usuario> <nueva_clave></red>"));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin setpassword <usuario> <nueva_clave></#F5D0FE>"));
                 }
                 break;
             case "unregister":
@@ -134,54 +137,54 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                         if (p != null) {
                             plugin.getDatabaseManager().deleteProfile(p.getUuid()).thenRun(() -> {
                                 plugin.getAuthManager().uncache(p.getUuid());
-                                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Cuenta de <yellow>" + targetName + "</yellow> eliminada correctamente.</green>"));
+                                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Cuenta de <#C084FC>" + targetName + "</#C084FC> eliminada correctamente.</#E9D5FF>"));
                             });
                         } else {
-                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró al jugador <yellow>" + targetName + "</yellow> en la base de datos.</red>"));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ No se encontró al jugador <#C084FC>" + targetName + "</#C084FC> en la base de datos.</#F5D0FE>"));
                         }
                     });
                 } else {
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin unregister <usuario></red>"));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin unregister <usuario></#F5D0FE>"));
                 }
                 break;
             case "backup":
-                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Creando copia de seguridad de la base de datos...</yellow>"));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Creando copia de seguridad de la base de datos...</#E9D5FF>"));
                 File backupFile = plugin.getAuditManager().createDatabaseBackup();
                 if (backupFile != null) {
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Copia de seguridad creada: <yellow>" + backupFile.getName() + "</yellow></green>"));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Copia de seguridad creada: <#C084FC>" + backupFile.getName() + "</#C084FC></#E9D5FF>"));
                 } else {
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ Error creando la copia de seguridad.</red>"));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ Error creando la copia de seguridad.</#F5D0FE>"));
                 }
                 break;
             case "reload":
                 plugin.getModularConfig().loadAll();
                 plugin.getLocaleManager().loadLanguages();
-                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Configuraciones modulares, suite 2FA e idiomas recargados correctamente.</green>"));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Configuraciones modulares, suite 2FA e idiomas recargados correctamente.</#E9D5FF>"));
                 break;
             case "migrate":
             case "import":
                 if (args.length > 1) {
                     String source = args[1].toLowerCase();
                     if (source.equals("authme")) {
-                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Iniciando migración desde AuthMe...</yellow>"));
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Iniciando migración desde AuthMe...</#E9D5FF>"));
                         plugin.getMigrationManager().importAuthMe(sender).thenAccept(count -> {
-                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Se importaron exitosamente <bold>" + count + "</bold> cuentas desde AuthMe!</green>"));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ ¡Se importaron exitosamente <#C084FC><bold>" + count + "</bold></#C084FC> cuentas desde AuthMe!</#E9D5FF>"));
                         });
                     } else if (source.equals("nlogin")) {
-                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Iniciando migración desde nLogin...</yellow>"));
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Iniciando migración desde nLogin...</#E9D5FF>"));
                         plugin.getMigrationManager().importNLogin(sender).thenAccept(count -> {
-                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Se importaron exitosamente <bold>" + count + "</bold> cuentas desde nLogin!</green>"));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ ¡Se importaron exitosamente <#C084FC><bold>" + count + "</bold></#C084FC> cuentas desde nLogin!</#E9D5FF>"));
                         });
                     } else if (source.equals("fastlogin")) {
-                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Iniciando migración de estados Premium desde FastLogin...</yellow>"));
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Iniciando migración de estados Premium desde FastLogin...</#E9D5FF>"));
                         plugin.getMigrationManager().importFastLogin(sender).thenAccept(count -> {
-                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Se sincronizaron <bold>" + count + "</bold> cuentas desde FastLogin!</green>"));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ ¡Se sincronizaron <#C084FC><bold>" + count + "</bold></#C084FC> cuentas desde FastLogin!</#E9D5FF>"));
                         });
                     } else {
-                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Fuente desconocida. Usa: /smartlogin migrate <authme|nlogin|fastlogin></red>"));
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Fuente desconocida. Usa: /smartlogin migrate <authme|nlogin|fastlogin></#F5D0FE>"));
                     }
                 } else {
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin migrate <authme|nlogin|fastlogin></red>"));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin migrate <authme|nlogin|fastlogin></#F5D0FE>"));
                 }
                 break;
             default:

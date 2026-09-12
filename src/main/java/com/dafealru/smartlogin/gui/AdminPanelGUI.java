@@ -61,8 +61,8 @@ public class AdminPanelGUI implements Listener {
         lore.add(Component.empty());
         lore.add(plugin.getLocaleManager().parse(" <gray>• Versión:</gray> <#C084FC>v" + plugin.getPluginMeta().getVersion() + "</#C084FC>"));
         lore.add(plugin.getLocaleManager().parse(" <gray>• Base de Datos:</gray> <#C084FC>" + plugin.getModularConfig().getDatabaseConfig().getString("type", "SQLITE") + "</#C084FC>"));
-        lore.add(plugin.getLocaleManager().parse(" <gray>• Idioma Auto:</gray> " + (config.getBoolean("general.auto-detect-client-language", true) ? "<green>✔ Activado</green>" : "<red>✖ Desactivado</red>")));
-        lore.add(plugin.getLocaleManager().parse(" <gray>• SessionShield:</gray> " + (auth.getBoolean("session-shield.enabled", true) ? "<green>✔ Activo</green>" : "<red>✖ Inactivo</red>")));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• Idioma Auto:</gray> " + (config.getBoolean("general.auto-detect-client-language", true) ? "<#C084FC>✔ Activado</#C084FC>" : "<#F5D0FE>✖ Desactivado</#F5D0FE>")));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• SessionShield:</gray> " + (auth.getBoolean("session-shield.enabled", true) ? "<#C084FC>✔ Activo</#C084FC>" : "<#F5D0FE>✖ Inactivo</#F5D0FE>")));
         lore.add(Component.empty());
         statsMeta.lore(lore);
         stats.setItemMeta(statsMeta);
@@ -106,10 +106,10 @@ public class AdminPanelGUI implements Listener {
     private ItemStack createToggleItem(Material iconMat, String name, boolean state) {
         ItemStack item = new ItemStack(iconMat);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(plugin.getLocaleManager().parse((state ? "<green>✔ [ON] " : "<red>✖ [OFF] ") + "<#E9D5FF><bold>" + name + "</bold></#E9D5FF>"));
+        meta.displayName(plugin.getLocaleManager().parse((state ? "<#C084FC>✔ [ON] " : "<#F5D0FE>✖ [OFF] ") + "<#E9D5FF><bold>" + name + "</bold></#E9D5FF>"));
         List<Component> lore = new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(plugin.getLocaleManager().parse(" <gray>Estado actual:</gray> " + (state ? "<green><bold>HABILITADO</bold></green>" : "<red><bold>DESHABILITADO</bold></red>")));
+        lore.add(plugin.getLocaleManager().parse(" <gray>Estado actual:</gray> " + (state ? "<#C084FC><bold>HABILITADO</bold></#C084FC>" : "<#F5D0FE><bold>DESHABILITADO</bold></#F5D0FE>")));
         lore.add(plugin.getLocaleManager().parse(" <#C084FC>👉 Haz clic para alternar</#C084FC>"));
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -126,13 +126,13 @@ public class AdminPanelGUI implements Listener {
 
         if (slot == 48) {
             File backup = plugin.getAuditManager().createDatabaseBackup();
-            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Copia de seguridad creada: <yellow>" + (backup != null ? backup.getName() : "N/A") + "</yellow></green>"));
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Copia de seguridad creada: <#C084FC>" + (backup != null ? backup.getName() : "N/A") + "</#C084FC></#E9D5FF>"));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
             openPanel(player);
         } else if (slot == 50) {
             plugin.getModularConfig().loadAll();
             plugin.getLocaleManager().loadLanguages();
-            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Todas las configuraciones e idiomas han sido recargados.</green>"));
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Todas las configuraciones e idiomas han sido recargados.</#E9D5FF>"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
             openPanel(player);
         } else if (slot == 20) {

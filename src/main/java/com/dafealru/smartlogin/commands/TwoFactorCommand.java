@@ -26,17 +26,19 @@ public class TwoFactorCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("This command can only be executed by players.", NamedTextColor.RED));
+            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Solo los jugadores pueden usar 2FA.</#F5D0FE>"));
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(Component.text("════════════ 📱 SmartLogin 2FA ════════════", NamedTextColor.GOLD));
-            player.sendMessage(Component.text("/2fa setup ", NamedTextColor.YELLOW).append(Component.text("- Receive in-game QR code map & recovery codes", NamedTextColor.GRAY)));
-            player.sendMessage(Component.text("/2fa verify <code> ", NamedTextColor.YELLOW).append(Component.text("- Verify 6-digit Google Authenticator code", NamedTextColor.GRAY)));
-            player.sendMessage(Component.text("/2fa recovery <code> ", NamedTextColor.YELLOW).append(Component.text("- Use single-use emergency backup code", NamedTextColor.GRAY)));
-            player.sendMessage(Component.text("/2fa disable <code> ", NamedTextColor.YELLOW).append(Component.text("- Disable 2FA protection", NamedTextColor.GRAY)));
-            player.sendMessage(Component.text("═══════════════════════════════════════════", NamedTextColor.GOLD));
+            player.sendMessage(Component.empty());
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — SUITE 2FA ] ━━━━━━━━━━━━</bold></gradient>"));
+            player.sendMessage(plugin.getLocaleManager().parse("  <#C084FC><bold>/2fa setup</bold></#C084FC> <dark_gray>—</dark_gray> <gray>Recibe mapa QR de Google Auth y códigos de respaldo</gray>"));
+            player.sendMessage(plugin.getLocaleManager().parse("  <#C084FC><bold>/2fa verify <código></bold></#C084FC> <dark_gray>—</dark_gray> <gray>Verifica el código de 6 dígitos</gray>"));
+            player.sendMessage(plugin.getLocaleManager().parse("  <#C084FC><bold>/2fa recovery <código></bold></#C084FC> <dark_gray>—</dark_gray> <gray>Usa un código de respaldo de emergencia</gray>"));
+            player.sendMessage(plugin.getLocaleManager().parse("  <#C084FC><bold>/2fa disable <código></bold></#C084FC> <dark_gray>—</dark_gray> <gray>Desactiva la protección 2FA</gray>"));
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
+            player.sendMessage(Component.empty());
             return true;
         }
 
@@ -52,18 +54,20 @@ public class TwoFactorCommand implements CommandExecutor {
             List<String> recoveryCodes = plugin.getTwoFactorManager().setupNew2FA(profile);
             plugin.getQrMapManager().giveQrMap(player, profile.getTotpSecret());
 
-            player.sendMessage(Component.text("═══════════ 🔐 2FA RECOVERY CODES ═══════════", NamedTextColor.DARK_RED, TextDecoration.BOLD));
-            player.sendMessage(Component.text("SAVE THESE CODES! If you lose your phone, use /2fa recovery <code>:", NamedTextColor.GOLD));
+            player.sendMessage(Component.empty());
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ 🔐 CÓDIGOS DE RECUPERACIÓN 2FA ] ━━━━━━━━━━━━</bold></gradient>"));
+            player.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>¡GUARDA ESTOS CÓDIGOS! Si pierdes tu celular usa <#C084FC>/2fa recovery <código></#C084FC>:</#E9D5FF>"));
             for (String code : recoveryCodes) {
-                player.sendMessage(Component.text("  ➤  ", NamedTextColor.YELLOW).append(Component.text(code, NamedTextColor.GREEN, TextDecoration.BOLD)));
+                player.sendMessage(plugin.getLocaleManager().parse("    <#C084FC>➤</#C084FC> <#F5D0FE><bold>" + code + "</bold></#F5D0FE>"));
             }
-            player.sendMessage(Component.text("═══════════════════════════════════════════════", NamedTextColor.DARK_RED));
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
+            player.sendMessage(Component.empty());
             return true;
         }
 
         if (sub.equals("verify")) {
             if (args.length < 2) {
-                player.sendMessage(Component.text("Usage: /2fa verify <6-digit-code>", NamedTextColor.RED));
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /2fa verify <código de 6 dígitos></#F5D0FE>"));
                 return true;
             }
             if (profile == null || profile.getTotpSecret() == null) {
@@ -88,7 +92,7 @@ public class TwoFactorCommand implements CommandExecutor {
 
         if (sub.equals("recovery")) {
             if (args.length < 2) {
-                player.sendMessage(Component.text("Usage: /2fa recovery <8-digit-code>", NamedTextColor.RED));
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /2fa recovery <código de respaldo></#F5D0FE>"));
                 return true;
             }
             if (profile == null || !profile.is2FAEnabled()) {
@@ -99,16 +103,16 @@ public class TwoFactorCommand implements CommandExecutor {
             if (BackupCodeManager.verifyAndConsume(profile, args[1])) {
                 plugin.getDatabaseManager().saveProfile(profile);
                 plugin.getAuthManager().completeAuthentication(player, null);
-                player.sendMessage(Component.text("✔ Recovery code accepted! Emergency login successful.", NamedTextColor.GREEN, TextDecoration.BOLD));
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ ¡Código de recuperación aceptado! Autenticación de emergencia correcta.</#E9D5FF>"));
             } else {
-                player.sendMessage(Component.text("✖ Invalid or already consumed recovery code.", NamedTextColor.RED));
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ Código de recuperación inválido o ya consumido.</#F5D0FE>"));
             }
             return true;
         }
 
         if (sub.equals("disable")) {
             if (args.length < 2) {
-                player.sendMessage(Component.text("Usage: /2fa disable <6-digit-code>", NamedTextColor.RED));
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /2fa disable <código></#F5D0FE>"));
                 return true;
             }
             if (profile == null || !profile.is2FAEnabled()) {

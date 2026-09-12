@@ -162,4 +162,34 @@ public class PlayerSecurityListener implements Listener {
             event.setCancelled(true);
         }
     }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCommandSend(PlayerCommandSendEvent event) {
+        Player player = event.getPlayer();
+        boolean isAdmin = player.isOp() || player.hasPermission("smartlogin.admin");
+
+        // Filter out plugin namespaced commands (e.g. smartlogin:*, sl:*, slogin:*) from all clients
+        event.getCommands().removeIf(cmd -> cmd.startsWith("smartlogin:") || cmd.startsWith("sl:") || cmd.startsWith("slogin:"));
+
+        // If not admin, hide administrative command names completely
+        if (!isAdmin) {
+            event.getCommands().remove("smartlogin");
+            event.getCommands().remove("sl");
+            event.getCommands().remove("slogin");
+        }
+
+        // If unauthenticated, only show whitelisted auth commands
+        if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+            var allowedList = plugin.getModularConfig().getConfig().getStringList("lockdown.allowed-commands");
+            event.getCommands().removeIf(cmd -> !allowedList.contains("/" + cmd.toLowerCase()) 
+                    && !cmd.equalsIgnoreCase("login") 
+                    && !cmd.equalsIgnoreCase("register") 
+                    && !cmd.equalsIgnoreCase("l") 
+                    && !cmd.equalsIgnoreCase("reg")
+                    && !cmd.equalsIgnoreCase("changepassword")
+                    && !cmd.equalsIgnoreCase("2fa")
+                    && !cmd.equalsIgnoreCase("link")
+                    && !cmd.equalsIgnoreCase("tlink"));
+        }
+    }
 }

@@ -27,6 +27,12 @@ public class TelegramManager {
         this.plugin = plugin;
     }
 
+    public boolean isBotConfigured() {
+        boolean enabled = plugin.getModularConfig().getTelegramConfig().getBoolean("enabled", false);
+        String token = plugin.getModularConfig().getTelegramConfig().getString("bot-token", "");
+        return enabled && token != null && !token.isEmpty() && !token.contains("YOUR_TELEGRAM") && !token.contains("BOT_TOKEN");
+    }
+
     public String generateLinkCode(Player player) {
         String existing = pendingLinkCodesReverse.get(player.getUniqueId());
         if (existing != null) return existing;

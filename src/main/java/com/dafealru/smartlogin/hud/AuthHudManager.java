@@ -32,11 +32,11 @@ public class AuthHudManager {
         int totalTimeout = plugin.getModularConfig().getConfig().getInt("general.auth-timeout-seconds", 60);
         remainingSeconds.put(player.getUniqueId(), totalTimeout);
 
-        String titleText = isRegister ? "⏳ Register: /register <password> <confirm>" : "⏳ Login: /login <password>";
+        String titleText = isRegister ? "⏳ Registrate: /register <contraseña> <repetir>" : "⏳ Inicia Sesión: /login <contraseña>";
         BossBar bar = BossBar.bossBar(
-                Component.text(titleText, NamedTextColor.GOLD, TextDecoration.BOLD),
+                plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>" + titleText + "</bold></gradient>"),
                 1.0f,
-                BossBar.Color.GREEN,
+                BossBar.Color.PURPLE,
                 BossBar.Overlay.PROGRESS
         );
 
@@ -91,19 +91,12 @@ public class AuthHudManager {
                 if (bar != null) {
                     float progress = Math.max(0.0f, Math.min(1.0f, (float) remaining / (float) total));
                     bar.progress(progress);
-
-                    if (progress > 0.5f) {
-                        bar.color(BossBar.Color.GREEN);
-                    } else if (progress > 0.25f) {
-                        bar.color(BossBar.Color.YELLOW);
-                    } else {
-                        bar.color(BossBar.Color.RED);
-                    }
+                    bar.color(BossBar.Color.PURPLE);
                 }
 
                 // Actionbar prompt
                 if (plugin.getModularConfig().getConfig().getBoolean("hud-and-immersion.actionbar-prompt", true)) {
-                    player.sendActionBar(Component.text("⏳ Auth Timeout: " + remaining + "s", NamedTextColor.YELLOW));
+                    player.sendActionBar(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Tiempo de autenticación restante: <#F5D0FE><bold>" + remaining + "s</bold></#F5D0FE></#E9D5FF>"));
                 }
             }
         }, 20L, 20L);

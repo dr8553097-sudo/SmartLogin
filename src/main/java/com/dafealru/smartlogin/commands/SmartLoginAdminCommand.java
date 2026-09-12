@@ -109,6 +109,24 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                     sender.sendMessage(Component.text("Usage: /smartlogin setpassword <username> <new_password>", NamedTextColor.RED));
                 }
                 break;
+            case "unregister":
+            case "unreg":
+                if (args.length > 1) {
+                    String targetName = args[1];
+                    plugin.getDatabaseManager().loadProfileByName(targetName).thenAccept(p -> {
+                        if (p != null) {
+                            plugin.getDatabaseManager().deleteProfile(p.getUuid()).thenRun(() -> {
+                                plugin.getAuthManager().uncache(p.getUuid());
+                                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Cuenta de <yellow>" + targetName + "</yellow> eliminada correctamente.</green>"));
+                            });
+                        } else {
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró al jugador <yellow>" + targetName + "</yellow> en la base de datos.</red>"));
+                        }
+                    });
+                } else {
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin unregister <usuario></red>"));
+                }
+                break;
             case "backup":
                 sender.sendMessage(Component.text("Creating database backup snapshot...", NamedTextColor.YELLOW));
                 File backupFile = plugin.getAuditManager().createDatabaseBackup();

@@ -166,24 +166,20 @@ public class SetupWizardManager {
         sender.sendMessage(Component.empty());
     }
 
-    // PASO 5: IDIOMA
+    // PASO 5: SESSIONSHIELD
     private void sendStep5(CommandSender sender) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF><bold>Paso 5/5:</bold> ¿Cómo deseas manejar el idioma de los mensajes?</#E9D5FF>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF><bold>Paso 5/5:</bold> ¿Deseas activar SessionShield (Reconexión rápida sin pedir contraseña en la misma IP)?</#E9D5FF>"));
 
-        Component autoBtn = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ 🌐 Auto-Detectar ]</bold></gradient>")
-                .hoverEvent(HoverEvent.showText(Component.text("Muestra los mensajes automáticamente según el idioma de Minecraft del jugador.", NamedTextColor.GRAY)))
-                .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 auto"));
+        Component enableShield = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ ⚡ Activar SessionShield (Recomendado) ]</bold></gradient>")
+                .hoverEvent(HoverEvent.showText(Component.text("Permite a los jugadores reconectarse sin escribir contraseña si su IP es la misma.", NamedTextColor.GRAY)))
+                .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 on"));
 
-        Component esBtn = plugin.getLocaleManager().parse("  <#C084FC><bold>[ 🇪🇸 Español ]</bold></#C084FC>")
-                .hoverEvent(HoverEvent.showText(Component.text("Todos los jugadores verán siempre los mensajes en Español.", NamedTextColor.GRAY)))
-                .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 es"));
+        Component disableShield = plugin.getLocaleManager().parse("  <dark_gray><bold>[ 🔒 Desactivar (Pedir clave siempre) ]</bold></dark_gray>")
+                .hoverEvent(HoverEvent.showText(Component.text("Exige contraseña en cada conexión sin excepción.", NamedTextColor.GRAY)))
+                .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 off"));
 
-        Component enBtn = plugin.getLocaleManager().parse("  <#A855F7><bold>[ 🇺🇸 English ]</bold></#A855F7>")
-                .hoverEvent(HoverEvent.showText(Component.text("Todos los jugadores verán los mensajes en Inglés.", NamedTextColor.GRAY)))
-                .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 en"));
-
-        sender.sendMessage(autoBtn.append(Component.text("  ")).append(esBtn).append(Component.text("  ")).append(enBtn));
+        sender.sendMessage(enableShield.append(Component.text("   ")).append(disableShield));
         sender.sendMessage(Component.empty());
     }
 
@@ -232,20 +228,10 @@ public class SetupWizardManager {
                 break;
 
             case 5:
-                if ("auto".equalsIgnoreCase(choice)) {
-                    config.set("general.auto-detect-client-language", true);
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <gray>Idioma: <#C084FC>Auto-Detectar</#C084FC></gray>"));
-                } else if ("es".equalsIgnoreCase(choice)) {
-                    config.set("general.auto-detect-client-language", false);
-                    config.set("general.default-language", "es");
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <gray>Idioma: <#C084FC>Español</#C084FC></gray>"));
-                } else if ("en".equalsIgnoreCase(choice)) {
-                    config.set("general.auto-detect-client-language", false);
-                    config.set("general.default-language", "en");
-                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <gray>Idioma: <#C084FC>English</#C084FC></gray>"));
-                }
-                plugin.getModularConfig().saveConfig();
-                plugin.getLocaleManager().loadLanguages();
+                boolean shieldOn = "on".equalsIgnoreCase(choice);
+                authConfig.set("session-shield.enabled", shieldOn);
+                plugin.getModularConfig().saveAuth();
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <gray>SessionShield: <#C084FC>" + (shieldOn ? "ACTIVADO" : "DESACTIVADO") + "</#C084FC></gray>"));
                 finishSetup(sender);
                 break;
 
@@ -320,8 +306,8 @@ public class SetupWizardManager {
                 plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         if (!player.isOnline() || plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
-                        if (profile == null) {
-                            // Non-premium unregistered admin
+                        if (profile == null || profile.getPasswordHash() == null || profile.getPasswordHash().trim().isEmpty()) {
+                            // Non-premium unregistered admin -> NEEDS /register
                             Title regTitle = Title.title(
                                     plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡Registro Pendiente!</bold></gradient>"),
                                     plugin.getLocaleManager().parse("<#E9D5FF>Por favor usa /register <contraseña> <repetir></#E9D5FF>"),
@@ -333,7 +319,7 @@ public class SetupWizardManager {
                             player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <light_purple>Por favor regístrate en el servidor usando: <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></light_purple>"));
                             plugin.getAuthHudManager().startHud(player, true);
                         } else {
-                            // Registered admin needing login
+                            // Registered admin -> NEEDS /login
                             Title logTitle = Title.title(
                                     plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡Inicio de Sesión!</bold></gradient>"),
                                     plugin.getLocaleManager().parse("<#E9D5FF>Por favor usa /login <contraseña></#E9D5FF>"),

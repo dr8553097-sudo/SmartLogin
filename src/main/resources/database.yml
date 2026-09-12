@@ -1,0 +1,28 @@
+# ==============================================================================
+# 🗄️ SmartLogin — Storage Engine Configuration
+# ==============================================================================
+
+# Database backend type: "SQLITE" or "MYSQL"
+type: "SQLITE"
+
+sqlite:
+  file: "smartlogin.db"
+  # WAL (Write-Ahead Logging) mode maximizes concurrency and read/write speed
+  wal-mode: true
+
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  database: "smartlogin"
+  username: "root"
+  password: ""
+  table-prefix: "sl_"
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout-ms: 10000
+    idle-timeout-ms: 600000
+    max-lifetime-ms: 1800000
+  ssl:
+    use-ssl: false
+    verify-server-certificate: false

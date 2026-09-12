@@ -1,13 +1,17 @@
 com\dafealru\smartlogin\qr\QrMatrixGenerator.class
 com\dafealru\smartlogin\auth\SessionShield.class
 com\dafealru\smartlogin\database\DatabaseManager.class
+com\dafealru\smartlogin\spawn\SpawnManager.class
 com\dafealru\smartlogin\config\ConfigManager.class
+com\dafealru\smartlogin\config\ModularConfigManager.class
 com\dafealru\smartlogin\auth\AutoLoginDetector.class
 com\dafealru\smartlogin\crypto\PasswordHasher.class
 com\dafealru\smartlogin\commands\RegisterCommand.class
 com\dafealru\smartlogin\database\MySQLDatabase.class
 com\dafealru\smartlogin\listeners\PlayerConnectionListener.class
 com\dafealru\smartlogin\wizard\SetupWizardManager.class
+com\dafealru\smartlogin\twofactor\TwoFactorManager.class
+com\dafealru\smartlogin\migration\MigrationManager.class
 com\dafealru\smartlogin\commands\TwoFactorCommand.class
 com\dafealru\smartlogin\crypto\TotpEngine.class
 com\dafealru\smartlogin\config\LocaleManager.class
@@ -20,6 +24,7 @@ com\dafealru\smartlogin\SmartLogin.class
 com\dafealru\smartlogin\qr\QrMapRenderer.class
 com\dafealru\smartlogin\auth\AuthManager.class
 com\dafealru\smartlogin\commands\LoginCommand.class
+com\dafealru\smartlogin\twofactor\BackupCodeManager.class
 com\dafealru\smartlogin\qr\QrMapManager.class
 com\dafealru\smartlogin\gui\PinPadGUI.class
 com\dafealru\smartlogin\commands\SmartLoginAdminCommand.class

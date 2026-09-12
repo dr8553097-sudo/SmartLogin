@@ -3,63 +3,110 @@ package com.dafealru.smartlogin.config;
 import com.dafealru.smartlogin.SmartLogin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class LocaleManager {
 
     private final SmartLogin plugin;
+    private final Map<String, FileConfiguration> languageFiles = new HashMap<>();
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
-    private final Map<String, String> messages = new HashMap<>();
+    private String defaultLanguage = "es";
+    private boolean autoDetect = true;
 
     public LocaleManager(SmartLogin plugin) {
         this.plugin = plugin;
+        loadLanguages();
     }
 
-    public void load() {
-        messages.clear();
-        String lang = plugin.getConfigManager().getLanguage();
+    public void loadLanguages() {
+        languageFiles.clear();
+        defaultLanguage = plugin.getModularConfig().getConfig().getString("general.default-language", "es").toLowerCase();
+        autoDetect = plugin.getModularConfig().getConfig().getBoolean("general.auto-detect-client-language", true);
+
         File langDir = new File(plugin.getDataFolder(), "lang");
-        if (!langDir.exists()) langDir.mkdirs();
+        if (!langDir.exists()) {
+            langDir.mkdirs();
+        }
 
-        // Save default resource files if not present
-        String[] defaultLangs = {"en", "es", "fr", "pt"};
-        for (String dl : defaultLangs) {
-            File f = new File(langDir, dl + ".yml");
+        String[] bundled = {"en.yml", "es.yml", "fr.yml", "pt.yml"};
+        for (String b : bundled) {
+            File f = new File(langDir, b);
             if (!f.exists()) {
-                plugin.saveResource("lang/" + dl + ".yml", false);
+                plugin.saveResource("lang/" + b, false);
+            }
+            String langCode = b.replace(".yml", "");
+            languageFiles.put(langCode, YamlConfiguration.loadConfiguration(f));
+        }
+        plugin.getLogger().info("Loaded " + languageFiles.size() + " language profiles with client auto-detection.");
+    }
+
+    public String getPlayerLanguage(Player player) {
+        if (player == null || !autoDetect) {
+            return defaultLanguage;
+        }
+        try {
+            Locale clientLocale = player.locale();
+            if (clientLocale != null) {
+                String lang = clientLocale.getLanguage().toLowerCase();
+                if (languageFiles.containsKey(lang)) {
+                    return lang;
+                }
+            }
+        } catch (Throwable ignored) {}
+        return defaultLanguage;
+    }
+
+    public String getRawMessage(String key, String lang) {
+        FileConfiguration config = languageFiles.getOrDefault(lang, languageFiles.get(defaultLanguage));
+        if (config == null) return key;
+        return config.getString(key, key);
+    }
+
+    public String getRawMessage(String key, Player player) {
+        return getRawMessage(key, getPlayerLanguage(player));
+    }
+
+    public Component getComponent(String key, Player player, Map<String, String> placeholders) {
+        String raw = getRawMessage(key, player);
+        if (placeholders != null) {
+            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                raw = raw.replace(entry.getKey(), entry.getValue());
             }
         }
-
-        File langFile = new File(langDir, lang + ".yml");
-        if (!langFile.exists()) langFile = new File(langDir, "en.yml");
-
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(langFile);
-        for (String key : yaml.getKeys(false)) {
-            messages.put(key, yaml.getString(key));
+        // Support modern MiniMessage format and fallback legacy & codes
+        if (raw.contains("<") && raw.contains(">")) {
+            return miniMessage.deserialize(raw);
         }
-        plugin.getLogger().info("Loaded " + messages.size() + " messages for language: " + lang);
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(raw);
     }
 
-    public Component getMessage(String key, String... placeholders) {
-        String raw = messages.getOrDefault(key, "<red>Missing message: " + key + "</red>");
-        String prefix = messages.getOrDefault("prefix", "");
+    public Component getComponent(String key, Player player) {
+        return getComponent(key, player, null);
+    }
 
-        String formatted = prefix + raw;
-        for (int i = 0; i < placeholders.length; i += 2) {
-            if (i + 1 < placeholders.length) {
-                formatted = formatted.replace("{" + placeholders[i] + "}", placeholders[i + 1]);
-            }
+    public String getLegacyMessage(String key, Player player, Map<String, String> placeholders) {
+        return LegacyComponentSerializer.legacySection().serialize(getComponent(key, player, placeholders));
+    }
+
+    public String getLegacyMessage(String key, Player player) {
+        return getLegacyMessage(key, player, null);
+    }
+
+    public Component parse(String raw) {
+        if (raw == null) return Component.empty();
+        if (raw.contains("<") && raw.contains(">")) {
+            return miniMessage.deserialize(raw);
         }
-        return miniMessage.deserialize(formatted);
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(raw);
     }
 
-    public Component parse(String miniMessageText) {
-        return miniMessage.deserialize(miniMessageText);
-    }
+    public String getDefaultLanguage() { return defaultLanguage; }
 }

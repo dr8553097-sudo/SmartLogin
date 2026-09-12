@@ -1,7 +1,6 @@
 package com.dafealru.smartlogin.listeners;
 
 import com.dafealru.smartlogin.SmartLogin;
-import com.dafealru.smartlogin.auth.AuthManager;
 import com.dafealru.smartlogin.database.PlayerProfile;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -13,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
 import java.time.Duration;
 
 public class PlayerConnectionListener implements Listener {
@@ -24,92 +24,79 @@ public class PlayerConnectionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.UNAUTHENTICATED);
+        String ip = player.getAddress().getAddress().getHostAddress();
 
-        // 1. Apply Blindness
-        if (plugin.getConfigManager().isBlindnessEnabled()) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1, false, false));
+        // Check if first-admin setup wizard is pending
+        if (!plugin.getSetupWizardManager().isSetupCompleted() && (player.isOp() || player.hasPermission("smartlogin.admin"))) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                plugin.getSetupWizardManager().sendSetupForm(player);
+            }, 10L);
         }
 
-        // 2. Load Profile Asynchronously
+        // Apply blindness / slowness / spawn teleport
+        plugin.getSpawnManager().handleJoinSpawn(player);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 5, false, false));
+
         plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {
             Bukkit.getScheduler().runTask(plugin, () -> {
-                if (!player.isOnline()) return;
-                plugin.getAuthManager().cacheProfile(profile);
+                if (profile != null) {
+                    plugin.getAuthManager().cacheProfile(player.getUniqueId(), profile);
 
-                // Check Tri-Mode: Bedrock Auto-Login
-                if (plugin.getAutoLoginDetector().isBedrock(player)) {
-                    authenticatePlayer(player, profile, "tri_mode_bedrock");
-                    return;
-                }
+                    // Check Bedrock / Floodgate Auto-Login
+                    if (plugin.getAutoLoginDetector().isBedrockPlayer(player)) {
+                        plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                        plugin.getSpawnManager().handleLoginRestore(player);
+                        player.sendMessage(plugin.getLocaleManager().getComponent("success-auto-login-bedrock", player));
+                        return;
+                    }
 
-                // Check Tri-Mode: Java Premium Auto-Login
-                if (profile != null && profile.isPremium() && plugin.getAutoLoginDetector().isJavaPremium(player)) {
-                    authenticatePlayer(player, profile, "tri_mode_premium");
-                    return;
-                }
+                    // Check Java Premium Auto-Login
+                    if (profile.isPremium() && plugin.getAutoLoginDetector().isJavaPremiumPlayer(player)) {
+                        plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                        plugin.getSpawnManager().handleLoginRestore(player);
+                        player.sendMessage(plugin.getLocaleManager().getComponent("success-auto-login-premium", player));
+                        return;
+                    }
 
-                // Check Session Shield (IP auto-login cache)
-                if (plugin.getSessionShield().isSessionValid(player, profile)) {
-                    authenticatePlayer(player, profile, "login_success");
-                    return;
-                }
+                    // Check SessionShield
+                    if (plugin.getSessionShield().isSessionValid(player.getUniqueId(), ip)) {
+                        plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                        plugin.getSpawnManager().handleLoginRestore(player);
+                        player.sendMessage(plugin.getLocaleManager().getComponent("success-session-shield", player));
+                        return;
+                    }
 
-                // Unregistered or needs login
-                if (profile == null || profile.getPasswordHash() == null) {
-                    player.sendMessage(plugin.getLocaleManager().getMessage("register_prompt"));
-                    showAuthTitle(player, "<gold><bold>REGISTER</bold></gold>", "<yellow>/register <password> <confirm></yellow>");
-                } else if (profile.is2FAEnabled()) {
-                    plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.AWAITING_2FA);
-                    player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_prompt"));
-                    showAuthTitle(player, "<aqua><bold>2FA REQUIRED</bold></aqua>", "<gray>/2fa verify <code></gray>");
+                    // Send Login Prompt
+                    sendAuthPrompt(player, false);
                 } else {
-                    player.sendMessage(plugin.getLocaleManager().getMessage("login_prompt"));
-                    showAuthTitle(player, "<gradient:#9d4edd:#00f0ff><bold>LOGIN</bold></gradient>", "<yellow>/login <password></yellow>");
+                    // Send Register Prompt
+                    sendAuthPrompt(player, true);
                 }
-
-                // Timeout Kick Task
-                startTimeoutTask(player);
             });
         });
     }
 
-    private void authenticatePlayer(Player player, PlayerProfile profile, String successKey) {
-        plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.LOGGED_IN);
-        player.removePotionEffect(PotionEffectType.BLINDNESS);
-        player.sendMessage(plugin.getLocaleManager().getMessage(successKey, "player", player.getName()));
+    private void sendAuthPrompt(Player player, boolean isRegister) {
+        String titleKey = isRegister ? "title-register" : "title-login";
+        String subKey = isRegister ? "subtitle-register" : "subtitle-login";
+        String msgKey = isRegister ? "prompt-register" : "prompt-login";
 
-        if (profile != null) {
-            profile.setLastIp(plugin.getSessionShield().getPlayerIp(player));
-            profile.setLastLoginTimestamp(System.currentTimeMillis());
-            plugin.getDatabaseManager().saveProfile(profile);
-        }
-    }
-
-    private void showAuthTitle(Player player, String main, String sub) {
         Title title = Title.title(
-                plugin.getLocaleManager().parse(main),
-                plugin.getLocaleManager().parse(sub),
-                Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(4), Duration.ofMillis(500))
+                plugin.getLocaleManager().getComponent(titleKey, player),
+                plugin.getLocaleManager().getComponent(subKey, player),
+                Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(4), Duration.ofMillis(500))
         );
         player.showTitle(title);
-    }
-
-    private void startTimeoutTask(Player player) {
-        int timeoutSeconds = plugin.getConfigManager().getTimeoutSeconds();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline() && !plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
-                player.kick(plugin.getLocaleManager().getMessage("timeout_kick"));
-            }
-        }, timeoutSeconds * 20L);
+        player.sendMessage(plugin.getLocaleManager().getComponent(msgKey, player));
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        plugin.getAuthManager().uncache(player.getUniqueId());
-        plugin.getQrMapManager().removePending(player.getUniqueId());
+        plugin.getAuthManager().removeAuthenticated(player.getUniqueId());
+        plugin.getQrMapManager().cleanup(player.getUniqueId());
     }
 }

@@ -29,6 +29,14 @@ public class AuthManager {
         return playerStates.getOrDefault(uuid, AuthState.UNAUTHENTICATED) == AuthState.LOGGED_IN;
     }
 
+    public void setAuthenticated(UUID uuid, boolean auth) {
+        playerStates.put(uuid, auth ? AuthState.LOGGED_IN : AuthState.UNAUTHENTICATED);
+    }
+
+    public void removeAuthenticated(UUID uuid) {
+        uncache(uuid);
+    }
+
     public AuthState getState(UUID uuid) {
         return playerStates.getOrDefault(uuid, AuthState.UNAUTHENTICATED);
     }
@@ -37,10 +45,20 @@ public class AuthManager {
         playerStates.put(uuid, state);
     }
 
+    public void cacheProfile(UUID uuid, PlayerProfile profile) {
+        if (profile != null) {
+            cachedProfiles.put(uuid, profile);
+        }
+    }
+
     public void cacheProfile(PlayerProfile profile) {
         if (profile != null) {
             cachedProfiles.put(profile.getUuid(), profile);
         }
+    }
+
+    public PlayerProfile getProfile(UUID uuid) {
+        return cachedProfiles.get(uuid);
     }
 
     public PlayerProfile getCachedProfile(UUID uuid) {

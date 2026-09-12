@@ -19,7 +19,7 @@ public class AutoLoginDetector {
     }
 
     public boolean isBedrock(Player player) {
-        if (!plugin.getConfigManager().isBedrockAutoLogin()) return false;
+        if (!plugin.getModularConfig().getAuthConfig().getBoolean("bedrock.auto-login-enabled", true)) return false;
         
         // 1. Floodgate API Reflection
         if (isFloodgatePresent) {
@@ -34,9 +34,17 @@ public class AutoLoginDetector {
         return player.getName().startsWith(".") || player.getName().startsWith("*");
     }
 
+    public boolean isBedrockPlayer(Player player) {
+        return isBedrock(player);
+    }
+
     public boolean isJavaPremium(Player player) {
-        if (!plugin.getConfigManager().isPremiumAutoLogin()) return false;
+        if (!plugin.getModularConfig().getAuthConfig().getBoolean("premium.auto-login-enabled", true)) return false;
         // In modern 1.21 Paper servers with online-mode or Velocity/Bungee Forwarding
         return player.getPlayerProfile().hasProperty("textures");
+    }
+
+    public boolean isJavaPremiumPlayer(Player player) {
+        return isJavaPremium(player);
     }
 }

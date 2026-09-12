@@ -1,0 +1,30 @@
+# ==============================================================================
+# 💎 SmartLogin — Authentication & Auto-Login Engine
+# ==============================================================================
+
+# Password Hashing Engine
+# Available modes:
+#   - "FAST_PBKDF2" (10,000 iterations - recommended for high player count)
+#   - "SECURE_PBKDF2" (100,000 iterations - military grade security)
+hashing:
+  mode: "FAST_PBKDF2"
+  salt-bytes: 32
+
+# SessionShield: Skip login if the player reconnects from the same IP within the expiration window
+session-shield:
+  enabled: true
+  # Session validity in minutes
+  session-duration-minutes: 60
+
+# Bedrock / Floodgate auto-login for Geyser players
+bedrock:
+  auto-login-enabled: true
+  # Floodgate UUID prefix or XUID verification
+  verify-floodgate-uuid: true
+
+# Java Premium Mojang Auto-Login
+# Allows genuine Java Minecraft accounts to skip entering passwords
+premium:
+  auto-login-enabled: true
+  # Require player confirmation before marking account as premium (/premium)
+  require-command-toggle: true

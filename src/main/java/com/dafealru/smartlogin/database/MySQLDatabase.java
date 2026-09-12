@@ -19,12 +19,17 @@ public class MySQLDatabase implements DatabaseManager {
     @Override
     public void initialize() {
         try {
-            var cfg = plugin.getConfigManager();
+            var cfg = plugin.getModularConfig().getDatabaseConfig();
             HikariConfig hcfg = new HikariConfig();
-            hcfg.setJdbcUrl("jdbc:mysql://" + cfg.getMysqlHost() + ":" + cfg.getMysqlPort() + "/" + cfg.getMysqlDatabase() + "?useSSL=" + cfg.isMysqlSsl());
-            hcfg.setUsername(cfg.getMysqlUser());
-            hcfg.setPassword(cfg.getMysqlPassword());
-            hcfg.setMaximumPoolSize(cfg.getMysqlPoolSize());
+            String host = cfg.getString("mysql.host", "127.0.0.1");
+            int port = cfg.getInt("mysql.port", 3306);
+            String db = cfg.getString("mysql.database", "smartlogin");
+            boolean ssl = cfg.getBoolean("mysql.ssl.use-ssl", false);
+
+            hcfg.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + db + "?useSSL=" + ssl);
+            hcfg.setUsername(cfg.getString("mysql.username", "root"));
+            hcfg.setPassword(cfg.getString("mysql.password", ""));
+            hcfg.setMaximumPoolSize(cfg.getInt("mysql.pool.maximum-pool-size", 10));
             hcfg.setPoolName("SmartLogin-HikariPool");
 
             dataSource = new HikariDataSource(hcfg);
@@ -37,6 +42,7 @@ public class MySQLDatabase implements DatabaseManager {
                         "salt TEXT, " +
                         "two_factor_enabled TINYINT(1) DEFAULT 0, " +
                         "totp_secret TEXT, " +
+                        "backup_codes TEXT, " +
                         "last_ip VARCHAR(45), " +
                         "last_login BIGINT DEFAULT 0, " +
                         "is_premium TINYINT(1) DEFAULT 0, " +
@@ -92,11 +98,11 @@ public class MySQLDatabase implements DatabaseManager {
     @Override
     public CompletableFuture<Void> saveProfile(PlayerProfile p) {
         return CompletableFuture.runAsync(() -> {
-            String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, last_ip, last_login, is_premium, is_bedrock) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+            String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, backup_codes, last_ip, last_login, is_premium, is_bedrock) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
                     "username=VALUES(username), password_hash=VALUES(password_hash), salt=VALUES(salt), " +
-                    "two_factor_enabled=VALUES(two_factor_enabled), totp_secret=VALUES(totp_secret), " +
+                    "two_factor_enabled=VALUES(two_factor_enabled), totp_secret=VALUES(totp_secret), backup_codes=VALUES(backup_codes), " +
                     "last_ip=VALUES(last_ip), last_login=VALUES(last_login), is_premium=VALUES(is_premium), is_bedrock=VALUES(is_bedrock)";
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, p.getUuid().toString());
@@ -105,10 +111,11 @@ public class MySQLDatabase implements DatabaseManager {
                 ps.setString(4, p.getSalt());
                 ps.setInt(5, p.is2FAEnabled() ? 1 : 0);
                 ps.setString(6, p.getTotpSecret());
-                ps.setString(7, p.getLastIp());
-                ps.setLong(8, p.getLastLoginTimestamp());
-                ps.setInt(9, p.isPremium() ? 1 : 0);
-                ps.setInt(10, p.isBedrock() ? 1 : 0);
+                ps.setString(7, p.getBackupCodes());
+                ps.setString(8, p.getLastIp());
+                ps.setLong(9, p.getLastLoginTimestamp());
+                ps.setInt(10, p.isPremium() ? 1 : 0);
+                ps.setInt(11, p.isBedrock() ? 1 : 0);
                 ps.executeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -153,6 +160,7 @@ public class MySQLDatabase implements DatabaseManager {
                 rs.getString("salt"),
                 rs.getInt("two_factor_enabled") == 1,
                 rs.getString("totp_secret"),
+                rs.getString("backup_codes"),
                 rs.getString("last_ip"),
                 rs.getLong("last_login"),
                 rs.getInt("is_premium") == 1,

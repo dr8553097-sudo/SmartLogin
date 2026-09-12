@@ -1,15 +1,19 @@
 package com.dafealru.smartlogin.commands;
 
 import com.dafealru.smartlogin.SmartLogin;
-import com.dafealru.smartlogin.auth.AuthManager;
 import com.dafealru.smartlogin.crypto.TotpEngine;
 import com.dafealru.smartlogin.database.PlayerProfile;
+import com.dafealru.smartlogin.twofactor.BackupCodeManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class TwoFactorCommand implements CommandExecutor {
 
@@ -22,93 +26,113 @@ public class TwoFactorCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("This command is only for players.");
-            return true;
-        }
-
-        PlayerProfile profile = plugin.getAuthManager().getCachedProfile(player.getUniqueId());
-        if (profile == null) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("register_prompt"));
+            sender.sendMessage(Component.text("This command can only be executed by players.", NamedTextColor.RED));
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9d4edd:#00f0ff><bold>SmartLogin 2FA Command</bold></gradient>"));
-            player.sendMessage(plugin.getLocaleManager().parse("<yellow>/2fa setup</yellow> <gray>- Generate QR Code Map for Google Auth</gray>"));
-            player.sendMessage(plugin.getLocaleManager().parse("<yellow>/2fa verify <code></yellow> <gray>- Confirm and unlock 2FA</gray>"));
-            player.sendMessage(plugin.getLocaleManager().parse("<yellow>/2fa disable <code></yellow> <gray>- Disable 2FA on account</gray>"));
+            player.sendMessage(Component.text("════════════ 📱 SmartLogin 2FA ════════════", NamedTextColor.GOLD));
+            player.sendMessage(Component.text("/2fa setup ", NamedTextColor.YELLOW).append(Component.text("- Receive in-game QR code map & recovery codes", NamedTextColor.GRAY)));
+            player.sendMessage(Component.text("/2fa verify <code> ", NamedTextColor.YELLOW).append(Component.text("- Verify 6-digit Google Authenticator code", NamedTextColor.GRAY)));
+            player.sendMessage(Component.text("/2fa recovery <code> ", NamedTextColor.YELLOW).append(Component.text("- Use single-use emergency backup code", NamedTextColor.GRAY)));
+            player.sendMessage(Component.text("/2fa disable <code> ", NamedTextColor.YELLOW).append(Component.text("- Disable 2FA protection", NamedTextColor.GRAY)));
+            player.sendMessage(Component.text("═══════════════════════════════════════════", NamedTextColor.GOLD));
             return true;
         }
 
         String sub = args[0].toLowerCase();
+        PlayerProfile profile = plugin.getAuthManager().getProfile(player.getUniqueId());
 
-        // 1. SETUP
         if (sub.equals("setup")) {
-            if (profile.is2FAEnabled()) {
-                player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_already_enabled"));
+            if (profile == null || profile.getPasswordHash() == null) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-not-registered", player));
                 return true;
             }
 
-            String secret = plugin.getQrMapManager().start2FASetup(player);
-            player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_map_given"));
-            player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_secret_chat", "secret", secret));
+            List<String> recoveryCodes = plugin.getTwoFactorManager().setupNew2FA(profile);
+            plugin.getQrMapManager().giveQrMap(player, profile.getTotpSecret());
+
+            player.sendMessage(Component.text("═══════════ 🔐 2FA RECOVERY CODES ═══════════", NamedTextColor.DARK_RED, TextDecoration.BOLD));
+            player.sendMessage(Component.text("SAVE THESE CODES! If you lose your phone, use /2fa recovery <code>:", NamedTextColor.GOLD));
+            for (String code : recoveryCodes) {
+                player.sendMessage(Component.text("  ➤  ", NamedTextColor.YELLOW).append(Component.text(code, NamedTextColor.GREEN, TextDecoration.BOLD)));
+            }
+            player.sendMessage(Component.text("═══════════════════════════════════════════════", NamedTextColor.DARK_RED));
             return true;
         }
 
-        // 2. VERIFY
-        if (sub.equals("verify") || sub.equals("code") || sub.matches("\\d{6}")) {
-            String code = sub.equals("verify") && args.length > 1 ? args[1] : (sub.matches("\\d{6}") ? sub : (args.length > 1 ? args[1] : ""));
+        if (sub.equals("verify")) {
+            if (args.length < 2) {
+                player.sendMessage(Component.text("Usage: /2fa verify <6-digit-code>", NamedTextColor.RED));
+                return true;
+            }
+            if (profile == null || profile.getTotpSecret() == null) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-not-setup", player));
+                return true;
+            }
 
-            // Check if completing initial setup
-            String pendingSecret = plugin.getQrMapManager().getPendingSecret(player.getUniqueId());
-            if (pendingSecret != null) {
-                if (TotpEngine.verifyCode(pendingSecret, code)) {
+            try {
+                int code = Integer.parseInt(args[1]);
+                if (TotpEngine.verifyCode(profile.getTotpSecret(), code, 1)) {
                     profile.set2FAEnabled(true);
-                    profile.setTotpSecret(pendingSecret);
                     plugin.getDatabaseManager().saveProfile(profile);
-                    plugin.getQrMapManager().removePending(player.getUniqueId());
-
-                    player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_success"));
-                    return true;
+                    plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                    plugin.getSpawnManager().handleLoginRestore(player);
+                    player.sendMessage(plugin.getLocaleManager().getComponent("success-2fa-enabled", player));
                 } else {
-                    player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_invalid"));
-                    return true;
+                    player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-invalid", player));
                 }
-            }
-
-            // Check login verification
-            if (profile.is2FAEnabled()) {
-                if (TotpEngine.verifyCode(profile.getTotpSecret(), code)) {
-                    plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.LOGGED_IN);
-                    player.removePotionEffect(PotionEffectType.BLINDNESS);
-
-                    profile.setLastIp(plugin.getSessionShield().getPlayerIp(player));
-                    profile.setLastLoginTimestamp(System.currentTimeMillis());
-                    plugin.getDatabaseManager().saveProfile(profile);
-
-                    player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_success"));
-                } else {
-                    player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_invalid"));
-                }
+            } catch (NumberFormatException e) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-invalid", player));
             }
             return true;
         }
 
-        // 3. DISABLE
-        if (sub.equals("disable")) {
-            if (!profile.is2FAEnabled()) {
-                player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_not_enabled"));
+        if (sub.equals("recovery")) {
+            if (args.length < 2) {
+                player.sendMessage(Component.text("Usage: /2fa recovery <8-digit-code>", NamedTextColor.RED));
                 return true;
             }
-            if (args.length < 2 || !TotpEngine.verifyCode(profile.getTotpSecret(), args[1])) {
-                player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_invalid"));
+            if (profile == null || !profile.is2FAEnabled()) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-not-setup", player));
                 return true;
             }
 
-            profile.set2FAEnabled(false);
-            profile.setTotpSecret(null);
-            plugin.getDatabaseManager().saveProfile(profile);
-            player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_disabled"));
+            if (BackupCodeManager.verifyAndConsume(profile, args[1])) {
+                plugin.getDatabaseManager().saveProfile(profile);
+                plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                plugin.getSpawnManager().handleLoginRestore(player);
+                player.sendMessage(Component.text("✔ Recovery code accepted! Emergency login successful.", NamedTextColor.GREEN, TextDecoration.BOLD));
+            } else {
+                player.sendMessage(Component.text("✖ Invalid or already consumed recovery code.", NamedTextColor.RED));
+            }
+            return true;
+        }
+
+        if (sub.equals("disable")) {
+            if (args.length < 2) {
+                player.sendMessage(Component.text("Usage: /2fa disable <6-digit-code>", NamedTextColor.RED));
+                return true;
+            }
+            if (profile == null || !profile.is2FAEnabled()) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-not-setup", player));
+                return true;
+            }
+
+            try {
+                int code = Integer.parseInt(args[1]);
+                if (TotpEngine.verifyCode(profile.getTotpSecret(), code, 1)) {
+                    profile.set2FAEnabled(false);
+                    profile.setTotpSecret(null);
+                    profile.setBackupCodes(null);
+                    plugin.getDatabaseManager().saveProfile(profile);
+                    player.sendMessage(plugin.getLocaleManager().getComponent("success-2fa-disabled", player));
+                } else {
+                    player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-invalid", player));
+                }
+            } catch (NumberFormatException e) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-2fa-invalid", player));
+            }
             return true;
         }
 

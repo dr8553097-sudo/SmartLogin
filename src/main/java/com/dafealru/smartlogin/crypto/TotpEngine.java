@@ -1,23 +1,21 @@
 package com.dafealru.smartlogin.crypto;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * RFC 6238 Standard TOTP (Time-Based One-Time Password) Engine.
- * Fully compatible with Google Authenticator, Authy, Microsoft Authenticator.
- */
 public class TotpEngine {
 
     private static final String BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     private static final SecureRandom RANDOM = new SecureRandom();
 
     public static String generateSecret() {
+        return generateBase32Secret();
+    }
+
+    public static String generateBase32Secret() {
         StringBuilder sb = new StringBuilder(16);
         for (int i = 0; i < 16; i++) {
             sb.append(BASE32_CHARS.charAt(RANDOM.nextInt(BASE32_CHARS.length())));
@@ -33,24 +31,25 @@ public class TotpEngine {
                 issuer.replace(" ", "%20"));
     }
 
+    public static boolean verifyCode(String secret, int inputCode, int window) {
+        if (secret == null || inputCode < 0) return false;
+        long currentWindow = System.currentTimeMillis() / 1000L / 30L;
+
+        for (int i = -window; i <= window; i++) {
+            long hash = generateTotp(secret, currentWindow + i);
+            if (hash == inputCode) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean verifyCode(String secret, String inputCode) {
-        if (secret == null || inputCode == null || inputCode.length() != 6) {
+        try {
+            return verifyCode(secret, Integer.parseInt(inputCode.trim()), 1);
+        } catch (Exception e) {
             return false;
         }
-
-        try {
-            long code = Long.parseLong(inputCode.trim());
-            long currentWindow = System.currentTimeMillis() / 1000L / 30L;
-
-            // Check 30s window drift (-1, 0, +1)
-            for (int i = -1; i <= 1; i++) {
-                long hash = generateTotp(secret, currentWindow + i);
-                if (hash == code) {
-                    return true;
-                }
-            }
-        } catch (NumberFormatException ignored) {}
-        return false;
     }
 
     private static long generateTotp(String secret, long timeWindow) {

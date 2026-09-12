@@ -2,12 +2,16 @@ package com.dafealru.smartlogin.qr;
 
 import com.dafealru.smartlogin.SmartLogin;
 import com.dafealru.smartlogin.crypto.TotpEngine;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapView;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,37 +25,32 @@ public class QrMapManager {
         this.plugin = plugin;
     }
 
-    public String start2FASetup(Player player) {
-        String secret = TotpEngine.generateSecret();
+    public void giveQrMap(Player player, String secret) {
         pendingSetupSecrets.put(player.getUniqueId(), secret);
 
-        String issuer = plugin.getConfigManager().getIssuerName();
+        String issuer = plugin.getModularConfig().getTwoFactorConfig().getString("totp.issuer-name", "SmartLogin");
         String uri = TotpEngine.getTotpUri(issuer, player.getName(), secret);
 
-        // Create Map View
         MapView mapView = Bukkit.createMap(player.getWorld());
         mapView.getRenderers().clear();
         mapView.addRenderer(new QrMapRenderer(uri));
 
-        // Create Item
         ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
         MapMeta meta = (MapMeta) mapItem.getItemMeta();
         if (meta != null) {
             meta.setMapView(mapView);
-            meta.displayName(plugin.getLocaleManager().parse("<gradient:#00f0ff:#9d4edd><bold>SmartLogin 2FA Setup Map</bold></gradient>"));
+            meta.displayName(Component.text("📱 SmartLogin 2FA Setup QR", NamedTextColor.GOLD, TextDecoration.BOLD));
             mapItem.setItemMeta(meta);
         }
 
-        // Place in hand
         player.getInventory().setItemInMainHand(mapItem);
-        return secret;
     }
 
     public String getPendingSecret(UUID uuid) {
         return pendingSetupSecrets.get(uuid);
     }
 
-    public void removePending(UUID uuid) {
+    public void cleanup(UUID uuid) {
         pendingSetupSecrets.remove(uuid);
     }
 }

@@ -8,22 +8,24 @@ public class PlayerProfile {
     private String username;
     private String passwordHash;
     private String salt;
-    private boolean is2FAEnabled;
+    private boolean twoFactorEnabled;
     private String totpSecret;
+    private String backupCodes;
     private String lastIp;
     private long lastLoginTimestamp;
     private boolean isPremium;
     private boolean isBedrock;
 
     public PlayerProfile(UUID uuid, String username, String passwordHash, String salt,
-                         boolean is2FAEnabled, String totpSecret, String lastIp,
-                         long lastLoginTimestamp, boolean isPremium, boolean isBedrock) {
+                         boolean twoFactorEnabled, String totpSecret, String backupCodes,
+                         String lastIp, long lastLoginTimestamp, boolean isPremium, boolean isBedrock) {
         this.uuid = uuid;
         this.username = username;
         this.passwordHash = passwordHash;
         this.salt = salt;
-        this.is2FAEnabled = is2FAEnabled;
+        this.twoFactorEnabled = twoFactorEnabled;
         this.totpSecret = totpSecret;
+        this.backupCodes = backupCodes;
         this.lastIp = lastIp;
         this.lastLoginTimestamp = lastLoginTimestamp;
         this.isPremium = isPremium;
@@ -37,10 +39,12 @@ public class PlayerProfile {
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public String getSalt() { return salt; }
     public void setSalt(String salt) { this.salt = salt; }
-    public boolean is2FAEnabled() { return is2FAEnabled; }
-    public void set2FAEnabled(boolean is2FAEnabled) { this.is2FAEnabled = is2FAEnabled; }
+    public boolean is2FAEnabled() { return twoFactorEnabled; }
+    public void set2FAEnabled(boolean twoFactorEnabled) { this.twoFactorEnabled = twoFactorEnabled; }
     public String getTotpSecret() { return totpSecret; }
     public void setTotpSecret(String totpSecret) { this.totpSecret = totpSecret; }
+    public String getBackupCodes() { return backupCodes; }
+    public void setBackupCodes(String backupCodes) { this.backupCodes = backupCodes; }
     public String getLastIp() { return lastIp; }
     public void setLastIp(String lastIp) { this.lastIp = lastIp; }
     public long getLastLoginTimestamp() { return lastLoginTimestamp; }

@@ -19,42 +19,47 @@ public class ChangePasswordCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) return true;
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Only players can change their password.");
+            return true;
+        }
 
         if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("login_prompt"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-not-logged-in", player));
             return true;
         }
 
         if (args.length < 2) {
-            player.sendMessage(plugin.getLocaleManager().parse("<yellow>Usage: <gold>/changepassword <oldPassword> <newPassword></gold></yellow>"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("prompt-change-password", player));
             return true;
         }
 
-        PlayerProfile profile = plugin.getAuthManager().getCachedProfile(player.getUniqueId());
+        PlayerProfile profile = plugin.getAuthManager().getProfile(player.getUniqueId());
         if (profile == null) return true;
 
         String oldPass = args[0];
         String newPass = args[1];
 
-        if (!PasswordHasher.verifyPassword(oldPass, profile.getSalt(), profile.getPasswordHash())) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("wrong_password", "attempts", "1"));
+        if (!PasswordHasher.verify(oldPass, profile.getSalt(), profile.getPasswordHash())) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-old-password", player));
             return true;
         }
 
-        if (newPass.length() < plugin.getConfigManager().getMinPasswordLength()) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("password_too_short", "min", String.valueOf(plugin.getConfigManager().getMinPasswordLength())));
+        int minLen = plugin.getModularConfig().getConfig().getInt("password-policy.min-length", 6);
+        int maxLen = plugin.getModularConfig().getConfig().getInt("password-policy.max-length", 32);
+        if (newPass.length() < minLen || newPass.length() > maxLen) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-password-length", player));
             return true;
         }
 
         String newSalt = PasswordHasher.generateSalt();
-        String newHash = PasswordHasher.hashPassword(newPass, newSalt);
+        String newHash = PasswordHasher.hash(newPass, newSalt);
 
         profile.setSalt(newSalt);
         profile.setPasswordHash(newHash);
         plugin.getDatabaseManager().saveProfile(profile);
 
-        player.sendMessage(plugin.getLocaleManager().getMessage("password_changed"));
+        player.sendMessage(plugin.getLocaleManager().getComponent("success-password-changed", player));
         return true;
     }
 }

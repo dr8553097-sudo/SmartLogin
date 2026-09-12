@@ -46,7 +46,7 @@ public class PlayerSecurityListener implements Listener {
 
         // Cancel chat completely to prevent leaking password into public chat
         event.setCancelled(true);
-        player.sendMessage(plugin.getLocaleManager().parse("<red>✘ Please log in or register before chatting!</red>"));
+        player.sendMessage(plugin.getLocaleManager().getComponent("error-chat-locked", player));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -55,12 +55,13 @@ public class PlayerSecurityListener implements Listener {
         if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
 
         String cmd = event.getMessage().toLowerCase().split(" ")[0];
-        boolean allowed = plugin.getConfigManager().getAllowedCommands().stream()
+        var allowedList = plugin.getModularConfig().getConfig().getStringList("lockdown.allowed-commands");
+        boolean allowed = allowedList.stream()
                 .anyMatch(allowedCmd -> cmd.equalsIgnoreCase(allowedCmd) || cmd.startsWith(allowedCmd + " "));
 
         if (!allowed) {
             event.setCancelled(true);
-            player.sendMessage(plugin.getLocaleManager().parse("<red>✘ You must log in before executing commands!</red>"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-command-locked", player));
         }
     }
 

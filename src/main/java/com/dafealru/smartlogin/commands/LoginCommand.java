@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public class LoginCommand implements CommandExecutor {
 
     private final SmartLogin plugin;
@@ -27,48 +29,42 @@ public class LoginCommand implements CommandExecutor {
         }
 
         if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("already_logged_in"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-already-logged-in", player));
             return true;
         }
 
         if (args.length < 1) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("login_prompt"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("prompt-login", player));
             return true;
         }
 
-        PlayerProfile profile = plugin.getAuthManager().getCachedProfile(player.getUniqueId());
+        PlayerProfile profile = plugin.getAuthManager().getProfile(player.getUniqueId());
         if (profile == null || profile.getPasswordHash() == null) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("register_prompt"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-not-registered", player));
             return true;
         }
 
         String inputPassword = args[0];
-        boolean valid = PasswordHasher.verifyPassword(inputPassword, profile.getSalt(), profile.getPasswordHash());
+        boolean valid = PasswordHasher.verify(inputPassword, profile.getSalt(), profile.getPasswordHash());
 
         if (valid) {
             if (profile.is2FAEnabled()) {
-                plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.AWAITING_2FA);
-                player.sendMessage(plugin.getLocaleManager().getMessage("two_factor_prompt"));
+                player.sendMessage(plugin.getLocaleManager().getComponent("prompt-2fa-verify", player));
                 return true;
             }
 
-            plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.LOGGED_IN);
-            plugin.getAuthManager().resetAttempts(player.getUniqueId());
+            plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
             player.removePotionEffect(PotionEffectType.BLINDNESS);
+            player.removePotionEffect(PotionEffectType.SLOWNESS);
 
-            profile.setLastIp(plugin.getSessionShield().getPlayerIp(player));
+            profile.setLastIp(player.getAddress().getAddress().getHostAddress());
             profile.setLastLoginTimestamp(System.currentTimeMillis());
             plugin.getDatabaseManager().saveProfile(profile);
 
-            player.sendMessage(plugin.getLocaleManager().getMessage("login_success", "player", player.getName()));
+            plugin.getSpawnManager().handleLoginRestore(player);
+            player.sendMessage(plugin.getLocaleManager().getComponent("success-logged-in", player));
         } else {
-            int attempts = plugin.getAuthManager().incrementAttempts(player.getUniqueId());
-            int remaining = Math.max(0, 5 - attempts);
-            player.sendMessage(plugin.getLocaleManager().getMessage("wrong_password", "attempts", String.valueOf(remaining)));
-
-            if (attempts >= 5) {
-                player.kick(plugin.getLocaleManager().parse("<red>Maximum login attempts exceeded!</red>"));
-            }
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-password", player));
         }
         return true;
     }

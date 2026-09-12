@@ -1,6 +1,8 @@
 package com.dafealru.smartlogin.commands;
 
 import com.dafealru.smartlogin.SmartLogin;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,68 +21,61 @@ public class SmartLoginAdminCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("smartlogin.admin")) {
-            sender.sendMessage(plugin.getLocaleManager().getMessage("no_permission"));
+            sender.sendMessage(Component.text("You lack permission smartlogin.admin", NamedTextColor.RED));
             return true;
         }
 
-        if (args.length == 0 || args[0].equalsIgnoreCase("setup") || args[0].equalsIgnoreCase("wizard")) {
-            plugin.getSetupWizardManager().sendWizard(sender);
+        if (args.length == 0) {
+            plugin.getSetupWizardManager().sendSetupForm(sender);
             return true;
         }
 
         String sub = args[0].toLowerCase();
-
-        if (sub.equals("reload")) {
-            plugin.getConfigManager().load();
-            plugin.getLocaleManager().load();
-            sender.sendMessage(plugin.getLocaleManager().getMessage("admin_reload"));
-            return true;
-        }
-
-        if (sub.equals("pinpad") && sender instanceof Player player) {
-            plugin.getPinPadGUI().openPinPad(player);
-            return true;
-        }
-
-        if (sub.equals("unregister") && args.length > 1) {
-            String targetName = args[1];
-            plugin.getDatabaseManager().loadProfileByName(targetName).thenAccept(profile -> {
-                if (profile == null) {
-                    sender.sendMessage(plugin.getLocaleManager().getMessage("player_not_found"));
-                } else {
-                    plugin.getDatabaseManager().deleteProfile(profile.getUuid()).thenRun(() -> {
-                        sender.sendMessage(plugin.getLocaleManager().getMessage("admin_unregistered", "player", targetName));
-                    });
+        switch (sub) {
+            case "setup":
+                plugin.getSetupWizardManager().sendSetupForm(sender);
+                break;
+            case "toggle":
+                if (args.length > 1) {
+                    plugin.getSetupWizardManager().handleToggle(sender, args[1]);
                 }
-            });
-            return true;
-        }
-
-        if (sub.equals("reset2fa") && args.length > 1) {
-            String targetName = args[1];
-            plugin.getDatabaseManager().loadProfileByName(targetName).thenAccept(profile -> {
-                if (profile == null) {
-                    sender.sendMessage(plugin.getLocaleManager().getMessage("player_not_found"));
+                break;
+            case "finishsetup":
+                plugin.getSetupWizardManager().finishSetup(sender);
+                break;
+            case "setspawn":
+                if (sender instanceof Player player) {
+                    plugin.getSpawnManager().setAuthSpawn(player.getLocation());
+                    player.sendMessage(Component.text("✔ SmartLogin auth spawn location set to your current position!", NamedTextColor.GREEN));
                 } else {
-                    profile.set2FAEnabled(false);
-                    profile.setTotpSecret(null);
-                    plugin.getDatabaseManager().saveProfile(profile).thenRun(() -> {
-                        sender.sendMessage(plugin.getLocaleManager().getMessage("admin_reset_2fa", "player", targetName));
-                    });
+                    sender.sendMessage("Only players can set spawn.");
                 }
-            });
-            return true;
+                break;
+            case "reload":
+                plugin.getModularConfig().loadAll();
+                plugin.getLocaleManager().loadLanguages();
+                sender.sendMessage(Component.text("✔ SmartLogin modular configs and languages reloaded!", NamedTextColor.GREEN));
+                break;
+            case "import":
+                if (args.length > 1 && args[1].equalsIgnoreCase("authme")) {
+                    sender.sendMessage(Component.text("Starting AuthMe database import...", NamedTextColor.YELLOW));
+                    plugin.getMigrationManager().importAuthMe(sender).thenAccept(count -> {
+                        sender.sendMessage(Component.text("✔ Successfully imported " + count + " accounts from AuthMe!", NamedTextColor.GREEN));
+                    });
+                } else if (args.length > 1 && args[1].equalsIgnoreCase("nlogin")) {
+                    sender.sendMessage(Component.text("Starting nLogin database import...", NamedTextColor.YELLOW));
+                    plugin.getMigrationManager().importNLogin(sender).thenAccept(count -> {
+                        sender.sendMessage(Component.text("✔ Successfully imported " + count + " accounts from nLogin!", NamedTextColor.GREEN));
+                    });
+                } else {
+                    sender.sendMessage(Component.text("Usage: /smartlogin import <authme|nlogin>", NamedTextColor.RED));
+                }
+                break;
+            default:
+                plugin.getSetupWizardManager().sendSetupForm(sender);
+                break;
         }
 
-        if (sub.equals("toggle") && args.length > 1) {
-            String feature = args[1].toLowerCase();
-            plugin.getConfigManager().toggleOption(feature);
-            sender.sendMessage(plugin.getLocaleManager().parse("<green>✔ Option <white>" + feature + "</white> toggled!</green>"));
-            plugin.getSetupWizardManager().sendWizard(sender);
-            return true;
-        }
-
-        sender.sendMessage(plugin.getLocaleManager().parse("<yellow>Usage: /smartlogin [setup|reload|unregister <player>|reset2fa <player>|pinpad]</yellow>"));
         return true;
     }
 }

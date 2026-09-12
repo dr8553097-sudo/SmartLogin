@@ -18,19 +18,27 @@ public class PremiumCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) return true;
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Only players can toggle premium status.");
+            return true;
+        }
 
-        PlayerProfile profile = plugin.getAuthManager().getCachedProfile(player.getUniqueId());
+        if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-not-logged-in", player));
+            return true;
+        }
+
+        PlayerProfile profile = plugin.getAuthManager().getProfile(player.getUniqueId());
         if (profile == null) return true;
 
-        boolean toggleTo = cmd.getName().equalsIgnoreCase("premium");
-        profile.setPremium(toggleTo);
+        boolean nowPrem = !profile.isPremium();
+        profile.setPremium(nowPrem);
         plugin.getDatabaseManager().saveProfile(profile);
 
-        if (toggleTo) {
-            player.sendMessage(plugin.getLocaleManager().parse("<green>✔ Mojang Premium Auto-Login has been enabled for your account!</green>"));
+        if (nowPrem) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("success-premium-enabled", player));
         } else {
-            player.sendMessage(plugin.getLocaleManager().parse("<yellow>✔ Switched back to offline/password mode.</yellow>"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("success-premium-disabled", player));
         }
         return true;
     }

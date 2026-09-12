@@ -1,7 +1,6 @@
 package com.dafealru.smartlogin.commands;
 
 import com.dafealru.smartlogin.SmartLogin;
-import com.dafealru.smartlogin.auth.AuthManager;
 import com.dafealru.smartlogin.crypto.PasswordHasher;
 import com.dafealru.smartlogin.database.PlayerProfile;
 import org.bukkit.command.Command;
@@ -10,6 +9,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public class RegisterCommand implements CommandExecutor {
 
@@ -27,74 +28,69 @@ public class RegisterCommand implements CommandExecutor {
         }
 
         if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("already_logged_in"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-already-logged-in", player));
             return true;
         }
 
-        PlayerProfile existing = plugin.getAuthManager().getCachedProfile(player.getUniqueId());
+        PlayerProfile existing = plugin.getAuthManager().getProfile(player.getUniqueId());
         if (existing != null && existing.getPasswordHash() != null) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("login_prompt"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-already-registered", player));
             return true;
         }
 
         if (args.length < 2) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("register_prompt"));
+            player.sendMessage(plugin.getLocaleManager().getComponent("prompt-register", player));
             return true;
         }
 
-        String password = args[0];
-        String confirm = args[1];
+        String pass1 = args[0];
+        String pass2 = args[1];
 
-        if (!password.equals(confirm)) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("passwords_dont_match"));
+        if (!pass1.equals(pass2)) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-passwords-mismatch", player));
             return true;
         }
 
-        int minLength = plugin.getConfigManager().getMinPasswordLength();
-        if (password.length() < minLength) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("password_too_short", "min", String.valueOf(minLength)));
+        int minLen = plugin.getModularConfig().getConfig().getInt("password-policy.min-length", 6);
+        int maxLen = plugin.getModularConfig().getConfig().getInt("password-policy.max-length", 32);
+
+        if (pass1.length() < minLen || pass1.length() > maxLen) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-password-length", player));
             return true;
         }
 
-        if (plugin.getConfigManager().getBlockedPasswords().contains(password.toLowerCase())) {
-            player.sendMessage(plugin.getLocaleManager().getMessage("password_blocked"));
+        var disallowed = plugin.getModularConfig().getConfig().getStringList("password-policy.disallowed-passwords");
+        if (disallowed.contains(pass1.toLowerCase()) || pass1.equalsIgnoreCase(player.getName())) {
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-password-too-weak", player));
             return true;
         }
 
-        String ip = plugin.getSessionShield().getPlayerIp(player);
-        int maxPerIp = plugin.getConfigManager().getMaxAccountsPerIp();
+        String salt = PasswordHasher.generateSalt();
+        String hash = PasswordHasher.hash(pass1, salt);
 
-        plugin.getDatabaseManager().countAccountsByIp(ip).thenAccept(count -> {
-            if (maxPerIp > 0 && count >= maxPerIp) {
-                player.sendMessage(plugin.getLocaleManager().getMessage("max_accounts_reached", "max", String.valueOf(maxPerIp)));
-                return;
-            }
+        PlayerProfile newProfile = new PlayerProfile(
+                player.getUniqueId(),
+                player.getName(),
+                hash,
+                salt,
+                false,
+                null,
+                null,
+                player.getAddress().getAddress().getHostAddress(),
+                System.currentTimeMillis(),
+                false,
+                plugin.getAutoLoginDetector().isBedrockPlayer(player)
+        );
 
-            String salt = PasswordHasher.generateSalt();
-            String hash = PasswordHasher.hashPassword(password, salt);
+        plugin.getDatabaseManager().saveProfile(newProfile).thenRun(() -> {
+            plugin.getAuthManager().cacheProfile(player.getUniqueId(), newProfile);
+            plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
 
-            PlayerProfile profile = new PlayerProfile(
-                    player.getUniqueId(),
-                    player.getName(),
-                    hash,
-                    salt,
-                    false,
-                    null,
-                    ip,
-                    System.currentTimeMillis(),
-                    plugin.getAutoLoginDetector().isJavaPremium(player),
-                    plugin.getAutoLoginDetector().isBedrock(player)
-            );
+            player.removePotionEffect(PotionEffectType.BLINDNESS);
+            player.removePotionEffect(PotionEffectType.SLOWNESS);
 
-            plugin.getDatabaseManager().saveProfile(profile).thenRun(() -> {
-                plugin.getAuthManager().cacheProfile(profile);
-                plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.LOGGED_IN);
-
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    player.removePotionEffect(PotionEffectType.BLINDNESS);
-                    player.sendMessage(plugin.getLocaleManager().getMessage("register_success"));
-                });
-            });
+            plugin.getSpawnManager().handleLoginRestore(player);
+            player.sendMessage(plugin.getLocaleManager().getComponent("success-registered", player));
         });
 
         return true;

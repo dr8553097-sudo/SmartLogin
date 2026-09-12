@@ -9,6 +9,7 @@ C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\com
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\TwoFactorCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\config\ConfigManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\config\LocaleManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\config\ModularConfigManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\crypto\PasswordHasher.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\crypto\TotpEngine.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\database\DatabaseManager.java
@@ -18,8 +19,12 @@ C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\dat
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\gui\PinPadGUI.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\listeners\PlayerConnectionListener.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\listeners\PlayerSecurityListener.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\migration\MigrationManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMapManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMapRenderer.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMatrixGenerator.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\SmartLogin.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\spawn\SpawnManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\twofactor\BackupCodeManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\twofactor\TwoFactorManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\wizard\SetupWizardManager.java

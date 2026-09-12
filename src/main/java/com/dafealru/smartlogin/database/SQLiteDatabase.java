@@ -14,7 +14,8 @@ public class SQLiteDatabase implements DatabaseManager {
 
     public SQLiteDatabase(SmartLogin plugin) {
         this.plugin = plugin;
-        this.dbFile = new File(plugin.getDataFolder(), "smartlogin.db");
+        String fileName = plugin.getModularConfig().getDatabaseConfig().getString("sqlite.file", "smartlogin.db");
+        this.dbFile = new File(plugin.getDataFolder(), fileName);
     }
 
     @Override
@@ -25,7 +26,9 @@ public class SQLiteDatabase implements DatabaseManager {
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
             
             try (Statement st = connection.createStatement()) {
-                st.execute("PRAGMA journal_mode=WAL;");
+                if (plugin.getModularConfig().getDatabaseConfig().getBoolean("sqlite.wal-mode", true)) {
+                    st.execute("PRAGMA journal_mode=WAL;");
+                }
                 st.execute("CREATE TABLE IF NOT EXISTS smart_users (" +
                         "uuid VARCHAR(36) PRIMARY KEY, " +
                         "username VARCHAR(32) NOT NULL, " +
@@ -33,6 +36,7 @@ public class SQLiteDatabase implements DatabaseManager {
                         "salt TEXT, " +
                         "two_factor_enabled INTEGER DEFAULT 0, " +
                         "totp_secret TEXT, " +
+                        "backup_codes TEXT, " +
                         "last_ip VARCHAR(45), " +
                         "last_login INTEGER DEFAULT 0, " +
                         "is_premium INTEGER DEFAULT 0, " +
@@ -70,14 +74,10 @@ public class SQLiteDatabase implements DatabaseManager {
                 try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
                     ps.setString(1, uuid.toString());
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            return mapProfile(rs);
-                        }
+                        if (rs.next()) return mapProfile(rs);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
             return null;
         });
     }
@@ -90,14 +90,10 @@ public class SQLiteDatabase implements DatabaseManager {
                 try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
                     ps.setString(1, username);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            return mapProfile(rs);
-                        }
+                        if (rs.next()) return mapProfile(rs);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
             return null;
         });
     }
@@ -106,11 +102,11 @@ public class SQLiteDatabase implements DatabaseManager {
     public CompletableFuture<Void> saveProfile(PlayerProfile p) {
         return CompletableFuture.runAsync(() -> {
             try {
-                String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, last_ip, last_login, is_premium, is_bedrock) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, backup_codes, last_ip, last_login, is_premium, is_bedrock) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                         "ON CONFLICT(uuid) DO UPDATE SET " +
                         "username=excluded.username, password_hash=excluded.password_hash, salt=excluded.salt, " +
-                        "two_factor_enabled=excluded.two_factor_enabled, totp_secret=excluded.totp_secret, " +
+                        "two_factor_enabled=excluded.two_factor_enabled, totp_secret=excluded.totp_secret, backup_codes=excluded.backup_codes, " +
                         "last_ip=excluded.last_ip, last_login=excluded.last_login, is_premium=excluded.is_premium, is_bedrock=excluded.is_bedrock";
                 try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
                     ps.setString(1, p.getUuid().toString());
@@ -119,15 +115,14 @@ public class SQLiteDatabase implements DatabaseManager {
                     ps.setString(4, p.getSalt());
                     ps.setInt(5, p.is2FAEnabled() ? 1 : 0);
                     ps.setString(6, p.getTotpSecret());
-                    ps.setString(7, p.getLastIp());
-                    ps.setLong(8, p.getLastLoginTimestamp());
-                    ps.setInt(9, p.isPremium() ? 1 : 0);
-                    ps.setInt(10, p.isBedrock() ? 1 : 0);
+                    ps.setString(7, p.getBackupCodes());
+                    ps.setString(8, p.getLastIp());
+                    ps.setLong(9, p.getLastLoginTimestamp());
+                    ps.setInt(10, p.isPremium() ? 1 : 0);
+                    ps.setInt(11, p.isBedrock() ? 1 : 0);
                     ps.executeUpdate();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
         });
     }
 
@@ -140,9 +135,7 @@ public class SQLiteDatabase implements DatabaseManager {
                     ps.setString(1, uuid.toString());
                     ps.executeUpdate();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
         });
     }
 
@@ -157,9 +150,7 @@ public class SQLiteDatabase implements DatabaseManager {
                         if (rs.next()) return rs.getInt(1);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
             return 0;
         });
     }
@@ -172,6 +163,7 @@ public class SQLiteDatabase implements DatabaseManager {
                 rs.getString("salt"),
                 rs.getInt("two_factor_enabled") == 1,
                 rs.getString("totp_secret"),
+                rs.getString("backup_codes"),
                 rs.getString("last_ip"),
                 rs.getLong("last_login"),
                 rs.getInt("is_premium") == 1,

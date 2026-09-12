@@ -4,12 +4,12 @@ import com.dafealru.smartlogin.SmartLogin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-/**
- * Interactive Clickable Setup Wizard for SmartLogin.
- */
 public class SetupWizardManager {
 
     private final SmartLogin plugin;
@@ -18,42 +18,125 @@ public class SetupWizardManager {
         this.plugin = plugin;
     }
 
-    public void sendWizard(CommandSender sender) {
-        var lm = plugin.getLocaleManager();
-        var cfg = plugin.getConfigManager();
+    public boolean isSetupCompleted() {
+        return plugin.getModularConfig().getConfig().getBoolean("setup-completed", false);
+    }
 
-        sender.sendMessage(lm.parse("<gradient:#9d4edd:#00f0ff><bold>══════════════════════════════════════════════════</bold></gradient>"));
-        sender.sendMessage(lm.parse("<bold><gradient:#c77dff:#00f0ff>   ⚡ SmartLogin — Interactive Setup Wizard</gradient></bold>"));
-        sender.sendMessage(lm.parse("<gray>Click on any button below to toggle settings instantly:</gray>\n"));
+    public void sendSetupForm(CommandSender sender) {
+        FileConfiguration config = plugin.getModularConfig().getConfig();
+        FileConfiguration authConfig = plugin.getModularConfig().getAuthConfig();
+        FileConfiguration twoFactorConfig = plugin.getModularConfig().getTwoFactorConfig();
 
-        // 1. Bedrock Auto-Login Toggle
-        String bedrockStatus = cfg.isBedrockAutoLogin() ? "<green>[ ✔ ON ]</green>" : "<red>[ ✖ OFF ]</red>";
-        Component bedrockBtn = lm.parse("<yellow>1. Bedrock Auto-Login:</yellow> " + bedrockStatus)
-                .clickEvent(ClickEvent.runCommand("/smartlogin toggle bedrock"))
-                .hoverEvent(HoverEvent.showText(lm.parse("<gray>Click to toggle Bedrock (Xbox) Auto-Login</gray>")));
-        sender.sendMessage(bedrockBtn);
+        boolean bedrock = authConfig.getBoolean("bedrock.auto-login-enabled", true);
+        boolean premium = authConfig.getBoolean("premium.auto-login-enabled", true);
+        boolean twoFa = twoFactorConfig.getBoolean("enabled", true);
+        boolean staff2fa = twoFactorConfig.getBoolean("staff-enforcement.enabled", true);
+        boolean autoLang = config.getBoolean("general.auto-detect-client-language", true);
+        String hashMode = authConfig.getString("hashing.mode", "FAST_PBKDF2");
 
-        // 2. Premium Auto-Login Toggle
-        String premiumStatus = cfg.isPremiumAutoLogin() ? "<green>[ ✔ ON ]</green>" : "<red>[ ✖ OFF ]</red>";
-        Component premiumBtn = lm.parse("<yellow>2. Java Premium Auto-Login:</yellow> " + premiumStatus)
-                .clickEvent(ClickEvent.runCommand("/smartlogin toggle premium"))
-                .hoverEvent(HoverEvent.showText(lm.parse("<gray>Click to toggle Java Mojang Premium Auto-Login</gray>")));
-        sender.sendMessage(premiumBtn);
+        sender.sendMessage(Component.text("══════════════════════════════════════════════════", NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("   ⚡ SmartLogin — Interactive Setup Wizard", NamedTextColor.YELLOW, TextDecoration.BOLD));
+        sender.sendMessage(Component.text("Click any button to configure the server instantly:", NamedTextColor.GRAY));
+        sender.sendMessage(Component.empty());
 
-        // 3. 2FA TOTP Toggle
-        String totpStatus = cfg.isTotpEnabled() ? "<green>[ ✔ ON ]</green>" : "<red>[ ✖ OFF ]</red>";
-        Component totpBtn = lm.parse("<yellow>3. Google Auth 2FA (QR Map):</yellow> " + totpStatus)
-                .clickEvent(ClickEvent.runCommand("/smartlogin toggle totp"))
-                .hoverEvent(HoverEvent.showText(lm.parse("<gray>Click to toggle In-Game QR Code Map 2FA</gray>")));
-        sender.sendMessage(totpBtn);
+        // 1. Language Detection
+        Component langBtn = Component.text(autoLang ? " [ ✔ AUTO-DETECT CLIENT ] " : " [ ✖ FIXED GLOBAL ] ",
+                autoLang ? NamedTextColor.GREEN : NamedTextColor.RED, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Click to toggle automatic client language detection!")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin toggle autolang"));
+        sender.sendMessage(Component.text("1. Client Language Auto-Detect: ", NamedTextColor.WHITE).append(langBtn));
 
-        // 4. Blindness & Lockdown
-        String blindStatus = cfg.isBlindnessEnabled() ? "<green>[ ✔ ON ]</green>" : "<red>[ ✖ OFF ]</red>";
-        Component blindBtn = lm.parse("<yellow>4. Blindness & Freeze Lockdown:</yellow> " + blindStatus)
-                .clickEvent(ClickEvent.runCommand("/smartlogin toggle blindness"))
-                .hoverEvent(HoverEvent.showText(lm.parse("<gray>Click to toggle visual blindness before login</gray>")));
-        sender.sendMessage(blindBtn);
+        // 2. Hash Mode
+        boolean isFast = "FAST_PBKDF2".equalsIgnoreCase(hashMode);
+        Component hashBtn = Component.text(isFast ? " [ ⚡ FAST (10k) ] " : " [ 🛡️ MILITARY (100k) ] ",
+                NamedTextColor.AQUA, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Click to switch between Fast & Military-Grade PBKDF2 iterations!")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin toggle hashmode"));
+        sender.sendMessage(Component.text("2. Password Hashing Speed: ", NamedTextColor.WHITE).append(hashBtn));
 
-        sender.sendMessage(lm.parse("\n<gradient:#9d4edd:#00f0ff><bold>══════════════════════════════════════════════════</bold></gradient>"));
+        // 3. Bedrock
+        Component bedrockBtn = Component.text(bedrock ? " [ ✔ ON ] " : " [ ✖ OFF ] ",
+                bedrock ? NamedTextColor.GREEN : NamedTextColor.RED, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Toggle Bedrock / Geyser auto-login")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin toggle bedrock"));
+        sender.sendMessage(Component.text("3. Bedrock Auto-Login: ", NamedTextColor.WHITE).append(bedrockBtn));
+
+        // 4. Java Premium
+        Component premiumBtn = Component.text(premium ? " [ ✔ ON ] " : " [ ✖ OFF ] ",
+                premium ? NamedTextColor.GREEN : NamedTextColor.RED, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Toggle Mojang Java Premium auto-login")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin toggle premium"));
+        sender.sendMessage(Component.text("4. Java Premium Auto-Login: ", NamedTextColor.WHITE).append(premiumBtn));
+
+        // 5. 2FA
+        Component twoFaBtn = Component.text(twoFa ? " [ ✔ ON ] " : " [ ✖ OFF ] ",
+                twoFa ? NamedTextColor.GREEN : NamedTextColor.RED, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Toggle In-Game QR Map 2FA Engine")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin toggle 2fa"));
+        sender.sendMessage(Component.text("5. Google Auth 2FA (QR Map): ", NamedTextColor.WHITE).append(twoFaBtn));
+
+        // 6. Staff 2FA Enforcement
+        Component staff2faBtn = Component.text(staff2fa ? " [ ✔ ON ] " : " [ ✖ OFF ] ",
+                staff2fa ? NamedTextColor.GREEN : NamedTextColor.RED, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Enforce mandatory 2FA for all Staff members")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin toggle staff2fa"));
+        sender.sendMessage(Component.text("6. Staff Mandatory 2FA: ", NamedTextColor.WHITE).append(staff2faBtn));
+
+        sender.sendMessage(Component.empty());
+        Component finishBtn = Component.text("   [ 🚀 FINISH & COMPLETE SETUP ]   ", NamedTextColor.BLACK, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text("Click to save and mark initial setup as completed!")))
+                .clickEvent(ClickEvent.runCommand("/smartlogin finishsetup"));
+        sender.sendMessage(finishBtn);
+        sender.sendMessage(Component.text("══════════════════════════════════════════════════", NamedTextColor.GOLD));
+    }
+
+    public void handleToggle(CommandSender sender, String feature) {
+        FileConfiguration config = plugin.getModularConfig().getConfig();
+        FileConfiguration authConfig = plugin.getModularConfig().getAuthConfig();
+        FileConfiguration twoFactorConfig = plugin.getModularConfig().getTwoFactorConfig();
+
+        switch (feature.toLowerCase()) {
+            case "autolang":
+                boolean curLang = config.getBoolean("general.auto-detect-client-language", true);
+                config.set("general.auto-detect-client-language", !curLang);
+                plugin.getModularConfig().saveConfig();
+                break;
+            case "hashmode":
+                String curMode = authConfig.getString("hashing.mode", "FAST_PBKDF2");
+                authConfig.set("hashing.mode", "FAST_PBKDF2".equalsIgnoreCase(curMode) ? "SECURE_PBKDF2" : "FAST_PBKDF2");
+                plugin.getModularConfig().saveAuth();
+                break;
+            case "bedrock":
+                boolean b = authConfig.getBoolean("bedrock.auto-login-enabled", true);
+                authConfig.set("bedrock.auto-login-enabled", !b);
+                plugin.getModularConfig().saveAuth();
+                break;
+            case "premium":
+                boolean p = authConfig.getBoolean("premium.auto-login-enabled", true);
+                authConfig.set("premium.auto-login-enabled", !p);
+                plugin.getModularConfig().saveAuth();
+                break;
+            case "2fa":
+                boolean t = twoFactorConfig.getBoolean("enabled", true);
+                twoFactorConfig.set("enabled", !t);
+                plugin.getModularConfig().saveTwoFactor();
+                break;
+            case "staff2fa":
+                boolean s = twoFactorConfig.getBoolean("staff-enforcement.enabled", true);
+                twoFactorConfig.set("staff-enforcement.enabled", !s);
+                plugin.getModularConfig().saveTwoFactor();
+                break;
+            default:
+                sender.sendMessage(Component.text("Unknown feature toggle: " + feature, NamedTextColor.RED));
+                return;
+        }
+
+        sendSetupForm(sender);
+    }
+
+    public void finishSetup(CommandSender sender) {
+        plugin.getModularConfig().getConfig().set("setup-completed", true);
+        plugin.getModularConfig().saveConfig();
+        sender.sendMessage(Component.text("✔ SmartLogin Setup Wizard completed successfully!", NamedTextColor.GREEN, TextDecoration.BOLD));
     }
 }

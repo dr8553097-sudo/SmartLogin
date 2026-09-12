@@ -2,16 +2,24 @@ package com.dafealru.smartlogin.commands;
 
 import com.dafealru.smartlogin.SmartLogin;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class SmartLoginAdminCommand implements CommandExecutor {
+public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
 
     private final SmartLogin plugin;
 
@@ -22,7 +30,7 @@ public class SmartLoginAdminCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("smartlogin.admin")) {
-            sender.sendMessage(Component.text("You lack permission smartlogin.admin", NamedTextColor.RED));
+            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>No tienes permisos suficientes (smartlogin.admin).</red>"));
             return true;
         }
 
@@ -30,20 +38,24 @@ public class SmartLoginAdminCommand implements CommandExecutor {
             if (sender instanceof Player player) {
                 plugin.getAdminPanelGUI().openPanel(player);
             } else {
-                plugin.getSetupWizardManager().sendSetupForm(sender);
+                sendHelp(sender);
             }
             return true;
         }
 
         String sub = args[0].toLowerCase();
         switch (sub) {
+            case "help":
+            case "?":
+                sendHelp(sender);
+                break;
             case "gui":
             case "panel":
             case "menu":
                 if (sender instanceof Player player) {
                     plugin.getAdminPanelGUI().openPanel(player);
                 } else {
-                    sender.sendMessage("GUI panel is only accessible in-game.");
+                    sender.sendMessage("El panel GUI solo está disponible para jugadores dentro del juego.");
                 }
                 break;
             case "setup":
@@ -56,14 +68,14 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                         String choice = args[2];
                         plugin.getSetupWizardManager().handleStepChoice(sender, step, choice);
                     } catch (NumberFormatException e) {
-                        sender.sendMessage(Component.text("Invalid step number.", NamedTextColor.RED));
+                        sender.sendMessage(Component.text("Paso inválido.", NamedTextColor.RED));
                     }
                 } else if (args.length >= 2) {
                     try {
                         int step = Integer.parseInt(args[1]);
                         plugin.getSetupWizardManager().sendStep(sender, step);
                     } catch (NumberFormatException e) {
-                        sender.sendMessage(Component.text("Invalid step number.", NamedTextColor.RED));
+                        sender.sendMessage(Component.text("Paso inválido.", NamedTextColor.RED));
                     }
                 } else {
                     plugin.getSetupWizardManager().sendSetupForm(sender);
@@ -72,7 +84,7 @@ public class SmartLoginAdminCommand implements CommandExecutor {
             case "resetsetup":
                 plugin.getModularConfig().getConfig().set("setup-completed", false);
                 plugin.getModularConfig().saveConfig();
-                sender.sendMessage(Component.text("✔ Setup status reset! The wizard will launch on next admin join.", NamedTextColor.GREEN));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Estado del setup reiniciado. El asistente se iniciará en el próximo ingreso de un admin.</green>"));
                 break;
             case "finishsetup":
                 plugin.getSetupWizardManager().finishSetup(sender);
@@ -80,9 +92,9 @@ public class SmartLoginAdminCommand implements CommandExecutor {
             case "setspawn":
                 if (sender instanceof Player player) {
                     plugin.getSpawnManager().setAuthSpawn(player.getLocation());
-                    player.sendMessage(Component.text("✔ SmartLogin auth spawn location set to your current position!", NamedTextColor.GREEN));
+                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Ubicación del spawn de autenticación establecida en tu posición.</green>"));
                 } else {
-                    sender.sendMessage("Only players can set spawn.");
+                    sender.sendMessage("Solo los jugadores pueden ejecutar /smartlogin setspawn.");
                 }
                 break;
             case "history":
@@ -90,7 +102,7 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                 if (args.length > 1) {
                     plugin.getAuditManager().showPlayerHistory(sender, args[1]);
                 } else {
-                    sender.sendMessage(Component.text("Usage: /smartlogin history <username>", NamedTextColor.RED));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin history <usuario></red>"));
                 }
                 break;
             case "setpassword":
@@ -100,13 +112,13 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                     String newPass = args[2];
                     plugin.getAuditManager().setPlayerPassword(target, newPass).thenAccept(ok -> {
                         if (ok) {
-                            sender.sendMessage(Component.text("✔ Password for " + target + " updated successfully!", NamedTextColor.GREEN));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Contraseña de <yellow>" + target + "</yellow> actualizada correctamente.</green>"));
                         } else {
-                            sender.sendMessage(Component.text("✖ Player not found in database.", NamedTextColor.RED));
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró al jugador en la base de datos.</red>"));
                         }
                     });
                 } else {
-                    sender.sendMessage(Component.text("Usage: /smartlogin setpassword <username> <new_password>", NamedTextColor.RED));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin setpassword <usuario> <nueva_clave></red>"));
                 }
                 break;
             case "unregister":
@@ -128,43 +140,94 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                 }
                 break;
             case "backup":
-                sender.sendMessage(Component.text("Creating database backup snapshot...", NamedTextColor.YELLOW));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Creando copia de seguridad de la base de datos...</yellow>"));
                 File backupFile = plugin.getAuditManager().createDatabaseBackup();
                 if (backupFile != null) {
-                    sender.sendMessage(Component.text("✔ Backup created: " + backupFile.getName(), NamedTextColor.GREEN));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Copia de seguridad creada: <yellow>" + backupFile.getName() + "</yellow></green>"));
                 } else {
-                    sender.sendMessage(Component.text("✖ Failed to create database backup.", NamedTextColor.RED));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ Error creando la copia de seguridad.</red>"));
                 }
                 break;
             case "reload":
                 plugin.getModularConfig().loadAll();
                 plugin.getLocaleManager().loadLanguages();
-                sender.sendMessage(Component.text("✔ SmartLogin modular configs (including 2fa/) and languages reloaded!", NamedTextColor.GREEN));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Configuraciones modulares, suite 2FA e idiomas recargados correctamente.</green>"));
                 break;
+            case "migrate":
             case "import":
-                if (args.length > 1 && args[1].equalsIgnoreCase("authme")) {
-                    sender.sendMessage(Component.text("Starting AuthMe database import...", NamedTextColor.YELLOW));
-                    plugin.getMigrationManager().importAuthMe(sender).thenAccept(count -> {
-                        sender.sendMessage(Component.text("✔ Successfully imported " + count + " accounts from AuthMe!", NamedTextColor.GREEN));
-                    });
-                } else if (args.length > 1 && args[1].equalsIgnoreCase("nlogin")) {
-                    sender.sendMessage(Component.text("Starting nLogin database import...", NamedTextColor.YELLOW));
-                    plugin.getMigrationManager().importNLogin(sender).thenAccept(count -> {
-                        sender.sendMessage(Component.text("✔ Successfully imported " + count + " accounts from nLogin!", NamedTextColor.GREEN));
-                    });
+                if (args.length > 1) {
+                    String source = args[1].toLowerCase();
+                    if (source.equals("authme")) {
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Iniciando migración desde AuthMe...</yellow>"));
+                        plugin.getMigrationManager().importAuthMe(sender).thenAccept(count -> {
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Se importaron exitosamente <bold>" + count + "</bold> cuentas desde AuthMe!</green>"));
+                        });
+                    } else if (source.equals("nlogin")) {
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Iniciando migración desde nLogin...</yellow>"));
+                        plugin.getMigrationManager().importNLogin(sender).thenAccept(count -> {
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Se importaron exitosamente <bold>" + count + "</bold> cuentas desde nLogin!</green>"));
+                        });
+                    } else if (source.equals("fastlogin")) {
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <yellow>Iniciando migración de estados Premium desde FastLogin...</yellow>"));
+                        plugin.getMigrationManager().importFastLogin(sender).thenAccept(count -> {
+                            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ ¡Se sincronizaron <bold>" + count + "</bold> cuentas desde FastLogin!</green>"));
+                        });
+                    } else {
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Fuente desconocida. Usa: /smartlogin migrate <authme|nlogin|fastlogin></red>"));
+                    }
                 } else {
-                    sender.sendMessage(Component.text("Usage: /smartlogin import <authme|nlogin>", NamedTextColor.RED));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Uso: /smartlogin migrate <authme|nlogin|fastlogin></red>"));
                 }
                 break;
             default:
                 if (sender instanceof Player player) {
                     plugin.getAdminPanelGUI().openPanel(player);
                 } else {
-                    plugin.getSetupWizardManager().sendSetupForm(sender);
+                    sendHelp(sender);
                 }
                 break;
         }
 
         return true;
     }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage(Component.empty());
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — ADMINISTRACIÓN ] ━━━━━━━━━━━━</bold></gradient>"));
+        sendCmdLine(sender, "/smartlogin gui", "Abre el panel de control interactivo");
+        sendCmdLine(sender, "/smartlogin reload", "Recarga configuraciones, 2FA e idiomas");
+        sendCmdLine(sender, "/smartlogin setpassword <user> <pass>", "Cambia la clave de cualquier jugador");
+        sendCmdLine(sender, "/smartlogin unregister <user>", "Elimina la cuenta de un jugador");
+        sendCmdLine(sender, "/smartlogin history <user>", "Auditoría de IPs, fechas y seguridad");
+        sendCmdLine(sender, "/smartlogin migrate <authme|nlogin|fastlogin>", "Migra cuentas de otros plugins");
+        sendCmdLine(sender, "/smartlogin setspawn", "Define el punto de spawn de autenticación");
+        sendCmdLine(sender, "/smartlogin backup", "Crea un respaldo de la base de datos");
+        sendCmdLine(sender, "/smartlogin resetsetup", "Reinicia el asistente cinemático");
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(Component.empty());
+    }
+
+    private void sendCmdLine(CommandSender sender, String cmd, String desc) {
+        Component line = plugin.getLocaleManager().parse("  <#C084FC><bold>" + cmd + "</bold></#C084FC> <dark_gray>—</dark_gray> <gray>" + desc + "</gray>")
+                .clickEvent(ClickEvent.suggestCommand(cmd))
+                .hoverEvent(HoverEvent.showText(Component.text("Haz clic para sugerir en el chat", NamedTextColor.LIGHT_PURPLE)));
+        sender.sendMessage(line);
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
+        if (!sender.hasPermission("smartlogin.admin")) return List.of();
+
+        if (args.length == 1) {
+            List<String> subs = Arrays.asList("gui", "help", "reload", "setpassword", "unregister", "history", "migrate", "setspawn", "backup", "resetsetup", "setup");
+            return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
+
+        if (args.length == 2 && (args[0].equalsIgnoreCase("migrate") || args[0].equalsIgnoreCase("import"))) {
+            return Arrays.asList("authme", "nlogin", "fastlogin").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
+        }
+
+        return List.of();
+    }
 }
+

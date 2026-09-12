@@ -24,7 +24,7 @@ public class MigrationManager {
         return CompletableFuture.supplyAsync(() -> {
             File authMeDb = new File(plugin.getDataFolder().getParentFile(), "AuthMe/authme.db");
             if (!authMeDb.exists()) {
-                sender.sendMessage("§cAuthMe SQLite database not found at plugins/AuthMe/authme.db");
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró la base de datos de AuthMe en plugins/AuthMe/authme.db</red>"));
                 return 0;
             }
 
@@ -38,14 +38,16 @@ public class MigrationManager {
                     String hash = rs.getString("password");
                     String ip = rs.getString("ip");
                     long lastLogin = rs.getLong("lastlogin");
+                    String email = null;
+                    try { email = rs.getString("email"); } catch (Exception ignored) {}
 
                     UUID fakeUuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + username.toLowerCase()).getBytes());
-                    PlayerProfile profile = new PlayerProfile(fakeUuid, username, hash, "", false, null, null, ip, lastLogin, false, false);
+                    PlayerProfile profile = new PlayerProfile(fakeUuid, username, hash, "", false, null, null, null, null, email, ip, lastLogin, false, false);
                     plugin.getDatabaseManager().saveProfile(profile).join();
                     count++;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ Error migrando AuthMe: " + e.getMessage() + "</red>"));
             }
             return count;
         });
@@ -55,7 +57,10 @@ public class MigrationManager {
         return CompletableFuture.supplyAsync(() -> {
             File nloginDb = new File(plugin.getDataFolder().getParentFile(), "nLogin/database.db");
             if (!nloginDb.exists()) {
-                sender.sendMessage("§cnLogin SQLite database not found at plugins/nLogin/database.db");
+                nloginDb = new File(plugin.getDataFolder().getParentFile(), "nLogin/accounts.db");
+            }
+            if (!nloginDb.exists()) {
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró la base de datos de nLogin en plugins/nLogin/</red>"));
                 return 0;
             }
 
@@ -67,8 +72,10 @@ public class MigrationManager {
                 while (rs.next()) {
                     String username = rs.getString("name");
                     String hash = rs.getString("password");
-                    String ip = rs.getString("last_ip");
-                    long lastLogin = rs.getLong("last_seen");
+                    String ip = "";
+                    try { ip = rs.getString("last_ip"); } catch (Exception ignored) {}
+                    long lastLogin = 0;
+                    try { lastLogin = rs.getLong("last_seen"); } catch (Exception ignored) {}
 
                     UUID fakeUuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + username.toLowerCase()).getBytes());
                     PlayerProfile profile = new PlayerProfile(fakeUuid, username, hash, "", false, null, null, ip, lastLogin, false, false);
@@ -76,7 +83,38 @@ public class MigrationManager {
                     count++;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ Error migrando nLogin: " + e.getMessage() + "</red>"));
+            }
+            return count;
+        });
+    }
+
+    public CompletableFuture<Integer> importFastLogin(CommandSender sender) {
+        return CompletableFuture.supplyAsync(() -> {
+            File fastLoginDb = new File(plugin.getDataFolder().getParentFile(), "FastLogin/fastlogin.db");
+            if (!fastLoginDb.exists()) {
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ No se encontró la base de datos de FastLogin en plugins/FastLogin/fastlogin.db</red>"));
+                return 0;
+            }
+
+            int count = 0;
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + fastLoginDb.getAbsolutePath());
+                 Statement st = conn.createStatement();
+                 ResultSet rs = st.executeQuery("SELECT * FROM premium")) {
+
+                while (rs.next()) {
+                    String username = rs.getString("player_name");
+                    boolean isPremium = rs.getInt("premium") == 1;
+                    plugin.getDatabaseManager().loadProfileByName(username).thenAccept(p -> {
+                        if (p != null) {
+                            p.setPremium(isPremium);
+                            plugin.getDatabaseManager().saveProfile(p);
+                        }
+                    });
+                    count++;
+                }
+            } catch (Exception e) {
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>✖ Error migrando FastLogin: " + e.getMessage() + "</red>"));
             }
             return count;
         });

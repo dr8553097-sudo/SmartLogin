@@ -105,7 +105,11 @@ public final class SmartLogin extends JavaPlugin {
         getCommand("changepassword").setExecutor(new ChangePasswordCommand(this));
         getCommand("2fa").setExecutor(new TwoFactorCommand(this));
         getCommand("premium").setExecutor(new PremiumCommand(this));
-        getCommand("smartlogin").setExecutor(new SmartLoginAdminCommand(this));
+        
+        SmartLoginAdminCommand adminCmd = new SmartLoginAdminCommand(this);
+        getCommand("smartlogin").setExecutor(adminCmd);
+        getCommand("smartlogin").setTabCompleter(adminCmd);
+
         if (getCommand("link") != null) {
             getCommand("link").setExecutor(new LinkCommand(this));
         }

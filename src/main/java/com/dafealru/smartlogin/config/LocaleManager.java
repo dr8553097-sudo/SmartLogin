@@ -36,14 +36,18 @@ public class LocaleManager {
             langDir.mkdirs();
         }
 
-        String[] bundled = {"en.yml", "es.yml", "fr.yml", "pt.yml"};
+        String[] bundled = {"en.yml", "es.yml", "fr.yml", "pt.yml", "de.yml", "ru.yml", "zh.yml"};
         for (String b : bundled) {
             File f = new File(langDir, b);
             if (!f.exists()) {
-                plugin.saveResource("lang/" + b, false);
+                try {
+                    plugin.saveResource("lang/" + b, false);
+                } catch (Exception ignored) {}
             }
             String langCode = b.replace(".yml", "");
-            languageFiles.put(langCode, YamlConfiguration.loadConfiguration(f));
+            if (f.exists()) {
+                languageFiles.put(langCode, YamlConfiguration.loadConfiguration(f));
+            }
         }
         plugin.getLogger().info("Loaded " + languageFiles.size() + " language profiles with client auto-detection.");
     }

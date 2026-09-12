@@ -48,6 +48,14 @@ public class LoginCommand implements CommandExecutor {
         boolean valid = PasswordHasher.verify(inputPassword, profile.getSalt(), profile.getPasswordHash());
 
         if (valid) {
+            // Auto-upgrade legacy hash (AuthMe/nLogin/MD5/etc.) to SmartLogin PBKDF2WithHmacSHA512
+            if (profile.getSalt() == null || profile.getSalt().isEmpty() || !PasswordHasher.verifyPassword(inputPassword, profile.getSalt(), profile.getPasswordHash())) {
+                String newSalt = PasswordHasher.generateSalt();
+                String newHash = PasswordHasher.hashPassword(inputPassword, newSalt);
+                profile.setSalt(newSalt);
+                profile.setPasswordHash(newHash);
+            }
+
             if (profile.is2FAEnabled()) {
                 player.sendMessage(plugin.getLocaleManager().getComponent("prompt-2fa-verify", player));
                 return true;

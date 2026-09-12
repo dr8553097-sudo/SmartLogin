@@ -65,6 +65,7 @@ public class ModularConfigManager {
 
     public void saveConfig() { try { config.save(configFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveAuth() { try { authConfig.save(authFile); } catch (Exception e) { e.printStackTrace(); } }
+    public void saveDatabase() { try { databaseConfig.save(databaseFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveTotp() { try { totpConfig.save(totpFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveDiscord() { try { discordConfig.save(discordFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveTelegram() { try { telegramConfig.save(telegramFile); } catch (Exception e) { e.printStackTrace(); } }

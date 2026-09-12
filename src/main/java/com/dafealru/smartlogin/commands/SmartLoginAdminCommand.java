@@ -49,10 +49,30 @@ public class SmartLoginAdminCommand implements CommandExecutor {
             case "setup":
                 plugin.getSetupWizardManager().sendSetupForm(sender);
                 break;
-            case "toggle":
-                if (args.length > 1) {
-                    plugin.getSetupWizardManager().handleToggle(sender, args[1]);
+            case "wizard":
+                if (args.length >= 3) {
+                    try {
+                        int step = Integer.parseInt(args[1]);
+                        String choice = args[2];
+                        plugin.getSetupWizardManager().handleStepChoice(sender, step, choice);
+                    } catch (NumberFormatException e) {
+                        sender.sendMessage(Component.text("Invalid step number.", NamedTextColor.RED));
+                    }
+                } else if (args.length >= 2) {
+                    try {
+                        int step = Integer.parseInt(args[1]);
+                        plugin.getSetupWizardManager().sendStep(sender, step);
+                    } catch (NumberFormatException e) {
+                        sender.sendMessage(Component.text("Invalid step number.", NamedTextColor.RED));
+                    }
+                } else {
+                    plugin.getSetupWizardManager().sendSetupForm(sender);
                 }
+                break;
+            case "resetsetup":
+                plugin.getModularConfig().getConfig().set("setup-completed", false);
+                plugin.getModularConfig().saveConfig();
+                sender.sendMessage(Component.text("✔ Setup status reset! The wizard will launch on next admin join.", NamedTextColor.GREEN));
                 break;
             case "finishsetup":
                 plugin.getSetupWizardManager().finishSetup(sender);

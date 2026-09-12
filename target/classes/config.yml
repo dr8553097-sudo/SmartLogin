@@ -85,6 +85,8 @@ lockdown:
     - "/tlink"
     - "/email"
     - "/anvil"
+    - "/smartlogin"
+    - "/sl"
 
 # Authentication Spawn & Limbo
 auth-spawn:

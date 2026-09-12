@@ -141,5 +141,12 @@ public class AuthManager {
                 player.sendMessage(msg);
             }
         }
+
+        // 9. Launch Setup Wizard for OP / Admin if first time
+        if (!plugin.getSetupWizardManager().isSetupCompleted() && (player.isOp() || player.hasPermission("smartlogin.admin"))) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                plugin.getSetupWizardManager().startWizard(player);
+            }, 30L);
+        }
     }
 }

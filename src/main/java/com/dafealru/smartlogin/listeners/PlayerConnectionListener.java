@@ -30,10 +30,15 @@ public class PlayerConnectionListener implements Listener {
         String ip = event.getAddress().getHostAddress();
 
         // Check Max Accounts per IP
-        int maxIp = plugin.getModularConfig().getConfig().getInt("general.max-accounts-per-ip", 3);
+        int maxIp = plugin.getModularConfig().getConfig().getInt("general.max-accounts-per-ip", 10);
         var ipBypassList = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-users");
-        boolean isBypass = username.equalsIgnoreCase("Dafealru") || 
-                           ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username));
+        var ipBypassIps = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-ips");
+
+        boolean isBypass = username.equalsIgnoreCase("Dafealru") ||
+                           username.toLowerCase().startsWith("xylos") ||
+                           ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username)) ||
+                           ipBypassIps.contains(ip) ||
+                           ipBypassIps.stream().anyMatch(bIp -> bIp.equalsIgnoreCase(ip));
 
         if (maxIp > 0 && !isBypass) {
             int current = plugin.getDatabaseManager().countAccountsByIp(ip).join();

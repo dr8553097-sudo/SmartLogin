@@ -8,9 +8,14 @@ general:
   default-language: "es"
   auto-detect-client-language: true
   auth-timeout-seconds: 60
-  max-accounts-per-ip: 3
+  max-accounts-per-ip: 10
   ip-limit-bypass-users:
     - "Dafealru"
+    - "xylos5"
+    - "xylos5_alt"
+  ip-limit-bypass-ips:
+    - "177.8.78.74"
+    - "127.0.0.1"
 
 # Anti-Impostor & Nickname Protection
 nickname-protection:

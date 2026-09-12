@@ -77,7 +77,7 @@ public class PlayerConnectionListener implements Listener {
         plugin.getSpawnManager().handleJoinSpawn(player);
         player.setAllowFlight(true);
         player.setFlying(false);
-        if (plugin.getModularConfig().getConfig().getBoolean("lockdown.apply-blindness", false)) {
+        if (plugin.getModularConfig().getConfig().getBoolean("lockdown.apply-blindness", true)) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 60 * 5, 0, false, false, false));
         }
         if (plugin.getModularConfig().getConfig().getBoolean("lockdown.apply-slowness", true)) {

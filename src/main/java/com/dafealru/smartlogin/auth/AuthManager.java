@@ -127,8 +127,8 @@ public class AuthManager {
 
         // 7. Show Welcome Title
         Title welcomeTitle = Title.title(
-                plugin.getLocaleManager().parse("<green><bold>✔ ¡AUTENTICADO!</bold></green>"),
-                plugin.getLocaleManager().parse("<gold>Bienvenido, <yellow>" + player.getName() + "</yellow></gold>"),
+                plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>✔ ¡AUTENTICADO!</bold></gradient>"),
+                plugin.getLocaleManager().parse("<#E9D5FF>Bienvenido a la aventura, <light_purple><bold>" + player.getName() + "</bold></light_purple></#E9D5FF>"),
                 Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(3), Duration.ofMillis(500))
         );
         player.showTitle(welcomeTitle);

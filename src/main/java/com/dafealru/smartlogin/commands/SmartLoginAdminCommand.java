@@ -84,7 +84,12 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
             case "resetsetup":
                 plugin.getModularConfig().getConfig().set("setup-completed", false);
                 plugin.getModularConfig().saveConfig();
-                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Estado del setup reiniciado. El asistente se iniciará en el próximo ingreso de un admin.</green>"));
+                if (sender instanceof Player player) {
+                    plugin.getDatabaseManager().deleteProfile(player.getUniqueId());
+                    plugin.getAuthManager().uncache(player.getUniqueId());
+                    plugin.getAuthManager().setAuthenticated(player.getUniqueId(), false);
+                }
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <green>✔ Estado del setup y cuenta reiniciados. ¡El asistente cinemático y registro se iniciarán al entrar!</green>"));
                 break;
             case "finishsetup":
                 plugin.getSetupWizardManager().finishSetup(sender);

@@ -85,9 +85,12 @@ public class PlayerConnectionListener implements Listener {
             return;
         }
 
-        plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {
+        plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenCompose(p -> {
+            if (p != null) return java.util.concurrent.CompletableFuture.completedFuture(p);
+            return plugin.getDatabaseManager().loadProfileByName(player.getName());
+        }).thenAccept(profile -> {
             Bukkit.getScheduler().runTask(plugin, () -> {
-                if (profile != null) {
+                if (profile != null && profile.getPasswordHash() != null && !profile.getPasswordHash().trim().isEmpty()) {
                     plugin.getAuthManager().cacheProfile(player.getUniqueId(), profile);
 
                     // Check Bedrock / Floodgate Auto-Login

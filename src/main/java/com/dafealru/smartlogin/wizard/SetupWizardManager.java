@@ -303,15 +303,18 @@ public class SetupWizardManager {
 
             // Check if admin is unauthenticated / non-premium needing register/login
             if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
-                plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {
+                plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenCompose(p -> {
+                    if (p != null) return java.util.concurrent.CompletableFuture.completedFuture(p);
+                    return plugin.getDatabaseManager().loadProfileByName(player.getName());
+                }).thenAccept(profile -> {
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         if (!player.isOnline() || plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
                         if (profile == null || profile.getPasswordHash() == null || profile.getPasswordHash().trim().isEmpty()) {
                             // Non-premium unregistered admin -> NEEDS /register
                             Title regTitle = Title.title(
-                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡Registro Pendiente!</bold></gradient>"),
-                                    plugin.getLocaleManager().parse("<#E9D5FF>Por favor usa /register <contraseña> <repetir></#E9D5FF>"),
-                                    Title.Times.times(Duration.ofMillis(400), Duration.ofSeconds(4), Duration.ofMillis(600))
+                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡REGISTRO PENDIENTE!</bold></gradient>"),
+                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <light_purple><bold>/register <contraseña> <repetir></bold></light_purple></#E9D5FF>"),
+                                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(4), Duration.ofMillis(500))
                             );
                             player.showTitle(regTitle);
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
@@ -321,9 +324,9 @@ public class SetupWizardManager {
                         } else {
                             // Registered admin -> NEEDS /login
                             Title logTitle = Title.title(
-                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡Inicio de Sesión!</bold></gradient>"),
-                                    plugin.getLocaleManager().parse("<#E9D5FF>Por favor usa /login <contraseña></#E9D5FF>"),
-                                    Title.Times.times(Duration.ofMillis(400), Duration.ofSeconds(4), Duration.ofMillis(600))
+                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
+                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <light_purple><bold>/login <contraseña></bold></light_purple></#E9D5FF>"),
+                                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(4), Duration.ofMillis(500))
                             );
                             player.showTitle(logTitle);
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
@@ -331,7 +334,7 @@ public class SetupWizardManager {
                             player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <light_purple>Por favor inicia sesión usando: <#C084FC><bold>/login <contraseña></bold></#C084FC></light_purple>"));
                             plugin.getAuthHudManager().startHud(player, false);
                         }
-                    }, 35L);
+                    }, 30L);
                 });
             } else {
                 player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <gray>Abre el panel en cualquier momento con </gray><light_purple><click:run_command:/smartlogin gui>/smartlogin gui</click></light_purple>"));

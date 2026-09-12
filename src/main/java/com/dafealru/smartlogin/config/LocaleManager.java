@@ -12,11 +12,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class LocaleManager {
 
     private final SmartLogin plugin;
     private final Map<String, FileConfiguration> languageFiles = new HashMap<>();
+    private final Map<UUID, String> playerLanguageOverrides = new java.util.concurrent.ConcurrentHashMap<>();
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private String defaultLanguage = "es";
     private boolean autoDetect = true;
@@ -49,23 +51,35 @@ public class LocaleManager {
                 languageFiles.put(langCode, YamlConfiguration.loadConfiguration(f));
             }
         }
-        plugin.getLogger().info("Loaded " + languageFiles.size() + " language profiles with client auto-detection.");
+        plugin.getLogger().info("Loaded " + languageFiles.size() + " language profiles.");
     }
 
     public String getPlayerLanguage(Player player) {
-        if (player == null || !autoDetect) {
+        if (player == null) {
             return defaultLanguage;
         }
-        try {
-            Locale clientLocale = player.locale();
-            if (clientLocale != null) {
-                String lang = clientLocale.getLanguage().toLowerCase();
-                if (languageFiles.containsKey(lang)) {
-                    return lang;
+        String override = playerLanguageOverrides.get(player.getUniqueId());
+        if (override != null && languageFiles.containsKey(override)) {
+            return override;
+        }
+        if (autoDetect) {
+            try {
+                Locale clientLocale = player.locale();
+                if (clientLocale != null) {
+                    String lang = clientLocale.getLanguage().toLowerCase();
+                    if (languageFiles.containsKey(lang)) {
+                        return lang;
+                    }
                 }
-            }
-        } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {}
+        }
         return defaultLanguage;
+    }
+
+    public void setPlayerLanguage(UUID uuid, String lang) {
+        if (lang != null && languageFiles.containsKey(lang.toLowerCase())) {
+            playerLanguageOverrides.put(uuid, lang.toLowerCase());
+        }
     }
 
     public String getRawMessage(String key, String lang) {

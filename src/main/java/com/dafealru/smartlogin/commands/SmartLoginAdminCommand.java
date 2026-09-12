@@ -207,6 +207,9 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                     String targetLang = args[1].toLowerCase();
                     boolean ok = plugin.getLocaleManager().setDefaultLanguage(targetLang);
                     if (ok) {
+                        if (sender instanceof Player p) {
+                            plugin.getLocaleManager().setPlayerLanguage(p.getUniqueId(), targetLang);
+                        }
                         sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Idioma predeterminado cambiado a: <#C084FC><bold>" + targetLang.toUpperCase() + "</bold></#C084FC></#E9D5FF>"));
                     } else {
                         sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ Idioma no reconocido. Disponibles: <#C084FC>es, en, pt, fr, de, ru, zh</#C084FC></#F5D0FE>"));
@@ -214,6 +217,12 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                 } else {
                     sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin lang <es|en|pt|fr|de|ru|zh></#F5D0FE>"));
                 }
+                break;
+            case "version":
+            case "v":
+            case "ver":
+            case "info":
+                sendVersionInfo(sender);
                 break;
             default:
                 if (sender instanceof Player player) {
@@ -227,10 +236,44 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private void sendVersionInfo(CommandSender sender) {
+        String serverVer = Bukkit.getVersion();
+        String bukkitVer = Bukkit.getBukkitVersion();
+        String clientInfo = (sender instanceof Player p) ? (p.getName() + " (Idioma: " + plugin.getLocaleManager().getPlayerLanguage(p).toUpperCase() + ")") : "Consola del Servidor";
+
+        sender.sendMessage(Component.empty());
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — INFORMACIÓN DEL SISTEMA ] ━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>• Versión del Plugin:</#E9D5FF> <#C084FC><bold>v" + plugin.getPluginMeta().getVersion() + "</bold> (Última versión estable)</#C084FC>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>• Creador & Autor:</#E9D5FF> <#C084FC><bold>Dafealru</bold></#C084FC>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>• Servidor / Plataforma:</#E9D5FF> <gray>" + bukkitVer + " (" + serverVer + ")</gray>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>• Estado de Compatibilidad:</#E9D5FF> <#C084FC>✔ 100% Compatible (Paper / Purpur / Spigot 1.21.x)</#C084FC>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>• Usuario / Contexto:</#E9D5FF> <gray>" + clientInfo + "</gray>"));
+        sender.sendMessage(Component.empty());
+
+        Component wikiLink = plugin.getLocaleManager().parse("  <#C084FC><bold>📖 Wiki Oficial:</bold></#C084FC> <#E9D5FF><u>https://github.com/dr8553097-sudo/SmartLogin/wiki</u></#E9D5FF>")
+                .clickEvent(ClickEvent.openUrl("https://github.com/dr8553097-sudo/SmartLogin/wiki"))
+                .hoverEvent(HoverEvent.showText(plugin.getLocaleManager().parse("<#E9D5FF>Haz clic para abrir la documentación oficial</#E9D5FF>")));
+
+        Component supportLink = plugin.getLocaleManager().parse("  <#C084FC><bold>💬 Soporte / Discord:</bold></#C084FC> <#E9D5FF><u>https://discord.gg/smartlogin</u></#E9D5FF>")
+                .clickEvent(ClickEvent.openUrl("https://discord.gg/smartlogin"))
+                .hoverEvent(HoverEvent.showText(plugin.getLocaleManager().parse("<#E9D5FF>Haz clic para ingresar al servidor de soporte</#E9D5FF>")));
+
+        Component portfolioLink = plugin.getLocaleManager().parse("  <#C084FC><bold>🌟 Portafolio del Desarrollador (Dafealru):</bold></#C084FC> <#E9D5FF><u>https://github.com/dr8553097-sudo</u></#E9D5FF>")
+                .clickEvent(ClickEvent.openUrl("https://github.com/dr8553097-sudo"))
+                .hoverEvent(HoverEvent.showText(plugin.getLocaleManager().parse("<#E9D5FF>Haz clic para ver el portafolio de proyectos de Dafealru</#E9D5FF>")));
+
+        sender.sendMessage(wikiLink);
+        sender.sendMessage(supportLink);
+        sender.sendMessage(portfolioLink);
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(Component.empty());
+    }
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(Component.empty());
         sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — ADMINISTRACIÓN ] ━━━━━━━━━━━━</bold></gradient>"));
         sendCmdLine(sender, "/smartlogin gui", "Abre el panel de control interactivo");
+        sendCmdLine(sender, "/smartlogin version", "Información, enlaces oficiales y portafolio");
         sendCmdLine(sender, "/smartlogin reload", "Recarga configuraciones, 2FA e idiomas");
         sendCmdLine(sender, "/smartlogin lang <es|en|pt|fr|de|ru|zh>", "Cambia el idioma global del plugin");
         sendCmdLine(sender, "/smartlogin setpassword <user> <pass>", "Cambia la clave de cualquier jugador");
@@ -256,7 +299,7 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("smartlogin.admin")) return List.of();
 
         if (args.length == 1) {
-            List<String> subs = Arrays.asList("gui", "help", "reload", "lang", "setpassword", "unregister", "history", "migrate", "setspawn", "backup", "resetsetup", "setup");
+            List<String> subs = Arrays.asList("gui", "help", "version", "reload", "lang", "setpassword", "unregister", "history", "migrate", "setspawn", "backup", "resetsetup", "setup");
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
 

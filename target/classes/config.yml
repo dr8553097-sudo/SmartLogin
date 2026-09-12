@@ -1,32 +1,75 @@
 # ==============================================================================
-# 🛡️ SmartLogin — Core Configuration
+#   ____                       _   _                 _       
+#  / ___| _ __ ___   __ _ _ __| |_| |     ___   __ _(_)_ __  
+#  \___ \| '_ ` _ \ / _` | '__| __| |    / _ \ / _` | | '_ \ 
+#   ___) | | | | | | (_| | |  | |_| |___| (_) | (_| | | | | |
+#  |____/|_| |_| |_|\__,_|_|   \__|_____|\___/ \__, |_|_| |_|
+#                                              |___/         
+#  🛡️ SMARTLOGIN v1.0.0 — SISTEMA AVANZADO DE AUTENTICACIÓN & SEGURIDAD
+#  👑 Creador & Desarrollador: Dafealru
+#  🌐 Soporte & Wiki: https://github.com/dr8553097-sudo/SmartLogin/wiki
+#  💬 Discord Oficial: https://discord.gg/smartlogin
 # ==============================================================================
 
+# Indica si el asistente de configuración inicial in-game (Setup Wizard) ya ha sido completado.
+# Si está en 'false', el primer administrador con OP que ingrese abrirá el menú interactivo de bienvenida.
 setup-completed: false
 
+# ------------------------------------------------------------------------------
+# ⚙️ CONFIGURACIÓN GENERAL
+# ------------------------------------------------------------------------------
 general:
+  # Idioma por defecto del servidor cuando un jugador entra por primera vez.
+  # Idiomas disponibles: es (Español), en (Inglés), pt (Portugués), fr (Francés), de (Alemán), ru (Ruso), zh (Chino).
   default-language: "es"
+
+  # Detectar automáticamente el idioma configurado en el cliente Minecraft del jugador.
+  # Si se desactiva, o si el jugador usa '/smartlogin lang <idioma>', se utilizará el idioma fijado.
   auto-detect-client-language: true
+
+  # Tiempo máximo en segundos que tiene un usuario para registrarse o iniciar sesión antes de ser expulsado.
   auth-timeout-seconds: 60
+
+  # Número máximo de cuentas permitidas registradas por una misma dirección IP.
+  # Ayuda a mitigar ataques de bots y la creación masiva de cuentas secundarias.
   max-accounts-per-ip: 10
+
+  # Lista de usuarios exentos del límite de cuentas por IP (bypass).
   ip-limit-bypass-users:
     - "Dafealru"
     - "xylos5"
     - "xylos5_alt"
+
+  # Lista de direcciones IP exentas del límite de cuentas por IP (bypass).
   ip-limit-bypass-ips:
     - "177.8.78.74"
     - "127.0.0.1"
 
-# Anti-Impostor & Nickname Protection
+# ------------------------------------------------------------------------------
+# 👤 PROTECCIÓN DE NICKNAMES (ANTI-IMPOSTOR)
+# ------------------------------------------------------------------------------
 nickname-protection:
+  # Si está en 'true', un jugador no podrá entrar con una combinación de mayúsculas/minúsculas diferente
+  # a la que usó al momento de registrarse (ej. si se registró como 'Juan', no podrá entrar como 'JUAN' o 'juan').
   strict-case: true
+
+  # Expresión regular que define los caracteres y longitud permitida para los nombres de usuario.
   allowed-regex: "^[a-zA-Z0-9_]{3,16}$"
 
-# Password Security Policy
+# ------------------------------------------------------------------------------
+# 🔑 POLÍTICAS DE CONTRASEÑA Y FUERZA BRUTA
+# ------------------------------------------------------------------------------
 password-policy:
+  # Longitud mínima que debe tener la contraseña al registrarse o cambiarla.
   min-length: 6
+
+  # Longitud máxima permitida para las contraseñas.
   max-length: 32
+
+  # Intentos máximos de contraseña incorrecta antes de expulsar al jugador temporalmente.
   max-login-attempts: 5
+
+  # Lista negra de contraseñas inseguras que no se permitirán registrar bajo ninguna circunstancia.
   disallowed-passwords:
     - "123456"
     - "12345678"
@@ -36,44 +79,85 @@ password-policy:
     - "qwerty"
     - "minecraft"
 
-# Dynamic Captcha Anti-Brute-Force Shield
+# ------------------------------------------------------------------------------
+# 🧩 CAPTCHA DINÁMICO ANTI-BOTS
+# ------------------------------------------------------------------------------
 captcha:
-  # Open visual item click captcha after X failed password attempts (0 = disabled)
+  # Abre automáticamente un menú gráfico interactivo de Captcha si el usuario falla X intentos de contraseña.
+  # Pon '0' para desactivar el captcha por fallos.
   trigger-after-failed-attempts: 2
-  # Enforce captcha for new unregistered players
+
+  # Si está en 'true', exigirá resolver un Captcha interactivo a todos los jugadores nuevos antes de registrarse.
   enforce-on-register: false
 
-# Anvil GUI Password Input
+# ------------------------------------------------------------------------------
+# 🔨 INTERFAZ GRÁFICA DE YUNQUE (ANVIL GUI)
+# ------------------------------------------------------------------------------
 anvil-gui:
-  # Allow /anvil login and /anvil register
+  # Permite a los jugadores autenticarse visualmente mediante yunques con /anvil login o /anvil register.
   enabled: true
-  # Auto-open anvil GUI on player join instead of chat
+
+  # Abre automáticamente la interfaz de yunque al entrar en lugar de requerir escribir en el chat.
   auto-open-on-join: false
 
-# Geo-IP & Impossible Travel Security
+# ------------------------------------------------------------------------------
+# 🌍 PROTECCIÓN GEOGRÁFICA & VIAJE IMPOSIBLE (GEO-IP)
+# ------------------------------------------------------------------------------
 geo-protection:
+  # Activa la detección y análisis de país/ubicación mediante GeoIP.
   enabled: true
-  # If a player logs in from a different country, enforce 2FA and send staff alert
+
+  # Envía una alerta a los administradores en el juego/Discord si un jugador inicia sesión desde un país distinto.
   alert-on-country-change: true
+
+  # Exige verificación de doble factor (2FA) obligatoria si se detecta un cambio de país respecto al habitual.
   enforce-2fa-on-country-change: true
 
-# Visual HUD & Audio Immersion
+# ------------------------------------------------------------------------------
+# 🔮 HUD VISUAL, TEMÁTICA MORADA & EFECTOS DE INMERSIÓN
+# ------------------------------------------------------------------------------
 hud-and-immersion:
+  # Muestra una barra de jefe (BossBar) superior con el contador regresivo para identificarse.
   bossbar-countdown: true
-  bossbar-color: "GREEN"
+
+  # Color de la barra BossBar (PURPLE, PINK, BLUE, GREEN, RED, YELLOW, WHITE).
+  bossbar-color: "PURPLE"
+
+  # Muestra mensajes dinámicos sobre la barra de acción (ActionBar) indicando el estado de autenticación.
   actionbar-prompt: true
+
+  # Reproduce efectos de sonido temáticos al registrarse, loguearse o fallar la contraseña.
   play-sounds: true
 
-# Lockdown & Restrictions before login
+# ------------------------------------------------------------------------------
+# 🔒 RESTRICCIONES & CONFINAMIENTO PRE-AUTENTICACIÓN (LOCKDOWN)
+# ------------------------------------------------------------------------------
 lockdown:
+  # Aplica ceguera (Blindness) a los jugadores que aún no han iniciado sesión para mayor privacidad.
   apply-blindness: true
+
+  # Aplica lentitud extrema (Slowness) para inmovilizar al jugador hasta su registro/login.
   apply-slowness: true
+
+  # Oculta de la lista de jugadores (TAB) a los usuarios no autenticados.
   hide-unauthenticated-from-tab: true
+
+  # Bloquea el movimiento físico y la rotación de cámara no autorizada.
   prevent-movement: true
+
+  # Bloquea el envío de mensajes en el chat global antes de autenticarse.
   prevent-chat: true
+
+  # Evita que el usuario arroje o tire objetos al suelo antes de identificarse.
   prevent-item-drop: true
+
+  # Bloquea cualquier interacción o manipulación del inventario antes de identificarse.
   prevent-inventory-click: true
+
+  # Protege al jugador para que no sufra daño ni pueda atacar entidades/mobs antes de loguearse.
   prevent-damage: true
+
+  # Comandos permitidos antes de haber iniciado sesión.
   allowed-commands:
     - "/login"
     - "/l"
@@ -88,13 +172,22 @@ lockdown:
     - "/smartlogin"
     - "/sl"
 
-# Authentication Spawn & Limbo
+# ------------------------------------------------------------------------------
+# 📍 SPAWN DE AUTENTICACIÓN / LIMBO
+# ------------------------------------------------------------------------------
 auth-spawn:
+  # Si está en 'true', teletransporta al jugador a una ubicación fija de spawn mientras no esté autenticado.
   enabled: false
+
+  # Mundo de autenticación.
   world: "world"
+
+  # Coordenadas exactas del spawn de autenticación.
   x: 0.5
   y: 64.0
   z: 0.5
   yaw: 0.0
   pitch: 0.0
+
+  # Si está en 'true', devuelve al jugador exactamente a la posición donde estaba antes tras iniciar sesión.
   teleport-back-on-login: true

@@ -124,7 +124,64 @@ public class AdminPanelGUI implements Listener {
         event.setCancelled(true);
         int slot = event.getSlot();
 
-        if (slot == 48) {
+        if (slot == 4) {
+            // Cycle language: es -> en -> pt -> fr -> de -> ru -> zh -> es
+            String current = plugin.getLocaleManager().getDefaultLanguage();
+            String[] langs = {"es", "en", "pt", "fr", "de", "ru", "zh"};
+            int nextIdx = 0;
+            for (int i = 0; i < langs.length; i++) {
+                if (langs[i].equalsIgnoreCase(current)) {
+                    nextIdx = (i + 1) % langs.length;
+                    break;
+                }
+            }
+            String nextLang = langs[nextIdx];
+            plugin.getLocaleManager().setDefaultLanguage(nextLang);
+            plugin.getLocaleManager().setPlayerLanguage(player.getUniqueId(), nextLang);
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 2.0f);
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Idioma cambiado a: <#C084FC><bold>" + nextLang.toUpperCase() + "</bold></#C084FC></#E9D5FF>"));
+            openPanel(player);
+        } else if (slot == 20) {
+            plugin.getSetupWizardManager().handleToggle(player, "2fa");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 21) {
+            plugin.getSetupWizardManager().handleToggle(player, "discord");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 22) {
+            plugin.getSetupWizardManager().handleToggle(player, "telegram");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 23) {
+            plugin.getSetupWizardManager().handleToggle(player, "bedrock");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 24) {
+            plugin.getSetupWizardManager().handleToggle(player, "premium");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 29) {
+            plugin.getSetupWizardManager().handleToggle(player, "shield");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 30) {
+            plugin.getSetupWizardManager().handleToggle(player, "nick");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 31) {
+            plugin.getSetupWizardManager().handleToggle(player, "captcha");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 32) {
+            plugin.getSetupWizardManager().handleToggle(player, "geo");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 33) {
+            plugin.getSetupWizardManager().handleToggle(player, "spawn");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.8f);
+            openPanel(player);
+        } else if (slot == 48) {
             File backup = plugin.getAuditManager().createDatabaseBackup();
             player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Copia de seguridad creada: <#C084FC>" + (backup != null ? backup.getName() : "N/A") + "</#C084FC></#E9D5FF>"));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
@@ -134,15 +191,6 @@ public class AdminPanelGUI implements Listener {
             plugin.getLocaleManager().loadLanguages();
             player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Todas las configuraciones e idiomas han sido recargados.</#E9D5FF>"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
-            openPanel(player);
-        } else if (slot == 20) {
-            plugin.getSetupWizardManager().handleToggle(player, "2fa");
-            openPanel(player);
-        } else if (slot == 23) {
-            plugin.getSetupWizardManager().handleToggle(player, "bedrock");
-            openPanel(player);
-        } else if (slot == 24) {
-            plugin.getSetupWizardManager().handleToggle(player, "premium");
             openPanel(player);
         }
     }

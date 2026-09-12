@@ -245,6 +245,8 @@ public class SetupWizardManager {
         FileConfiguration config = plugin.getModularConfig().getConfig();
         FileConfiguration authConfig = plugin.getModularConfig().getAuthConfig();
         FileConfiguration totpConfig = plugin.getModularConfig().getTotpConfig();
+        FileConfiguration discordConfig = plugin.getModularConfig().getDiscordConfig();
+        FileConfiguration telegramConfig = plugin.getModularConfig().getTelegramConfig();
 
         switch (feature.toLowerCase()) {
             case "autolang":
@@ -277,8 +279,47 @@ public class SetupWizardManager {
                 totpConfig.set("staff-enforcement.enabled", !s);
                 plugin.getModularConfig().saveTotp();
                 break;
+            case "discord":
+                boolean d = discordConfig.getBoolean("enabled", false);
+                discordConfig.set("enabled", !d);
+                plugin.getModularConfig().saveDiscord();
+                break;
+            case "telegram":
+                boolean tg = telegramConfig.getBoolean("enabled", false);
+                telegramConfig.set("enabled", !tg);
+                plugin.getModularConfig().saveTelegram();
+                break;
+            case "shield":
+            case "sessionshield":
+                boolean sh = authConfig.getBoolean("session-shield.enabled", true);
+                authConfig.set("session-shield.enabled", !sh);
+                plugin.getModularConfig().saveAuth();
+                break;
+            case "nick":
+            case "nickname":
+                boolean n = config.getBoolean("nickname-protection.strict-case", true);
+                config.set("nickname-protection.strict-case", !n);
+                plugin.getModularConfig().saveConfig();
+                break;
+            case "captcha":
+                int c = config.getInt("captcha.trigger-after-failed-attempts", 2);
+                config.set("captcha.trigger-after-failed-attempts", c > 0 ? 0 : 2);
+                plugin.getModularConfig().saveConfig();
+                break;
+            case "geo":
+            case "geoprotection":
+                boolean g = config.getBoolean("geo-protection.enabled", true);
+                config.set("geo-protection.enabled", !g);
+                plugin.getModularConfig().saveConfig();
+                break;
+            case "spawn":
+            case "authspawn":
+                boolean sp = config.getBoolean("auth-spawn.enabled", false);
+                config.set("auth-spawn.enabled", !sp);
+                plugin.getModularConfig().saveConfig();
+                break;
             default:
-                sender.sendMessage(Component.text("Unknown feature toggle: " + feature, NamedTextColor.RED));
+                sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Función desconocida: " + feature + "</#F5D0FE>"));
                 return;
         }
     }

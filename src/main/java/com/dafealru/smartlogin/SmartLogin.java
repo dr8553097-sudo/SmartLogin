@@ -56,10 +56,17 @@ public final class SmartLogin extends JavaPlugin {
         long startMs = System.currentTimeMillis();
         instance = this;
 
-        getLogger().info("==================================================");
-        getLogger().info("⚡ SmartLogin v" + getPluginMeta().getVersion() + " — Initializing Suite");
-        getLogger().info("Author: Dafealru | Native Java 21 & Paper 1.21.x");
-        getLogger().info("==================================================");
+        getLogger().info("================================================================");
+        getLogger().info("  ____                       _   _                 _       ");
+        getLogger().info(" / ___| _ __ ___   __ _ _ __| |_| |     ___   __ _(_)_ __  ");
+        getLogger().info(" \\___ \\| '_ ` _ \\ / _` | '__| __| |    / _ \\ / _` | | '_ \\ ");
+        getLogger().info("  ___) | | | | | | (_| | |  | |_| |___| (_) | (_| | | | | |");
+        getLogger().info(" |____/|_| |_| |_|\\__,_|_|   \\__|_____|\\___/ \\__, |_|_| |_|");
+        getLogger().info("                                             |___/         ");
+        getLogger().info(" ⚡ SmartLogin v" + getPluginMeta().getVersion() + " — Advanced Next-Gen Auth Engine");
+        getLogger().info(" 👑 Creator / Author: Dafealru");
+        getLogger().info(" 🌐 Running on: Native Java 21 & Paper/Purpur 1.21.x");
+        getLogger().info("================================================================");
 
         // 1. Modular Configs & Locales
         this.modularConfig = new ModularConfigManager(this);

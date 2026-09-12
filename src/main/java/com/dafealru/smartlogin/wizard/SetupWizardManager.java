@@ -35,20 +35,20 @@ public class SetupWizardManager {
         adminCurrentStep.put(player.getUniqueId(), 1);
 
         player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("╔══════════════════════════════════════════════════╗", NamedTextColor.GOLD));
-        player.sendMessage(Component.text("  ⚡ ¡BIENVENIDO A SMARTLOGIN SUITE v1.0.0!", NamedTextColor.YELLOW, TextDecoration.BOLD));
-        player.sendMessage(Component.text("  Detectamos que eres Administrador / OP y es la", NamedTextColor.GRAY));
-        player.sendMessage(Component.text("  primera vez que se inicia el sistema de autenticación.", NamedTextColor.GRAY));
+        player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>╔══════════════════════════════════════════════════╗</bold></gradient>"));
+        player.sendMessage(plugin.getLocaleManager().parse("  <light_purple><bold>⚡ SMARTLOGIN SUITE — CONFIGURACIÓN INICIAL</bold></light_purple>"));
+        player.sendMessage(plugin.getLocaleManager().parse("  <gray>Detectamos que eres Administrador y es la primera vez</gray>"));
+        player.sendMessage(plugin.getLocaleManager().parse("  <gray>que se inicia el sistema de autenticación en este servidor.</gray>"));
         player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("  A continuación iniciaremos la configuración básica", NamedTextColor.AQUA));
-        player.sendMessage(Component.text("  paso a paso. Haz clic en tu opción preferida:", NamedTextColor.AQUA));
-        player.sendMessage(Component.text("╚══════════════════════════════════════════════════╝", NamedTextColor.GOLD));
+        player.sendMessage(plugin.getLocaleManager().parse("  <#C084FC>Iniciaremos una configuración guiada paso a paso.</#C084FC>"));
+        player.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>Haz clic sobre la opción que prefieras en el chat:</#E9D5FF>"));
+        player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>╚══════════════════════════════════════════════════╝</bold></gradient>"));
 
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.5f);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             sendStep(player, 1);
-        }, 20L);
+        }, 15L);
     }
 
     public void sendSetupForm(CommandSender sender) {
@@ -90,103 +90,103 @@ public class SetupWizardManager {
     // PASO 1: BASE DE DATOS
     private void sendStep1(CommandSender sender) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━━ [ PASO 1 / 5: BASE DE DATOS ] ━━━━━━━━━━━━━━", NamedTextColor.GOLD, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("¿Dónde deseas guardar las cuentas y datos de los jugadores?", NamedTextColor.YELLOW));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━ [ PASO 1 / 5: BASE DE DATOS ] ━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<#E9D5FF>¿Dónde deseas guardar las cuentas y datos de los jugadores?</#E9D5FF>"));
         sender.sendMessage(Component.empty());
 
-        Component sqliteBtn = Component.text("  [ 📂 SQLite (Local / Recomendado) ]  ", NamedTextColor.GREEN, TextDecoration.BOLD)
+        Component sqliteBtn = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ 📂 SQLite (Local / Recomendado) ]</bold></gradient>")
                 .hoverEvent(HoverEvent.showText(Component.text("Recomendado para servidores individuales (smartlogin.db en WAL mode).", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 1 sqlite"));
 
-        Component mysqlBtn = Component.text("  [ 🌐 MySQL / MariaDB (Networks) ]  ", NamedTextColor.AQUA, TextDecoration.BOLD)
+        Component mysqlBtn = plugin.getLocaleManager().parse("  <gradient:#7C3AED:#9333EA><bold>[ 🌐 MySQL / MariaDB (Networks) ]</bold></gradient>")
                 .hoverEvent(HoverEvent.showText(Component.text("Para networks con múltiples lobbies sincronizados vía HikariCP.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 1 mysql"));
 
         sender.sendMessage(sqliteBtn);
         sender.sendMessage(Component.empty());
         sender.sendMessage(mysqlBtn);
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", NamedTextColor.GOLD));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
     }
 
     // PASO 2: COMPATIBILIDAD BEDROCK / GEYSER
     private void sendStep2(CommandSender sender) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("━━━━━━━━━━━━ [ PASO 2 / 5: SOPORTE BEDROCK ] ━━━━━━━━━━━━", NamedTextColor.GOLD, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("¿Tu servidor admite jugadores de Bedrock (GeyserMC / Floodgate)?", NamedTextColor.YELLOW));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ PASO 2 / 5: SOPORTE BEDROCK ] ━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<#E9D5FF>¿Tu servidor admite jugadores de Bedrock (GeyserMC / Floodgate)?</#E9D5FF>"));
         sender.sendMessage(Component.empty());
 
-        Component yesBtn = Component.text("  [ ✔ SÍ (Auto-Login Bedrock Activado) ]  ", NamedTextColor.GREEN, TextDecoration.BOLD)
+        Component yesBtn = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ ✔ SÍ (Auto-Login Bedrock Activado) ]</bold></gradient>")
                 .hoverEvent(HoverEvent.showText(Component.text("Los jugadores de Bedrock entran automáticamente sin pedir contraseña.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 2 on"));
 
-        Component noBtn = Component.text("  [ ✖ NO (Solo Servidor Java) ]  ", NamedTextColor.RED, TextDecoration.BOLD)
+        Component noBtn = plugin.getLocaleManager().parse("  <dark_gray><bold>[ ✖ NO (Solo Servidor Java) ]</bold></dark_gray>")
                 .hoverEvent(HoverEvent.showText(Component.text("Desactiva la detección de Floodgate/Bedrock.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 2 off"));
 
         sender.sendMessage(yesBtn);
         sender.sendMessage(Component.empty());
         sender.sendMessage(noBtn);
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", NamedTextColor.GOLD));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
     }
 
     // PASO 3: PROXY / REDIRECCIÓN A LOBBY
     private void sendStep3(CommandSender sender) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━ [ PASO 3 / 5: MODO DE RED ] ━━━━━━━━━━━━━", NamedTextColor.GOLD, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("¿Este servidor es un Auth detrás de un Proxy (Velocity/Bungee) o es Standalone?", NamedTextColor.YELLOW));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━ [ PASO 3 / 5: MODO DE RED ] ━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<#E9D5FF>¿Este servidor es un Auth detrás de un Proxy (Velocity/Bungee) o es Standalone?</#E9D5FF>"));
         sender.sendMessage(Component.empty());
 
-        Component proxyBtn = Component.text("  [ 🚀 Servidor Proxy (Redirigir a Lobby) ]  ", NamedTextColor.AQUA, TextDecoration.BOLD)
+        Component proxyBtn = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ 🚀 Servidor Proxy (Redirigir a Lobby) ]</bold></gradient>")
                 .hoverEvent(HoverEvent.showText(Component.text("Envía al jugador automáticamente al Lobby al autenticarse.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 3 proxy"));
 
-        Component standaloneBtn = Component.text("  [ 🏠 Servidor Individual (Standalone) ]  ", NamedTextColor.GREEN, TextDecoration.BOLD)
+        Component standaloneBtn = plugin.getLocaleManager().parse("  <gradient:#7C3AED:#9333EA><bold>[ 🏠 Servidor Individual (Standalone) ]</bold></gradient>")
                 .hoverEvent(HoverEvent.showText(Component.text("El jugador se queda jugando en este mismo servidor tras loguearse.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 3 standalone"));
 
         sender.sendMessage(proxyBtn);
         sender.sendMessage(Component.empty());
         sender.sendMessage(standaloneBtn);
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", NamedTextColor.GOLD));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
     }
 
     // PASO 4: SUITE 2FA
     private void sendStep4(CommandSender sender) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━ [ PASO 4 / 5: SUITE 2FA ] ━━━━━━━━━━━━━", NamedTextColor.GOLD, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("¿Deseas habilitar la suite 2FA (Google Auth con mapa QR, Discord, Telegram)?", NamedTextColor.YELLOW));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━ [ PASO 4 / 5: SUITE 2FA ] ━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<#E9D5FF>¿Deseas habilitar la suite 2FA (Google Auth con mapa QR, Discord, Telegram)?</#E9D5FF>"));
         sender.sendMessage(Component.empty());
 
-        Component enable2fa = Component.text("  [ 🔐 Habilitar 2FA Suite (Recomendado) ]  ", NamedTextColor.GREEN, TextDecoration.BOLD)
+        Component enable2fa = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ 🔐 Habilitar 2FA Suite (Recomendado) ]</bold></gradient>")
                 .hoverEvent(HoverEvent.showText(Component.text("Permite /2fa setup con mapa QR en el juego y códigos de recuperación.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 4 on"));
 
-        Component disable2fa = Component.text("  [ ✖ Desactivar 2FA ]  ", NamedTextColor.RED, TextDecoration.BOLD)
+        Component disable2fa = plugin.getLocaleManager().parse("  <dark_gray><bold>[ ✖ Desactivar 2FA ]</bold></dark_gray>")
                 .hoverEvent(HoverEvent.showText(Component.text("Desactiva los módulos de doble factor.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 4 off"));
 
         sender.sendMessage(enable2fa);
         sender.sendMessage(Component.empty());
         sender.sendMessage(disable2fa);
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", NamedTextColor.GOLD));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
     }
 
     // PASO 5: IDIOMA
     private void sendStep5(CommandSender sender) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━ [ PASO 5 / 5: IDIOMA ] ━━━━━━━━━━━━━", NamedTextColor.GOLD, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("¿Cómo deseas manejar el idioma de los mensajes?", NamedTextColor.YELLOW));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━ [ PASO 5 / 5: IDIOMA ] ━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<#E9D5FF>¿Cómo deseas manejar el idioma de los mensajes?</#E9D5FF>"));
         sender.sendMessage(Component.empty());
 
-        Component autoBtn = Component.text("  [ 🌐 Auto-Detectar Idioma del Cliente ]  ", NamedTextColor.GREEN, TextDecoration.BOLD)
-                .hoverEvent(HoverEvent.showText(Component.text("Muestra los mensajes automáticamente en Español, Inglés o Portugués según el Minecraft del jugador.", NamedTextColor.GRAY)))
+        Component autoBtn = plugin.getLocaleManager().parse("  <gradient:#A855F7:#C084FC><bold>[ 🌐 Auto-Detectar Idioma del Cliente ]</bold></gradient>")
+                .hoverEvent(HoverEvent.showText(Component.text("Muestra los mensajes automáticamente según el idioma de Minecraft del jugador.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 auto"));
 
-        Component esBtn = Component.text("  [ 🇪🇸 Fijar Español (Global) ]  ", NamedTextColor.GOLD, TextDecoration.BOLD)
+        Component esBtn = plugin.getLocaleManager().parse("  <#C084FC><bold>[ 🇪🇸 Fijar Español (Global) ]</bold></#C084FC>")
                 .hoverEvent(HoverEvent.showText(Component.text("Todos los jugadores verán siempre los mensajes en Español.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 es"));
 
-        Component enBtn = Component.text("  [ 🇺🇸 Fijar Inglés (Global) ]  ", NamedTextColor.AQUA, TextDecoration.BOLD)
+        Component enBtn = plugin.getLocaleManager().parse("  <#A855F7><bold>[ 🇺🇸 Fijar Inglés (Global) ]</bold></#A855F7>")
                 .hoverEvent(HoverEvent.showText(Component.text("Todos los jugadores verán los mensajes en Inglés.", NamedTextColor.GRAY)))
                 .clickEvent(ClickEvent.runCommand("/smartlogin wizard 5 en"));
 
@@ -195,7 +195,7 @@ public class SetupWizardManager {
         sender.sendMessage(esBtn);
         sender.sendMessage(Component.empty());
         sender.sendMessage(enBtn);
-        sender.sendMessage(Component.text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", NamedTextColor.GOLD));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
     }
 
     public void handleStepChoice(CommandSender sender, int step, String choice) {
@@ -209,11 +209,11 @@ public class SetupWizardManager {
                 if ("mysql".equalsIgnoreCase(choice)) {
                     dbConfig.set("type", "MYSQL");
                     plugin.getModularConfig().saveDatabase();
-                    sender.sendMessage(Component.text("✔ Almacenamiento configurado en: MySQL / MariaDB", NamedTextColor.GREEN));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Almacenamiento configurado en: <#C084FC>MySQL / MariaDB</#C084FC></gray>"));
                 } else {
                     dbConfig.set("type", "SQLITE");
                     plugin.getModularConfig().saveDatabase();
-                    sender.sendMessage(Component.text("✔ Almacenamiento configurado en: SQLite (Local)", NamedTextColor.GREEN));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Almacenamiento configurado en: <#C084FC>SQLite (Local)</#C084FC></gray>"));
                 }
                 sendStep(sender, 2);
                 break;
@@ -222,7 +222,7 @@ public class SetupWizardManager {
                 boolean bedrockOn = "on".equalsIgnoreCase(choice);
                 authConfig.set("bedrock.auto-login-enabled", bedrockOn);
                 plugin.getModularConfig().saveAuth();
-                sender.sendMessage(Component.text("✔ Soporte Bedrock: " + (bedrockOn ? "ACTIVADO" : "DESACTIVADO"), NamedTextColor.GREEN));
+                sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Soporte Bedrock: <#C084FC>" + (bedrockOn ? "ACTIVADO" : "DESACTIVADO") + "</#C084FC></gray>"));
                 sendStep(sender, 3);
                 break;
 
@@ -230,7 +230,7 @@ public class SetupWizardManager {
                 boolean proxyOn = "proxy".equalsIgnoreCase(choice);
                 authConfig.set("proxy.send-to-lobby-on-login", proxyOn);
                 plugin.getModularConfig().saveAuth();
-                sender.sendMessage(Component.text("✔ Modo de Red: " + (proxyOn ? "Proxy (Redirección a Lobby)" : "Standalone (Individual)"), NamedTextColor.GREEN));
+                sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Modo de Red: <#C084FC>" + (proxyOn ? "Proxy (Redirección a Lobby)" : "Standalone (Individual)") + "</#C084FC></gray>"));
                 sendStep(sender, 4);
                 break;
 
@@ -238,22 +238,22 @@ public class SetupWizardManager {
                 boolean twoFaOn = "on".equalsIgnoreCase(choice);
                 totpConfig.set("enabled", twoFaOn);
                 plugin.getModularConfig().saveTotp();
-                sender.sendMessage(Component.text("✔ Suite 2FA: " + (twoFaOn ? "ACTIVADA" : "DESACTIVADA"), NamedTextColor.GREEN));
+                sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Suite 2FA: <#C084FC>" + (twoFaOn ? "ACTIVADA" : "DESACTIVADA") + "</#C084FC></gray>"));
                 sendStep(sender, 5);
                 break;
 
             case 5:
                 if ("auto".equalsIgnoreCase(choice)) {
                     config.set("general.auto-detect-client-language", true);
-                    sender.sendMessage(Component.text("✔ Detección automática de idioma del cliente: ACTIVADA", NamedTextColor.GREEN));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Detección automática de idioma: <#C084FC>ACTIVADA</#C084FC></gray>"));
                 } else if ("es".equalsIgnoreCase(choice)) {
                     config.set("general.auto-detect-client-language", false);
                     config.set("general.default-language", "es");
-                    sender.sendMessage(Component.text("✔ Idioma fijado en: ESPAÑOL", NamedTextColor.GREEN));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Idioma fijado en: <#C084FC>ESPAÑOL</#C084FC></gray>"));
                 } else if ("en".equalsIgnoreCase(choice)) {
                     config.set("general.auto-detect-client-language", false);
                     config.set("general.default-language", "en");
-                    sender.sendMessage(Component.text("✔ Idioma fijado en: INGLÉS", NamedTextColor.GREEN));
+                    sender.sendMessage(plugin.getLocaleManager().parse("<light_purple>✔</light_purple> <gray>Idioma fijado en: <#C084FC>INGLÉS</#C084FC></gray>"));
                 }
                 plugin.getModularConfig().saveConfig();
                 plugin.getLocaleManager().loadLanguages();
@@ -313,29 +313,22 @@ public class SetupWizardManager {
         plugin.getModularConfig().saveConfig();
 
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("╔══════════════════════════════════════════════════╗", NamedTextColor.GREEN));
-        sender.sendMessage(Component.text("  🎉 ¡CONFIGURACIÓN INICIAL COMPLETADA CON ÉXITO!", NamedTextColor.GOLD, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("  Todos los ajustes han sido guardados correctamente.", NamedTextColor.GRAY));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>╔══════════════════════════════════════════════════╗</bold></gradient>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <light_purple><bold>🎉 ¡CONFIGURACIÓN INICIAL COMPLETADA CON ÉXITO!</bold></light_purple>"));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <gray>Todos los ajustes han sido guardados correctamente.</gray>"));
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("  👉 Panel de Control GUI: ", NamedTextColor.YELLOW)
-                .append(Component.text("/smartlogin gui", NamedTextColor.AQUA, TextDecoration.UNDERLINED)
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>👉 Panel de Control GUI: </#E9D5FF>")
+                .append(Component.text("/smartlogin gui", NamedTextColor.LIGHT_PURPLE, TextDecoration.UNDERLINED)
                         .clickEvent(ClickEvent.runCommand("/smartlogin gui"))
-                        .hoverEvent(HoverEvent.showText(Component.text("Click para abrir el panel de control")))));
-        sender.sendMessage(Component.text("  👉 Ver todos los comandos: ", NamedTextColor.YELLOW)
-                .append(Component.text("/smartlogin help", NamedTextColor.AQUA, TextDecoration.UNDERLINED)
+                        .hoverEvent(HoverEvent.showText(Component.text("Click para abrir el panel de control", NamedTextColor.GRAY)))));
+        sender.sendMessage(plugin.getLocaleManager().parse("  <#E9D5FF>👉 Ver todos los comandos: </#E9D5FF>")
+                .append(Component.text("/smartlogin help", NamedTextColor.LIGHT_PURPLE, TextDecoration.UNDERLINED)
                         .clickEvent(ClickEvent.runCommand("/smartlogin help"))));
-        sender.sendMessage(Component.text("╚══════════════════════════════════════════════════╝", NamedTextColor.GREEN));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>╚══════════════════════════════════════════════════╝</bold></gradient>"));
 
         if (sender instanceof Player player) {
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-
-            Title doneTitle = Title.title(
-                    plugin.getLocaleManager().parse("<green><bold>✔ ¡SETUP COMPLETADO!</bold></green>"),
-                    plugin.getLocaleManager().parse("<gold>SmartLogin Suite v1.0.0 Listo</gold>"),
-                    Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(3), Duration.ofMillis(500))
-            );
-            player.showTitle(doneTitle);
             adminCurrentStep.remove(player.getUniqueId());
         }
     }

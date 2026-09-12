@@ -1,14 +1,14 @@
-# 🇺🇸 SmartLogin - English Language (MiniMessage & Hex Colors)
-prefix: "<gold><bold>SmartLogin</bold></gold> <dark_gray>»</dark_gray> "
-prompt-register: "<yellow>Please use <gold>/register <password> <confirm></gold> to register your account.</yellow>"
-prompt-login: "<yellow>Please use <gold>/login <password></gold> to authenticate.</yellow>"
-prompt-2fa-verify: "<gold><bold>2FA REQUIRED:</bold></gold> <yellow>Use <gold>/2fa verify <code></gold> or <gold>/2fa recovery <code></gold>.</yellow>"
-prompt-change-password: "<yellow>Use <gold>/changepassword <old> <new></gold>.</yellow>"
+# 🇺🇸 SmartLogin - English Language (Aesthetic Purple Theme & Hex Gradients)
+prefix: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> "
+prompt-register: "<gray>Please use <light_purple><bold>/register <password> <confirm></bold></light_purple> to register your account.</gray>"
+prompt-login: "<gray>Please use <light_purple><bold>/login <password></bold></light_purple> to authenticate.</gray>"
+prompt-2fa-verify: "<dark_purple><bold>2FA REQUIRED:</bold></dark_purple> <gray>Use <light_purple>/2fa verify <code></light_purple> or <light_purple>/2fa recovery <code></light_purple>.</gray>"
+prompt-change-password: "<gray>Use <light_purple>/changepassword <old> <new></light_purple>.</gray>"
 
-title-register: "<gold><bold>REGISTER</bold></gold>"
-subtitle-register: "<yellow>Type /register <password> <confirm></yellow>"
-title-login: "<gold><bold>LOGIN</bold></gold>"
-subtitle-login: "<yellow>Type /login <password></yellow>"
+title-register: "<gradient:#9333EA:#C084FC><bold>REGISTER</bold></gradient>"
+subtitle-register: "<gray>Type <light_purple>/register <password> <confirm></light_purple></gray>"
+title-login: "<gradient:#9333EA:#C084FC><bold>LOGIN</bold></gradient>"
+subtitle-login: "<gray>Type <light_purple>/login <password></light_purple></gray>"
 
 success-registered: "<green><bold>✔</bold> Account registered successfully! Welcome to the server.</green>"
 success-logged-in: "<green><bold>✔</bold> Successfully logged in! Have fun playing.</green>"

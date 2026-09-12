@@ -77,6 +77,15 @@ public class TwoFactorCommand implements CommandExecutor {
                     profile.set2FAEnabled(true);
                     plugin.getDatabaseManager().saveProfile(profile);
                     plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                    plugin.getAuthHudManager().stopHud(player);
+                    plugin.getAuthHudManager().playSuccessSound(player);
+                    plugin.getProxyBridge().sendToLobby(player);
+                    player.removePotionEffect(org.bukkit.potion.PotionEffectType.BLINDNESS);
+                    player.removePotionEffect(org.bukkit.potion.PotionEffectType.SLOWNESS);
+                    if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
+                        player.setAllowFlight(false);
+                        player.setFlying(false);
+                    }
                     plugin.getSpawnManager().handleLoginRestore(player);
                     player.sendMessage(plugin.getLocaleManager().getComponent("success-2fa-enabled", player));
                 } else {
@@ -101,6 +110,15 @@ public class TwoFactorCommand implements CommandExecutor {
             if (BackupCodeManager.verifyAndConsume(profile, args[1])) {
                 plugin.getDatabaseManager().saveProfile(profile);
                 plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+                plugin.getAuthHudManager().stopHud(player);
+                plugin.getAuthHudManager().playSuccessSound(player);
+                plugin.getProxyBridge().sendToLobby(player);
+                player.removePotionEffect(org.bukkit.potion.PotionEffectType.BLINDNESS);
+                player.removePotionEffect(org.bukkit.potion.PotionEffectType.SLOWNESS);
+                if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
+                    player.setAllowFlight(false);
+                    player.setFlying(false);
+                }
                 plugin.getSpawnManager().handleLoginRestore(player);
                 player.sendMessage(Component.text("✔ Recovery code accepted! Emergency login successful.", NamedTextColor.GREEN, TextDecoration.BOLD));
             } else {

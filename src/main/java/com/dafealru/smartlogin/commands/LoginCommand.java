@@ -54,8 +54,15 @@ public class LoginCommand implements CommandExecutor {
             }
 
             plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
+            plugin.getAuthHudManager().stopHud(player);
+            plugin.getAuthHudManager().playSuccessSound(player);
+            plugin.getProxyBridge().sendToLobby(player);
             player.removePotionEffect(PotionEffectType.BLINDNESS);
             player.removePotionEffect(PotionEffectType.SLOWNESS);
+            if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
+                player.setAllowFlight(false);
+                player.setFlying(false);
+            }
 
             profile.setLastIp(player.getAddress().getAddress().getHostAddress());
             profile.setLastLoginTimestamp(System.currentTimeMillis());

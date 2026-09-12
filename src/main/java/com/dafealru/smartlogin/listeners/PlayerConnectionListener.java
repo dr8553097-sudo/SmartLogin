@@ -64,8 +64,10 @@ public class PlayerConnectionListener implements Listener {
             }, 10L);
         }
 
-        // Apply blindness / slowness / spawn teleport
+        // Apply blindness / slowness / spawn teleport and allow flight to prevent vanilla fly kick
         plugin.getSpawnManager().handleJoinSpawn(player);
+        player.setAllowFlight(true);
+        player.setFlying(false);
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1, false, false));
         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 5, false, false));
 

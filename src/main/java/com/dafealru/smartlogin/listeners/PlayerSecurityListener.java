@@ -55,7 +55,7 @@ public class PlayerSecurityListener implements Listener {
         if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
 
         String cmd = event.getMessage().toLowerCase().split(" ")[0];
-        if (cmd.equalsIgnoreCase("/smartlogin") || cmd.equalsIgnoreCase("/sl")) {
+        if (cmd.equalsIgnoreCase("/smartlogin") || cmd.equalsIgnoreCase("/sl") || cmd.equalsIgnoreCase("/lang") || cmd.equalsIgnoreCase("/language") || cmd.equalsIgnoreCase("/idioma")) {
             return;
         }
 
@@ -189,7 +189,10 @@ public class PlayerSecurityListener implements Listener {
                     && !cmd.equalsIgnoreCase("changepassword")
                     && !cmd.equalsIgnoreCase("2fa")
                     && !cmd.equalsIgnoreCase("link")
-                    && !cmd.equalsIgnoreCase("tlink"));
+                    && !cmd.equalsIgnoreCase("tlink")
+                    && !cmd.equalsIgnoreCase("lang")
+                    && !cmd.equalsIgnoreCase("language")
+                    && !cmd.equalsIgnoreCase("idioma"));
         }
     }
 }

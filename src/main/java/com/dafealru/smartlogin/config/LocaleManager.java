@@ -130,7 +130,9 @@ public class LocaleManager {
         String code = lang.toLowerCase();
         if (languageFiles.containsKey(code)) {
             this.defaultLanguage = code;
+            this.autoDetect = false;
             plugin.getModularConfig().getConfig().set("general.default-language", code);
+            plugin.getModularConfig().getConfig().set("general.auto-detect-client-language", false);
             plugin.getModularConfig().saveConfig();
             return true;
         }

@@ -19,6 +19,7 @@ com\dafealru\smartlogin\gui\PinPadGUI.class
 com\dafealru\smartlogin\telegram\TelegramManager.class
 com\dafealru\smartlogin\database\SQLiteDatabase.class
 com\dafealru\smartlogin\auth\SessionShield.class
+com\dafealru\smartlogin\commands\LanguageCommand.class
 com\dafealru\smartlogin\geoip\GeoIpManager.class
 com\dafealru\smartlogin\commands\TelegramLinkCommand.class
 com\dafealru\smartlogin\auth\AutoLoginDetector.class

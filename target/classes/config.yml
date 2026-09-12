@@ -170,6 +170,9 @@ lockdown:
     - "/anvil"
     - "/smartlogin"
     - "/sl"
+    - "/lang"
+    - "/language"
+    - "/idioma"
 
 # ------------------------------------------------------------------------------
 # 📍 AUTHENTICATION SPAWN & LIMBO

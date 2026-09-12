@@ -126,6 +126,11 @@ public final class SmartLogin extends JavaPlugin {
         if (getCommand("tlink") != null) {
             getCommand("tlink").setExecutor(new TelegramLinkCommand(this));
         }
+        if (getCommand("lang") != null) {
+            LanguageCommand langCmd = new LanguageCommand(this);
+            getCommand("lang").setExecutor(langCmd);
+            getCommand("lang").setTabCompleter(langCmd);
+        }
 
         long elapsed = System.currentTimeMillis() - startMs;
         console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC>✔ <bold>SmartLogin</bold> fully enabled in <color:#F5D0FE>" + elapsed + "ms</color>! Sistema listo.</gradient>"));

@@ -37,6 +37,10 @@ commands:
     description: Link your account with the Discord Bot
     aliases: [discordlink]
     permission: smartlogin.use
+  tlink:
+    description: Link your account with the Telegram Bot
+    aliases: [telegramlink]
+    permission: smartlogin.use
 
 permissions:
   smartlogin.use:

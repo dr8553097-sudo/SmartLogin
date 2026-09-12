@@ -12,6 +12,7 @@ public class PlayerProfile {
     private String totpSecret;
     private String backupCodes;
     private String discordId;
+    private String telegramChatId;
     private String email;
     private String lastIp;
     private long lastLoginTimestamp;
@@ -20,7 +21,7 @@ public class PlayerProfile {
 
     public PlayerProfile(UUID uuid, String username, String passwordHash, String salt,
                          boolean twoFactorEnabled, String totpSecret, String backupCodes,
-                         String discordId, String email,
+                         String discordId, String telegramChatId, String email,
                          String lastIp, long lastLoginTimestamp, boolean isPremium, boolean isBedrock) {
         this.uuid = uuid;
         this.username = username;
@@ -30,6 +31,7 @@ public class PlayerProfile {
         this.totpSecret = totpSecret;
         this.backupCodes = backupCodes;
         this.discordId = discordId;
+        this.telegramChatId = telegramChatId;
         this.email = email;
         this.lastIp = lastIp;
         this.lastLoginTimestamp = lastLoginTimestamp;
@@ -40,7 +42,7 @@ public class PlayerProfile {
     public PlayerProfile(UUID uuid, String username, String passwordHash, String salt,
                          boolean twoFactorEnabled, String totpSecret, String backupCodes,
                          String lastIp, long lastLoginTimestamp, boolean isPremium, boolean isBedrock) {
-        this(uuid, username, passwordHash, salt, twoFactorEnabled, totpSecret, backupCodes, null, null, lastIp, lastLoginTimestamp, isPremium, isBedrock);
+        this(uuid, username, passwordHash, salt, twoFactorEnabled, totpSecret, backupCodes, null, null, null, lastIp, lastLoginTimestamp, isPremium, isBedrock);
     }
 
     public UUID getUuid() { return uuid; }
@@ -58,6 +60,8 @@ public class PlayerProfile {
     public void setBackupCodes(String backupCodes) { this.backupCodes = backupCodes; }
     public String getDiscordId() { return discordId; }
     public void setDiscordId(String discordId) { this.discordId = discordId; }
+    public String getTelegramChatId() { return telegramChatId; }
+    public void setTelegramChatId(String telegramChatId) { this.telegramChatId = telegramChatId; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getLastIp() { return lastIp; }

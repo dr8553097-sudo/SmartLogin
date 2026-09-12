@@ -2,12 +2,14 @@ C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\aud
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\auth\AuthManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\auth\AutoLoginDetector.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\auth\SessionShield.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\captcha\CaptchaManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\ChangePasswordCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\LinkCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\LoginCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\PremiumCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\RegisterCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\SmartLoginAdminCommand.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\TelegramLinkCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\TwoFactorCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\config\ConfigManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\config\LocaleManager.java
@@ -19,6 +21,8 @@ C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\dat
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\database\PlayerProfile.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\database\SQLiteDatabase.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\discord\DiscordManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\geoip\GeoIpManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\gui\AdminPanelGUI.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\gui\PinPadGUI.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\hud\AuthHudManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\listeners\PlayerConnectionListener.java
@@ -30,6 +34,7 @@ C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMatrixGenerator.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\SmartLogin.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\spawn\SpawnManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\telegram\TelegramManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\twofactor\BackupCodeManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\twofactor\TwoFactorManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\wizard\SetupWizardManager.java

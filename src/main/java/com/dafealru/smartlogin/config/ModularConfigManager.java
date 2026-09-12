@@ -11,10 +11,10 @@ public class ModularConfigManager {
     private final SmartLogin plugin;
 
     private File configFile, authFile, databaseFile;
-    private File totpFile, discordFile, pinpadFile, emailFile;
+    private File totpFile, discordFile, telegramFile, pinpadFile, emailFile;
 
     private FileConfiguration config, authConfig, databaseConfig;
-    private FileConfiguration totpConfig, discordConfig, pinpadConfig, emailConfig;
+    private FileConfiguration totpConfig, discordConfig, telegramConfig, pinpadConfig, emailConfig;
 
     public ModularConfigManager(SmartLogin plugin) {
         this.plugin = plugin;
@@ -31,6 +31,7 @@ public class ModularConfigManager {
 
         totpFile = setupSubFile("2fa/totp.yml");
         discordFile = setupSubFile("2fa/discord.yml");
+        telegramFile = setupSubFile("2fa/telegram.yml");
         pinpadFile = setupSubFile("2fa/pinpad.yml");
         emailFile = setupSubFile("2fa/email.yml");
 
@@ -40,6 +41,7 @@ public class ModularConfigManager {
 
         totpConfig = YamlConfiguration.loadConfiguration(totpFile);
         discordConfig = YamlConfiguration.loadConfiguration(discordFile);
+        telegramConfig = YamlConfiguration.loadConfiguration(telegramFile);
         pinpadConfig = YamlConfiguration.loadConfiguration(pinpadFile);
         emailConfig = YamlConfiguration.loadConfiguration(emailFile);
     }
@@ -65,6 +67,7 @@ public class ModularConfigManager {
     public void saveAuth() { try { authConfig.save(authFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveTotp() { try { totpConfig.save(totpFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveDiscord() { try { discordConfig.save(discordFile); } catch (Exception e) { e.printStackTrace(); } }
+    public void saveTelegram() { try { telegramConfig.save(telegramFile); } catch (Exception e) { e.printStackTrace(); } }
     public void savePinpad() { try { pinpadConfig.save(pinpadFile); } catch (Exception e) { e.printStackTrace(); } }
     public void saveEmail() { try { emailConfig.save(emailFile); } catch (Exception e) { e.printStackTrace(); } }
 
@@ -74,6 +77,7 @@ public class ModularConfigManager {
     public FileConfiguration getTotpConfig() { return totpConfig; }
     public FileConfiguration getTwoFactorConfig() { return totpConfig; }
     public FileConfiguration getDiscordConfig() { return discordConfig; }
+    public FileConfiguration getTelegramConfig() { return telegramConfig; }
     public FileConfiguration getPinpadConfig() { return pinpadConfig; }
     public FileConfiguration getEmailConfig() { return emailConfig; }
 }

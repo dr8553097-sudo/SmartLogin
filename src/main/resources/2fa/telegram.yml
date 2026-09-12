@@ -1,0 +1,26 @@
+# ==============================================================================
+# 📲 SmartLogin — 2FA: Telegram Bot Suite
+# ==============================================================================
+
+# Enable / Disable Telegram 2FA integration
+enabled: false
+
+# Your Telegram Bot Token obtained from @BotFather
+bot-token: "YOUR_TELEGRAM_BOT_TOKEN_HERE"
+
+# Telegram 2FA Login Approval by Inline Buttons
+approval:
+  enabled: true
+  # Only send Telegram push notification if logging in from a new/different IP
+  only-on-new-ip: true
+  # Approval timeout in seconds
+  timeout-seconds: 60
+
+# Admin / Staff Security Alerts Channel / Chat ID
+alerts:
+  enabled: false
+  # Your Telegram Chat ID or Group ID to receive emergency security alerts
+  chat-id: ""
+  notify-on-admin-login: true
+  notify-on-brute-force: true
+  notify-on-country-change: true

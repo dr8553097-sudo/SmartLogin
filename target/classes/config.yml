@@ -2,32 +2,23 @@
 # 🛡️ SmartLogin — Core Configuration
 # ==============================================================================
 
-# Has the server initial setup wizard been completed?
-# If false, the first admin/OP who joins will see the interactive setup wizard in chat.
 setup-completed: false
 
-# General settings
 general:
   default-language: "es"
-  # Automatically detect each player's Minecraft client language and translate all messages/GUI for them!
   auto-detect-client-language: true
-  # Authentication timeout in seconds before kicking
   auth-timeout-seconds: 60
-  # Maximum registered accounts allowed per IP address (0 for unlimited)
   max-accounts-per-ip: 3
 
 # Anti-Impostor & Nickname Protection
 nickname-protection:
-  # Enforce exact case-sensitivity (e.g. Dafealru != dafealru) to prevent impersonation
   strict-case: true
-  # Regex pattern for allowed characters in usernames
   allowed-regex: "^[a-zA-Z0-9_]{3,16}$"
 
 # Password Security Policy
 password-policy:
   min-length: 6
   max-length: 32
-  # Max failed attempts before kicking player
   max-login-attempts: 5
   disallowed-passwords:
     - "123456"
@@ -38,17 +29,35 @@ password-policy:
     - "qwerty"
     - "minecraft"
 
+# Dynamic Captcha Anti-Brute-Force Shield
+captcha:
+  # Open visual item click captcha after X failed password attempts (0 = disabled)
+  trigger-after-failed-attempts: 2
+  # Enforce captcha for new unregistered players
+  enforce-on-register: false
+
+# Anvil GUI Password Input
+anvil-gui:
+  # Allow /anvil login and /anvil register
+  enabled: true
+  # Auto-open anvil GUI on player join instead of chat
+  auto-open-on-join: false
+
+# Geo-IP & Impossible Travel Security
+geo-protection:
+  enabled: true
+  # If a player logs in from a different country, enforce 2FA and send staff alert
+  alert-on-country-change: true
+  enforce-2fa-on-country-change: true
+
 # Visual HUD & Audio Immersion
 hud-and-immersion:
-  # Dynamic countdown BossBar (Green -> Yellow -> Red)
   bossbar-countdown: true
   bossbar-color: "GREEN"
-  # Blinking Actionbar message
   actionbar-prompt: true
-  # Sound effects on success, failure, 2fa
   play-sounds: true
 
-# Visual Lockdown & Restrictions before login
+# Lockdown & Restrictions before login
 lockdown:
   apply-blindness: true
   apply-slowness: true
@@ -66,7 +75,9 @@ lockdown:
     - "/2fa"
     - "/pinpad"
     - "/link"
+    - "/tlink"
     - "/email"
+    - "/anvil"
 
 # Authentication Spawn & Limbo
 auth-spawn:

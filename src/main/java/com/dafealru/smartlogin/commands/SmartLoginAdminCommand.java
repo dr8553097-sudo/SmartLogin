@@ -27,12 +27,25 @@ public class SmartLoginAdminCommand implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            plugin.getSetupWizardManager().sendSetupForm(sender);
+            if (sender instanceof Player player) {
+                plugin.getAdminPanelGUI().openPanel(player);
+            } else {
+                plugin.getSetupWizardManager().sendSetupForm(sender);
+            }
             return true;
         }
 
         String sub = args[0].toLowerCase();
         switch (sub) {
+            case "gui":
+            case "panel":
+            case "menu":
+                if (sender instanceof Player player) {
+                    plugin.getAdminPanelGUI().openPanel(player);
+                } else {
+                    sender.sendMessage("GUI panel is only accessible in-game.");
+                }
+                break;
             case "setup":
                 plugin.getSetupWizardManager().sendSetupForm(sender);
                 break;
@@ -106,7 +119,11 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                 }
                 break;
             default:
-                plugin.getSetupWizardManager().sendSetupForm(sender);
+                if (sender instanceof Player player) {
+                    plugin.getAdminPanelGUI().openPanel(player);
+                } else {
+                    plugin.getSetupWizardManager().sendSetupForm(sender);
+                }
                 break;
         }
 

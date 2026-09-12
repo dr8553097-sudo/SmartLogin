@@ -1,14 +1,18 @@
-# 🇺🇸 SmartLogin - English Language (Aesthetic Purple Theme & Hex Gradients)
+# 🇺🇸 SmartLogin - English Language
 prefix: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> "
 prompt-register: "<#E9D5FF>Use <#C084FC><bold>/register <password> <confirm></bold></#C084FC> to register on the server.</#E9D5FF>"
 prompt-login: "<#E9D5FF>Use <#C084FC><bold>/login <password></bold></#C084FC> to authenticate.</#E9D5FF>"
 prompt-2fa-verify: "<gradient:#9333EA:#C084FC><bold>2FA REQUIRED:</bold></gradient> <#E9D5FF>Use <#C084FC>/2fa verify <code></#C084FC> or <#C084FC>/2fa recovery <code></#C084FC>.</#E9D5FF>"
 prompt-change-password: "<#E9D5FF>Use <#C084FC>/changepassword <old> <new></#C084FC>.</#E9D5FF>"
 
-title-register: "<gradient:#9333EA:#C084FC><bold>REGISTER</bold></gradient>"
-subtitle-register: "<#E9D5FF>Type <#C084FC>/register <password> <confirm></#C084FC></#E9D5FF>"
-title-login: "<gradient:#9333EA:#C084FC><bold>LOGIN</bold></gradient>"
-subtitle-login: "<#E9D5FF>Type <#C084FC>/login <password></#C084FC></#E9D5FF>"
+title-register: "<gradient:#9333EA:#C084FC><bold>REGISTER!</bold></gradient>"
+subtitle-register: "<#E9D5FF>Type <#C084FC><bold>/register <password> <confirm></bold></#C084FC></#E9D5FF>"
+title-login: "<gradient:#9333EA:#C084FC><bold>LOGIN!</bold></gradient>"
+subtitle-login: "<#E9D5FF>Type <#C084FC><bold>/login <password></bold></#C084FC></#E9D5FF>"
+
+bossbar-register: "<gradient:#9333EA:#C084FC><bold>⏳ Register: /register <password> <confirm></bold></gradient>"
+bossbar-login: "<gradient:#9333EA:#C084FC><bold>⏳ Login: /login <password></bold></gradient>"
+actionbar-timeout: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Authentication time remaining: <#F5D0FE><bold>{seconds}s</bold></#F5D0FE></#E9D5FF>"
 
 success-registered: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>Account successfully registered! Welcome to the server.</#E9D5FF>"
 success-logged-in: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>Logged in successfully! Have fun playing.</#E9D5FF>"

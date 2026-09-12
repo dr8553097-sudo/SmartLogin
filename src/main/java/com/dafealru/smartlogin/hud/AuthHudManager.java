@@ -2,9 +2,6 @@ package com.dafealru.smartlogin.hud;
 
 import com.dafealru.smartlogin.SmartLogin;
 import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -31,10 +28,12 @@ public class AuthHudManager {
     public void startHud(Player player, boolean isRegister) {
         playerRegisterMode.put(player.getUniqueId(), isRegister);
 
-        // Show immediate title
+        // Show immediate localized title
+        String titleKey = isRegister ? "title-register" : "title-login";
+        String subtitleKey = isRegister ? "subtitle-register" : "subtitle-login";
         Title initialTitle = Title.title(
-                plugin.getLocaleManager().parse(isRegister ? "<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>" : "<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
-                plugin.getLocaleManager().parse(isRegister ? "<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>" : "<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"),
+                plugin.getLocaleManager().getComponent(titleKey, player),
+                plugin.getLocaleManager().getComponent(subtitleKey, player),
                 Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
         );
         player.showTitle(initialTitle);
@@ -44,9 +43,9 @@ public class AuthHudManager {
         int totalTimeout = plugin.getModularConfig().getConfig().getInt("general.auth-timeout-seconds", 60);
         remainingSeconds.put(player.getUniqueId(), totalTimeout);
 
-        String titleText = isRegister ? "⏳ Registrate: /register <contraseña> <repetir>" : "⏳ Inicia Sesión: /login <contraseña>";
+        String bossbarKey = isRegister ? "bossbar-register" : "bossbar-login";
         BossBar bar = BossBar.bossBar(
-                plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>" + titleText + "</bold></gradient>"),
+                plugin.getLocaleManager().getComponent(bossbarKey, player),
                 1.0f,
                 BossBar.Color.PURPLE,
                 BossBar.Overlay.PROGRESS
@@ -90,12 +89,14 @@ public class AuthHudManager {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) continue;
 
-                // 1. Maintain persistent, seamless title on screen
+                // 1. Maintain persistent, seamless localized title on screen
                 Boolean isReg = playerRegisterMode.get(player.getUniqueId());
                 if (isReg != null) {
+                    String titleKey = isReg ? "title-register" : "title-login";
+                    String subtitleKey = isReg ? "subtitle-register" : "subtitle-login";
                     Title continuousTitle = Title.title(
-                            plugin.getLocaleManager().parse(isReg ? "<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>" : "<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
-                            plugin.getLocaleManager().parse(isReg ? "<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>" : "<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"),
+                            plugin.getLocaleManager().getComponent(titleKey, player),
+                            plugin.getLocaleManager().getComponent(subtitleKey, player),
                             Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
                     );
                     player.showTitle(continuousTitle);
@@ -116,12 +117,15 @@ public class AuthHudManager {
                 if (bar != null) {
                     float progress = Math.max(0.0f, Math.min(1.0f, (float) remaining / (float) total));
                     bar.progress(progress);
+                    String bossbarKey = (isReg != null && isReg) ? "bossbar-register" : "bossbar-login";
+                    bar.name(plugin.getLocaleManager().getComponent(bossbarKey, player));
                     bar.color(BossBar.Color.PURPLE);
                 }
 
                 // Actionbar prompt
                 if (plugin.getModularConfig().getConfig().getBoolean("hud-and-immersion.actionbar-prompt", true)) {
-                    player.sendActionBar(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Tiempo de autenticación restante: <#F5D0FE><bold>" + remaining + "s</bold></#F5D0FE></#E9D5FF>"));
+                    Map<String, String> placeholders = Map.of("{seconds}", String.valueOf(remaining));
+                    player.sendActionBar(plugin.getLocaleManager().getComponent("actionbar-timeout", player, placeholders));
                 }
             }
         }, 20L, 20L);
@@ -134,3 +138,4 @@ public class AuthHudManager {
         }
     }
 }
+

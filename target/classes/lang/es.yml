@@ -1,14 +1,18 @@
-# 🇪🇸 SmartLogin - Idioma Español (Aesthetic Purple Theme & Hex Gradients)
+# 🇪🇸 SmartLogin - Idioma Español
 prefix: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> "
 prompt-register: "<#E9D5FF>Usa <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC> para registrarte en el servidor.</#E9D5FF>"
 prompt-login: "<#E9D5FF>Usa <#C084FC><bold>/login <contraseña></bold></#C084FC> para identificarte.</#E9D5FF>"
 prompt-2fa-verify: "<gradient:#9333EA:#C084FC><bold>2FA REQUERIDO:</bold></gradient> <#E9D5FF>Usa <#C084FC>/2fa verify <código></#C084FC> o <#C084FC>/2fa recovery <código></#C084FC>.</#E9D5FF>"
 prompt-change-password: "<#E9D5FF>Usa <#C084FC>/changepassword <antigua> <nueva></#C084FC>.</#E9D5FF>"
 
-title-register: "<gradient:#9333EA:#C084FC><bold>REGÍSTRATE</bold></gradient>"
-subtitle-register: "<#E9D5FF>Escribe <#C084FC>/register <contraseña> <repetir></#C084FC></#E9D5FF>"
-title-login: "<gradient:#9333EA:#C084FC><bold>INICIA SESIÓN</bold></gradient>"
-subtitle-login: "<#E9D5FF>Escribe <#C084FC>/login <contraseña></#C084FC></#E9D5FF>"
+title-register: "<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>"
+subtitle-register: "<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>"
+title-login: "<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"
+subtitle-login: "<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"
+
+bossbar-register: "<gradient:#9333EA:#C084FC><bold>⏳ Regístrate: /register <contraseña> <repetir></bold></gradient>"
+bossbar-login: "<gradient:#9333EA:#C084FC><bold>⏳ Inicia Sesión: /login <contraseña></bold></gradient>"
+actionbar-timeout: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Tiempo de autenticación restante: <#F5D0FE><bold>{seconds}s</bold></#F5D0FE></#E9D5FF>"
 
 success-registered: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>¡Cuenta registrada exitosamente! Bienvenido al servidor.</#E9D5FF>"
 success-logged-in: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>¡Has iniciado sesión correctamente! Diviértete.</#E9D5FF>"

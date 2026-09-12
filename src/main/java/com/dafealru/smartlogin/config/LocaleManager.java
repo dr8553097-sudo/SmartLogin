@@ -48,7 +48,13 @@ public class LocaleManager {
             }
             String langCode = b.replace(".yml", "");
             if (f.exists()) {
-                languageFiles.put(langCode, YamlConfiguration.loadConfiguration(f));
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(f);
+                try (java.io.InputStream is = plugin.getResource("lang/" + b)) {
+                    if (is != null) {
+                        yaml.setDefaults(YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8)));
+                    }
+                } catch (Exception ignored) {}
+                languageFiles.put(langCode, yaml);
             }
         }
         plugin.getLogger().info("Loaded " + languageFiles.size() + " language profiles.");
@@ -72,6 +78,15 @@ public class LocaleManager {
                     }
                 }
             } catch (Throwable ignored) {}
+            try {
+                String loc = player.getLocale();
+                if (loc != null) {
+                    String lang = loc.split("_")[0].toLowerCase();
+                    if (languageFiles.containsKey(lang)) {
+                        return lang;
+                    }
+                }
+            } catch (Throwable ignored) {}
         }
         return defaultLanguage;
     }
@@ -83,9 +98,19 @@ public class LocaleManager {
     }
 
     public String getRawMessage(String key, String lang) {
-        FileConfiguration config = languageFiles.getOrDefault(lang, languageFiles.get(defaultLanguage));
-        if (config == null) return key;
-        return config.getString(key, key);
+        FileConfiguration config = languageFiles.get(lang);
+        if (config != null && config.contains(key)) {
+            return config.getString(key, key);
+        }
+        FileConfiguration defConfig = languageFiles.get(defaultLanguage);
+        if (defConfig != null && defConfig.contains(key)) {
+            return defConfig.getString(key, key);
+        }
+        FileConfiguration enConfig = languageFiles.get("en");
+        if (enConfig != null && enConfig.contains(key)) {
+            return enConfig.getString(key, key);
+        }
+        return key;
     }
 
     public String getRawMessage(String key, Player player) {

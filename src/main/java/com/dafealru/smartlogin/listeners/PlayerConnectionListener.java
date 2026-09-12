@@ -142,6 +142,24 @@ public class PlayerConnectionListener implements Listener {
     }
 
     @EventHandler
+    public void onLocaleChange(org.bukkit.event.player.PlayerLocaleChangeEvent event) {
+        Player player = event.getPlayer();
+        if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+            plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenCompose(p -> {
+                if (p != null) return java.util.concurrent.CompletableFuture.completedFuture(p);
+                return plugin.getDatabaseManager().loadProfileByName(player.getName());
+            }).thenAccept(profile -> {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (player.isOnline() && !plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+                        boolean isRegister = profile == null || profile.getPasswordHash() == null || profile.getPasswordHash().trim().isEmpty();
+                        plugin.getAuthHudManager().startHud(player, isRegister);
+                    }
+                });
+            });
+        }
+    }
+
+    @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         plugin.getAuthHudManager().stopHud(player);

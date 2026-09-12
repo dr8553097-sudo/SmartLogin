@@ -55,6 +55,10 @@ public class PlayerSecurityListener implements Listener {
         if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
 
         String cmd = event.getMessage().toLowerCase().split(" ")[0];
+        if (cmd.equalsIgnoreCase("/smartlogin") || cmd.equalsIgnoreCase("/sl")) {
+            return;
+        }
+
         var allowedList = plugin.getModularConfig().getConfig().getStringList("lockdown.allowed-commands");
         boolean allowed = allowedList.stream()
                 .anyMatch(allowedCmd -> cmd.equalsIgnoreCase(allowedCmd) || cmd.startsWith(allowedCmd + " "));

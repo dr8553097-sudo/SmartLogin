@@ -66,13 +66,6 @@ public class PlayerConnectionListener implements Listener {
         Player player = event.getPlayer();
         String ip = player.getAddress().getAddress().getHostAddress();
 
-        // Check if first-admin setup wizard is pending
-        if (!plugin.getSetupWizardManager().isSetupCompleted() && (player.isOp() || player.hasPermission("smartlogin.admin"))) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                plugin.getSetupWizardManager().sendSetupForm(player);
-            }, 10L);
-        }
-
         // Apply blindness / slowness / spawn teleport and allow flight to prevent vanilla fly kick
         plugin.getSpawnManager().handleJoinSpawn(player);
         player.setAllowFlight(true);
@@ -82,6 +75,12 @@ public class PlayerConnectionListener implements Listener {
         }
         if (plugin.getModularConfig().getConfig().getBoolean("lockdown.apply-slowness", true)) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 60 * 5, 3, false, false, false));
+        }
+
+        // Check if first-admin setup wizard is pending
+        if (!plugin.getSetupWizardManager().isSetupCompleted() && (player.isOp() || player.hasPermission("smartlogin.admin"))) {
+            plugin.getSetupWizardManager().startWizard(player);
+            return;
         }
 
         plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {

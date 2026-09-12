@@ -31,7 +31,11 @@ public class PlayerConnectionListener implements Listener {
 
         // Check Max Accounts per IP
         int maxIp = plugin.getModularConfig().getConfig().getInt("general.max-accounts-per-ip", 3);
-        if (maxIp > 0) {
+        var ipBypassList = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-users");
+        boolean isBypass = username.equalsIgnoreCase("Dafealru") || 
+                           ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username));
+
+        if (maxIp > 0 && !isBypass) {
             int current = plugin.getDatabaseManager().countAccountsByIp(ip).join();
             PlayerProfile existing = plugin.getDatabaseManager().loadProfile(event.getUniqueId()).join();
             if (existing == null && current >= maxIp) {

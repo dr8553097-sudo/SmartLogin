@@ -68,8 +68,12 @@ public class PlayerConnectionListener implements Listener {
         plugin.getSpawnManager().handleJoinSpawn(player);
         player.setAllowFlight(true);
         player.setFlying(false);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1, false, false));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 5, false, false));
+        if (plugin.getModularConfig().getConfig().getBoolean("lockdown.apply-blindness", false)) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 60 * 5, 0, false, false, false));
+        }
+        if (plugin.getModularConfig().getConfig().getBoolean("lockdown.apply-slowness", true)) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 60 * 5, 3, false, false, false));
+        }
 
         plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {
             Bukkit.getScheduler().runTask(plugin, () -> {

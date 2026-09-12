@@ -59,7 +59,7 @@ hud-and-immersion:
 
 # Lockdown & Restrictions before login
 lockdown:
-  apply-blindness: true
+  apply-blindness: false
   apply-slowness: true
   hide-unauthenticated-from-tab: true
   prevent-movement: true
@@ -81,7 +81,7 @@ lockdown:
 
 # Authentication Spawn & Limbo
 auth-spawn:
-  enabled: true
+  enabled: false
   world: "world"
   x: 0.5
   y: 64.0

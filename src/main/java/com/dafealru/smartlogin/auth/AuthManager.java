@@ -103,7 +103,10 @@ public class AuthManager {
         // 2. Play Level Up & Success Sound
         plugin.getAuthHudManager().playSuccessSound(player);
 
-        // 3. Remove Potion Effects
+        // 3. Remove All Active Potion Effects
+        for (org.bukkit.potion.PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
         player.removePotionEffect(PotionEffectType.BLINDNESS);
         player.removePotionEffect(PotionEffectType.SLOWNESS);
         player.removePotionEffect(PotionEffectType.DARKNESS);
@@ -124,13 +127,19 @@ public class AuthManager {
         Title welcomeTitle = Title.title(
                 plugin.getLocaleManager().parse("<green><bold>✔ ¡AUTENTICADO!</bold></green>"),
                 plugin.getLocaleManager().parse("<gold>Bienvenido, <yellow>" + player.getName() + "</yellow></gold>"),
-                Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(500))
+                Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(3), Duration.ofMillis(500))
         );
         player.showTitle(welcomeTitle);
 
-        // 8. Send Chat Message
+        // 8. Send Chat Message with Prefix
         if (messageKey != null) {
-            player.sendMessage(plugin.getLocaleManager().getComponent(messageKey, player));
+            String prefix = plugin.getLocaleManager().getRawMessage("prefix", player);
+            net.kyori.adventure.text.Component msg = plugin.getLocaleManager().getComponent(messageKey, player);
+            if (prefix != null && !prefix.equals("prefix") && !prefix.isEmpty()) {
+                player.sendMessage(plugin.getLocaleManager().parse(prefix).append(msg));
+            } else {
+                player.sendMessage(msg);
+            }
         }
     }
 }

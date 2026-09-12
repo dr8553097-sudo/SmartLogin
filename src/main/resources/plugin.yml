@@ -33,6 +33,10 @@ commands:
     description: Main administrative management command
     aliases: [sl, slogin]
     permission: smartlogin.admin
+  link:
+    description: Link your account with the Discord Bot
+    aliases: [discordlink]
+    permission: smartlogin.use
 
 permissions:
   smartlogin.use:

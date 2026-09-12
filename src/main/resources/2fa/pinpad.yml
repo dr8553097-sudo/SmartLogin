@@ -1,0 +1,8 @@
+# ==============================================================================
+# 🔢 SmartLogin — 2FA: Virtual PIN Pad GUI
+# ==============================================================================
+
+enabled: true
+randomize-positions: true
+auto-open-on-join: false
+enforce-for-staff: false

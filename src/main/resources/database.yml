@@ -2,12 +2,10 @@
 # 🗄️ SmartLogin — Storage Engine Configuration
 # ==============================================================================
 
-# Database backend type: "SQLITE" or "MYSQL"
 type: "SQLITE"
 
 sqlite:
   file: "smartlogin.db"
-  # WAL (Write-Ahead Logging) mode maximizes concurrency and read/write speed
   wal-mode: true
 
 mysql:

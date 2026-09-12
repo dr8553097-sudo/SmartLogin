@@ -3,12 +3,13 @@ package com.dafealru.smartlogin.commands;
 import com.dafealru.smartlogin.SmartLogin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 public class SmartLoginAdminCommand implements CommandExecutor {
 
@@ -51,10 +52,43 @@ public class SmartLoginAdminCommand implements CommandExecutor {
                     sender.sendMessage("Only players can set spawn.");
                 }
                 break;
+            case "history":
+            case "audit":
+                if (args.length > 1) {
+                    plugin.getAuditManager().showPlayerHistory(sender, args[1]);
+                } else {
+                    sender.sendMessage(Component.text("Usage: /smartlogin history <username>", NamedTextColor.RED));
+                }
+                break;
+            case "setpassword":
+            case "changepass":
+                if (args.length > 2) {
+                    String target = args[1];
+                    String newPass = args[2];
+                    plugin.getAuditManager().setPlayerPassword(target, newPass).thenAccept(ok -> {
+                        if (ok) {
+                            sender.sendMessage(Component.text("✔ Password for " + target + " updated successfully!", NamedTextColor.GREEN));
+                        } else {
+                            sender.sendMessage(Component.text("✖ Player not found in database.", NamedTextColor.RED));
+                        }
+                    });
+                } else {
+                    sender.sendMessage(Component.text("Usage: /smartlogin setpassword <username> <new_password>", NamedTextColor.RED));
+                }
+                break;
+            case "backup":
+                sender.sendMessage(Component.text("Creating database backup snapshot...", NamedTextColor.YELLOW));
+                File backupFile = plugin.getAuditManager().createDatabaseBackup();
+                if (backupFile != null) {
+                    sender.sendMessage(Component.text("✔ Backup created: " + backupFile.getName(), NamedTextColor.GREEN));
+                } else {
+                    sender.sendMessage(Component.text("✖ Failed to create database backup.", NamedTextColor.RED));
+                }
+                break;
             case "reload":
                 plugin.getModularConfig().loadAll();
                 plugin.getLocaleManager().loadLanguages();
-                sender.sendMessage(Component.text("✔ SmartLogin modular configs and languages reloaded!", NamedTextColor.GREEN));
+                sender.sendMessage(Component.text("✔ SmartLogin modular configs (including 2fa/) and languages reloaded!", NamedTextColor.GREEN));
                 break;
             case "import":
                 if (args.length > 1 && args[1].equalsIgnoreCase("authme")) {

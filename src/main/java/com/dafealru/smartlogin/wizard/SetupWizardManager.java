@@ -8,7 +8,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 
 public class SetupWizardManager {
 
@@ -25,12 +24,12 @@ public class SetupWizardManager {
     public void sendSetupForm(CommandSender sender) {
         FileConfiguration config = plugin.getModularConfig().getConfig();
         FileConfiguration authConfig = plugin.getModularConfig().getAuthConfig();
-        FileConfiguration twoFactorConfig = plugin.getModularConfig().getTwoFactorConfig();
+        FileConfiguration totpConfig = plugin.getModularConfig().getTotpConfig();
 
         boolean bedrock = authConfig.getBoolean("bedrock.auto-login-enabled", true);
         boolean premium = authConfig.getBoolean("premium.auto-login-enabled", true);
-        boolean twoFa = twoFactorConfig.getBoolean("enabled", true);
-        boolean staff2fa = twoFactorConfig.getBoolean("staff-enforcement.enabled", true);
+        boolean twoFa = totpConfig.getBoolean("enabled", true);
+        boolean staff2fa = totpConfig.getBoolean("staff-enforcement.enabled", true);
         boolean autoLang = config.getBoolean("general.auto-detect-client-language", true);
         String hashMode = authConfig.getString("hashing.mode", "FAST_PBKDF2");
 
@@ -93,7 +92,7 @@ public class SetupWizardManager {
     public void handleToggle(CommandSender sender, String feature) {
         FileConfiguration config = plugin.getModularConfig().getConfig();
         FileConfiguration authConfig = plugin.getModularConfig().getAuthConfig();
-        FileConfiguration twoFactorConfig = plugin.getModularConfig().getTwoFactorConfig();
+        FileConfiguration totpConfig = plugin.getModularConfig().getTotpConfig();
 
         switch (feature.toLowerCase()) {
             case "autolang":
@@ -117,14 +116,14 @@ public class SetupWizardManager {
                 plugin.getModularConfig().saveAuth();
                 break;
             case "2fa":
-                boolean t = twoFactorConfig.getBoolean("enabled", true);
-                twoFactorConfig.set("enabled", !t);
-                plugin.getModularConfig().saveTwoFactor();
+                boolean t = totpConfig.getBoolean("enabled", true);
+                totpConfig.set("enabled", !t);
+                plugin.getModularConfig().saveTotp();
                 break;
             case "staff2fa":
-                boolean s = twoFactorConfig.getBoolean("staff-enforcement.enabled", true);
-                twoFactorConfig.set("staff-enforcement.enabled", !s);
-                plugin.getModularConfig().saveTwoFactor();
+                boolean s = totpConfig.getBoolean("staff-enforcement.enabled", true);
+                totpConfig.set("staff-enforcement.enabled", !s);
+                plugin.getModularConfig().saveTotp();
                 break;
             default:
                 sender.sendMessage(Component.text("Unknown feature toggle: " + feature, NamedTextColor.RED));

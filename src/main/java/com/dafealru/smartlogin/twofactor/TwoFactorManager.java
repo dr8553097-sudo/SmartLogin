@@ -17,8 +17,8 @@ public class TwoFactorManager {
     }
 
     public boolean isStaffEnforced(Player player, PlayerProfile profile) {
-        boolean enforce = plugin.getModularConfig().getTwoFactorConfig().getBoolean("staff-enforcement.enabled", true);
-        String permission = plugin.getModularConfig().getTwoFactorConfig().getString("staff-enforcement.permission", "smartlogin.staff");
+        boolean enforce = plugin.getModularConfig().getTotpConfig().getBoolean("staff-enforcement.enabled", true);
+        String permission = plugin.getModularConfig().getTotpConfig().getString("staff-enforcement.permission", "smartlogin.staff");
         
         if (enforce && player.hasPermission(permission)) {
             return profile == null || !profile.is2FAEnabled();
@@ -30,8 +30,8 @@ public class TwoFactorManager {
         String secret = TotpEngine.generateBase32Secret();
         profile.setTotpSecret(secret);
         
-        int codeCount = plugin.getModularConfig().getTwoFactorConfig().getInt("recovery-codes.code-count", 5);
-        int codeLength = plugin.getModularConfig().getTwoFactorConfig().getInt("recovery-codes.code-length", 8);
+        int codeCount = plugin.getModularConfig().getTotpConfig().getInt("recovery-codes.code-count", 5);
+        int codeLength = plugin.getModularConfig().getTotpConfig().getInt("recovery-codes.code-length", 8);
         List<String> plainCodes = BackupCodeManager.generateRecoveryCodes(codeCount, codeLength);
 
         String hashedCombined = plainCodes.stream()

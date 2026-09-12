@@ -11,6 +11,8 @@ public class PlayerProfile {
     private boolean twoFactorEnabled;
     private String totpSecret;
     private String backupCodes;
+    private String discordId;
+    private String email;
     private String lastIp;
     private long lastLoginTimestamp;
     private boolean isPremium;
@@ -18,6 +20,7 @@ public class PlayerProfile {
 
     public PlayerProfile(UUID uuid, String username, String passwordHash, String salt,
                          boolean twoFactorEnabled, String totpSecret, String backupCodes,
+                         String discordId, String email,
                          String lastIp, long lastLoginTimestamp, boolean isPremium, boolean isBedrock) {
         this.uuid = uuid;
         this.username = username;
@@ -26,10 +29,18 @@ public class PlayerProfile {
         this.twoFactorEnabled = twoFactorEnabled;
         this.totpSecret = totpSecret;
         this.backupCodes = backupCodes;
+        this.discordId = discordId;
+        this.email = email;
         this.lastIp = lastIp;
         this.lastLoginTimestamp = lastLoginTimestamp;
         this.isPremium = isPremium;
         this.isBedrock = isBedrock;
+    }
+
+    public PlayerProfile(UUID uuid, String username, String passwordHash, String salt,
+                         boolean twoFactorEnabled, String totpSecret, String backupCodes,
+                         String lastIp, long lastLoginTimestamp, boolean isPremium, boolean isBedrock) {
+        this(uuid, username, passwordHash, salt, twoFactorEnabled, totpSecret, backupCodes, null, null, lastIp, lastLoginTimestamp, isPremium, isBedrock);
     }
 
     public UUID getUuid() { return uuid; }
@@ -45,6 +56,10 @@ public class PlayerProfile {
     public void setTotpSecret(String totpSecret) { this.totpSecret = totpSecret; }
     public String getBackupCodes() { return backupCodes; }
     public void setBackupCodes(String backupCodes) { this.backupCodes = backupCodes; }
+    public String getDiscordId() { return discordId; }
+    public void setDiscordId(String discordId) { this.discordId = discordId; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
     public String getLastIp() { return lastIp; }
     public void setLastIp(String lastIp) { this.lastIp = lastIp; }
     public long getLastLoginTimestamp() { return lastLoginTimestamp; }

@@ -28,7 +28,7 @@ public class QrMapManager {
     public void giveQrMap(Player player, String secret) {
         pendingSetupSecrets.put(player.getUniqueId(), secret);
 
-        String issuer = plugin.getModularConfig().getTwoFactorConfig().getString("totp.issuer-name", "SmartLogin");
+        String issuer = plugin.getModularConfig().getTotpConfig().getString("totp.issuer-name", "SmartLogin");
         String uri = TotpEngine.getTotpUri(issuer, player.getName(), secret);
 
         MapView mapView = Bukkit.createMap(player.getWorld());

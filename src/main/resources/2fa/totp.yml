@@ -1,0 +1,24 @@
+# ==============================================================================
+# 📱 SmartLogin — 2FA: TOTP & In-Game Map QR Suite
+# ==============================================================================
+
+enabled: true
+
+totp:
+  issuer-name: "SmartLogin Server"
+  code-digits: 6
+  period-seconds: 30
+  time-step-window: 1
+
+qr-map:
+  enabled: true
+  give-map-item: true
+
+recovery-codes:
+  enabled: true
+  code-count: 5
+  code-length: 8
+
+staff-enforcement:
+  enabled: true
+  permission: "smartlogin.staff"

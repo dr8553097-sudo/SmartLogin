@@ -8,7 +8,6 @@ setup-completed: false
 
 # General settings
 general:
-  # Default fallback language if client locale is not detected or supported ('en', 'es', 'fr', 'pt')
   default-language: "es"
   # Automatically detect each player's Minecraft client language and translate all messages/GUI for them!
   auto-detect-client-language: true
@@ -17,13 +16,19 @@ general:
   # Maximum registered accounts allowed per IP address (0 for unlimited)
   max-accounts-per-ip: 3
 
+# Anti-Impostor & Nickname Protection
+nickname-protection:
+  # Enforce exact case-sensitivity (e.g. Dafealru != dafealru) to prevent impersonation
+  strict-case: true
+  # Regex pattern for allowed characters in usernames
+  allowed-regex: "^[a-zA-Z0-9_]{3,16}$"
+
 # Password Security Policy
 password-policy:
   min-length: 6
   max-length: 32
-  # Enforce at least one number or special character
-  require-complexity: false
-  # Block commonly cracked passwords
+  # Max failed attempts before kicking player
+  max-login-attempts: 5
   disallowed-passwords:
     - "123456"
     - "12345678"
@@ -33,17 +38,26 @@ password-policy:
     - "qwerty"
     - "minecraft"
 
+# Visual HUD & Audio Immersion
+hud-and-immersion:
+  # Dynamic countdown BossBar (Green -> Yellow -> Red)
+  bossbar-countdown: true
+  bossbar-color: "GREEN"
+  # Blinking Actionbar message
+  actionbar-prompt: true
+  # Sound effects on success, failure, 2fa
+  play-sounds: true
+
 # Visual Lockdown & Restrictions before login
 lockdown:
   apply-blindness: true
   apply-slowness: true
-  hide-other-players: true
+  hide-unauthenticated-from-tab: true
   prevent-movement: true
   prevent-chat: true
   prevent-item-drop: true
   prevent-inventory-click: true
   prevent-damage: true
-  # Allowed commands before login
   allowed-commands:
     - "/login"
     - "/l"
@@ -51,16 +65,16 @@ lockdown:
     - "/reg"
     - "/2fa"
     - "/pinpad"
+    - "/link"
+    - "/email"
 
 # Authentication Spawn & Limbo
 auth-spawn:
   enabled: true
-  # Set in-game using /smartlogin setspawn
   world: "world"
   x: 0.5
   y: 64.0
   z: 0.5
   yaw: 0.0
   pitch: 0.0
-  # Return player to their previous logout location after login
   teleport-back-on-login: true

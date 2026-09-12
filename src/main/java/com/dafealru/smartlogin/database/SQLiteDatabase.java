@@ -37,6 +37,8 @@ public class SQLiteDatabase implements DatabaseManager {
                         "two_factor_enabled INTEGER DEFAULT 0, " +
                         "totp_secret TEXT, " +
                         "backup_codes TEXT, " +
+                        "discord_id VARCHAR(32), " +
+                        "email VARCHAR(128), " +
                         "last_ip VARCHAR(45), " +
                         "last_login INTEGER DEFAULT 0, " +
                         "is_premium INTEGER DEFAULT 0, " +
@@ -102,11 +104,12 @@ public class SQLiteDatabase implements DatabaseManager {
     public CompletableFuture<Void> saveProfile(PlayerProfile p) {
         return CompletableFuture.runAsync(() -> {
             try {
-                String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, backup_codes, last_ip, last_login, is_premium, is_bedrock) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, backup_codes, discord_id, email, last_ip, last_login, is_premium, is_bedrock) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                         "ON CONFLICT(uuid) DO UPDATE SET " +
                         "username=excluded.username, password_hash=excluded.password_hash, salt=excluded.salt, " +
                         "two_factor_enabled=excluded.two_factor_enabled, totp_secret=excluded.totp_secret, backup_codes=excluded.backup_codes, " +
+                        "discord_id=excluded.discord_id, email=excluded.email, " +
                         "last_ip=excluded.last_ip, last_login=excluded.last_login, is_premium=excluded.is_premium, is_bedrock=excluded.is_bedrock";
                 try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
                     ps.setString(1, p.getUuid().toString());
@@ -116,10 +119,12 @@ public class SQLiteDatabase implements DatabaseManager {
                     ps.setInt(5, p.is2FAEnabled() ? 1 : 0);
                     ps.setString(6, p.getTotpSecret());
                     ps.setString(7, p.getBackupCodes());
-                    ps.setString(8, p.getLastIp());
-                    ps.setLong(9, p.getLastLoginTimestamp());
-                    ps.setInt(10, p.isPremium() ? 1 : 0);
-                    ps.setInt(11, p.isBedrock() ? 1 : 0);
+                    ps.setString(8, p.getDiscordId());
+                    ps.setString(9, p.getEmail());
+                    ps.setString(10, p.getLastIp());
+                    ps.setLong(11, p.getLastLoginTimestamp());
+                    ps.setInt(12, p.isPremium() ? 1 : 0);
+                    ps.setInt(13, p.isBedrock() ? 1 : 0);
                     ps.executeUpdate();
                 }
             } catch (Exception e) { e.printStackTrace(); }
@@ -164,6 +169,8 @@ public class SQLiteDatabase implements DatabaseManager {
                 rs.getInt("two_factor_enabled") == 1,
                 rs.getString("totp_secret"),
                 rs.getString("backup_codes"),
+                rs.getString("discord_id"),
+                rs.getString("email"),
                 rs.getString("last_ip"),
                 rs.getLong("last_login"),
                 rs.getInt("is_premium") == 1,

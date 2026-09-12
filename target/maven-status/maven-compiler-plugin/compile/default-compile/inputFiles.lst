@@ -1,7 +1,9 @@
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\audit\AuditManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\auth\AuthManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\auth\AutoLoginDetector.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\auth\SessionShield.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\ChangePasswordCommand.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\LinkCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\LoginCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\PremiumCommand.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\commands\RegisterCommand.java
@@ -16,10 +18,13 @@ C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\dat
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\database\MySQLDatabase.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\database\PlayerProfile.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\database\SQLiteDatabase.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\discord\DiscordManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\gui\PinPadGUI.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\hud\AuthHudManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\listeners\PlayerConnectionListener.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\listeners\PlayerSecurityListener.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\migration\MigrationManager.java
+C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\proxy\ProxyBridge.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMapManager.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMapRenderer.java
 C:\Users\dr855\IdeaProjects\SmartLogin\src\main\java\com\dafealru\smartlogin\qr\QrMatrixGenerator.java

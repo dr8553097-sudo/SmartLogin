@@ -56,17 +56,20 @@ public final class SmartLogin extends JavaPlugin {
         long startMs = System.currentTimeMillis();
         instance = this;
 
-        getLogger().info("================================================================");
-        getLogger().info("  ____                       _   _                 _       ");
-        getLogger().info(" / ___| _ __ ___   __ _ _ __| |_| |     ___   __ _(_)_ __  ");
-        getLogger().info(" \\___ \\| '_ ` _ \\ / _` | '__| __| |    / _ \\ / _` | | '_ \\ ");
-        getLogger().info("  ___) | | | | | | (_| | |  | |_| |___| (_) | (_| | | | | |");
-        getLogger().info(" |____/|_| |_| |_|\\__,_|_|   \\__|_____|\\___/ \\__, |_|_| |_|");
-        getLogger().info("                                             |___/         ");
-        getLogger().info(" ⚡ SmartLogin v" + getPluginMeta().getVersion() + " — Advanced Next-Gen Auth Engine");
-        getLogger().info(" 👑 Creator / Author: Dafealru");
-        getLogger().info(" 🌐 Running on: Native Java 21 & Paper/Purpur 1.21.x");
-        getLogger().info("================================================================");
+        var console = getServer().getConsoleSender();
+        var mm = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage();
+
+        console.sendMessage(mm.deserialize("<gradient:#7E22CE:#C084FC>================================================================</gradient>"));
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC><bold>  ____                       _   _                 _       </bold></gradient>"));
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC><bold> / ___| _ __ ___   __ _ _ __| |_| |     ___   __ _(_)_ __  </bold></gradient>"));
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC><bold> \\___ \\| '_ ` _ \\ / _` | '__| __| |    / _ \\ / _` | | '_ \\ </bold></gradient>"));
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC><bold>  ___) | | | | | | (_| | |  | |_| |___| (_) | (_| | | | | |</bold></gradient>"));
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC><bold> |____/|_| |_| |_|\\__,_|_|   \\__|_____|\\___/ \\__, |_|_| |_|</bold></gradient>"));
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC><bold>                                             |___/         </bold></gradient>"));
+        console.sendMessage(mm.deserialize(" <gradient:#C084FC:#F5D0FE><bold>⚡ SmartLogin v" + getPluginMeta().getVersion() + "</bold></gradient> <dark_gray>—</dark_gray> <color:#E9D5FF>Advanced Next-Gen Auth Engine</color>"));
+        console.sendMessage(mm.deserialize(" <gradient:#C084FC:#F5D0FE>👑 <bold>Creador / Autor:</bold></gradient> <color:#F5D0FE><bold>Dafealru</bold></color>"));
+        console.sendMessage(mm.deserialize(" <gradient:#C084FC:#F5D0FE>🌐 <bold>Plataforma:</bold></gradient> <color:#E9D5FF>Native Java 21 & Paper/Purpur 1.21.x</color>"));
+        console.sendMessage(mm.deserialize("<gradient:#7E22CE:#C084FC>================================================================</gradient>"));
 
         // 1. Modular Configs & Locales
         this.modularConfig = new ModularConfigManager(this);
@@ -125,7 +128,7 @@ public final class SmartLogin extends JavaPlugin {
         }
 
         long elapsed = System.currentTimeMillis() - startMs;
-        getLogger().info("✔ SmartLogin fully enabled in " + elapsed + "ms! System ready.");
+        console.sendMessage(mm.deserialize("<gradient:#9333EA:#C084FC>✔ <bold>SmartLogin</bold> fully enabled in <color:#F5D0FE>" + elapsed + "ms</color>! Sistema listo.</gradient>"));
     }
 
     @Override

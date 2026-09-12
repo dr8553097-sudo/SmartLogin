@@ -14,6 +14,15 @@ bossbar-register: "<gradient:#9333EA:#C084FC><bold>⏳ Regístrate: /register <c
 bossbar-login: "<gradient:#9333EA:#C084FC><bold>⏳ Inicia Sesión: /login <contraseña></bold></gradient>"
 actionbar-timeout: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Tiempo de autenticación restante: <#F5D0FE><bold>{seconds}s</bold></#F5D0FE></#E9D5FF>"
 
+lang-changed: "<#E9D5FF>✔ ¡Idioma cambiado a: <#C084FC><bold>Español (ES)</bold></#C084FC>!</#E9D5FF>"
+lang-server-changed: "<#E9D5FF>✔ Idioma predeterminado del servidor cambiado a: <#C084FC><bold>{lang}</bold></#C084FC></#E9D5FF>"
+lang-invalid: "<#F5D0FE>✖ Idioma no válido. Disponibles: <#C084FC>es, en, pt, fr, de, ru, zh</#C084FC></#F5D0FE>"
+lang-menu-header: "<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — SELECCIÓN DE IDIOMA ] ━━━━━━━━━━━━</bold></gradient>"
+lang-menu-subtitle: "<#E9D5FF>Haz clic en una opción para cambiar tu idioma:</#E9D5FF>"
+lang-menu-hover: "<#E9D5FF>Clic para seleccionar <#C084FC>{name}</#C084FC></#E9D5FF>"
+admin-reloaded: "<#E9D5FF>✔ Configuraciones, suite 2FA e idiomas recargados correctamente.</#E9D5FF>"
+error-only-players: "<#F5D0FE>Este comando es solo para jugadores.</#F5D0FE>"
+
 success-registered: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>¡Cuenta registrada exitosamente! Bienvenido al servidor.</#E9D5FF>"
 success-logged-in: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>¡Has iniciado sesión correctamente! Diviértete.</#E9D5FF>"
 success-auto-login-bedrock: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>¡Cuenta Bedrock verificada automáticamente mediante Floodgate!</#E9D5FF>"

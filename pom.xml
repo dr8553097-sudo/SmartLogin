@@ -45,11 +45,12 @@
             <version>3.5.3</version>
         </dependency>
 
-        <!-- HikariCP High-Performance Connection Pool -->
+        <!-- HikariCP High-Performance Connection Pool (Provided natively by Paper) -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>5.1.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- SQLite JDBC Driver (Provided natively by Paper / Purpur / Spigot) -->
@@ -86,14 +87,21 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <relocations>
                                 <relocation>
                                     <pattern>com.google.zxing</pattern>
                                     <shadedPattern>com.dafealru.smartlogin.libs.zxing</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.zaxxer.hikari</pattern>
-                                    <shadedPattern>com.dafealru.smartlogin.libs.hikari</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

@@ -14,6 +14,15 @@ bossbar-register: "<gradient:#9333EA:#C084FC><bold>⏳ 注册账号: /register <
 bossbar-login: "<gradient:#9333EA:#C084FC><bold>⏳ 登录账号: /login <密码></bold></gradient>"
 actionbar-timeout: "<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>剩余登录时间: <#F5D0FE><bold>{seconds}秒</bold></#F5D0FE></#E9D5FF>"
 
+lang-changed: "<#E9D5FF>✔ 语言已切换为: <#C084FC><bold>中文 (ZH)</bold></#C084FC>！</#E9D5FF>"
+lang-server-changed: "<#E9D5FF>✔ 服务器默认语言已设置为: <#C084FC><bold>{lang}</bold></#C084FC></#E9D5FF>"
+lang-invalid: "<#F5D0FE>✖ 无效的语言。可用语言: <#C084FC>es, en, pt, fr, de, ru, zh</#C084FC></#F5D0FE>"
+lang-menu-header: "<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — 语言选择 ] ━━━━━━━━━━━━</bold></gradient>"
+lang-menu-subtitle: "<#E9D5FF>点击下方选项以切换语言:</#E9D5FF>"
+lang-menu-hover: "<#E9D5FF>点击以选择 <#C084FC>{name}</#C084FC></#E9D5FF>"
+admin-reloaded: "<#E9D5FF>✔ 模块化配置文件、2FA 组件和语言字典已成功重新加载。</#E9D5FF>"
+error-only-players: "<#F5D0FE>该命令仅限玩家执行。</#F5D0FE>"
+
 success-registered: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>账号注册成功！欢迎来到服务器。</#E9D5FF>"
 success-logged-in: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>登录成功！祝您游戏愉快。</#E9D5FF>"
 success-auto-login-bedrock: "<#C084FC><bold>✔</bold></#C084FC> <#E9D5FF>基岩版玩家已通过 Floodgate 自动认证！</#E9D5FF>"

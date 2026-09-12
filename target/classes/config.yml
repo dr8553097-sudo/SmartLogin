@@ -1,0 +1,87 @@
+# ========================================================================= #
+#                   ⚡ SmartLogin — Configuration Engine                   #
+#                   Author: Dafealru | Version: 1.0.0                       #
+# ========================================================================= #
+
+# Active language (en, es, fr, pt)
+language: "en"
+
+# Database Configuration
+# Supported types: "SQLITE" (standalone file) or "MYSQL" (network)
+database:
+  type: "SQLITE"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "smartlogin"
+    username: "root"
+    password: ""
+    pool_size: 10
+    use_ssl: false
+
+# Authentication Settings
+auth:
+  # Session auto-login: player doesn't need to type password if rejoining from same IP within X minutes
+  session_timeout_minutes: 180
+  
+  # Maximum allowed registered accounts per IP (0 to disable)
+  max_accounts_per_ip: 3
+  
+  # Minimum password length
+  min_password_length: 5
+  
+  # Disallowed common passwords
+  blocked_passwords:
+    - "123456"
+    - "password"
+    - "qwerty"
+    - "12345678"
+    - "minecraft"
+    - "admin"
+
+  # Time in seconds before unauthenticated players are kicked
+  timeout_seconds: 45
+
+# Tri-Mode Intelligent Auto-Login
+tri_mode:
+  # Auto-authenticate Bedrock players connecting via Floodgate/Geyser
+  bedrock_auto_login: true
+  # Auto-authenticate verified Java Premium Mojang players
+  premium_auto_login: true
+
+# Two-Factor Authentication (2FA)
+two_factor:
+  # Allow Google Authenticator / Authy TOTP App
+  enable_totp: true
+  # Server name displayed in the player's 2FA App
+  issuer_name: "AurexCraft"
+  
+  # Discord 2FA Integration
+  discord:
+    enabled: false
+    # Discord Bot Token (Required if enabled for interactive DMs)
+    bot_token: ""
+    guild_id: ""
+    # Webhook for security audit alerts
+    audit_webhook: ""
+
+# Lockdown & Security Protections (Before player is logged in)
+lockdown:
+  apply_blindness: true
+  freeze_movement: true
+  block_chat: true
+  block_commands: true
+  block_inventory_clicks: true
+  block_item_drops: true
+  block_damage: true
+  block_interactions: true
+  
+  # Allowed commands before login
+  allowed_commands:
+    - "/login"
+    - "/l"
+    - "/register"
+    - "/reg"
+    - "/2fa"
+    - "/twofactor"
+    - "/premium"

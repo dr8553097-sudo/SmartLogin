@@ -1,0 +1,46 @@
+name: SmartLogin
+version: '1.0.0'
+main: com.dafealru.smartlogin.SmartLogin
+api-version: '1.21'
+author: Dafealru
+description: Next-Gen Authentication, Identity & 2FA Suite for Paper/Spigot 1.21.x
+website: https://github.com/dr8553097-sudo/SmartLogin
+
+commands:
+  login:
+    description: Authenticate with your password or PIN
+    aliases: [l, log]
+    permission: smartlogin.use
+  register:
+    description: Register your account password
+    aliases: [reg]
+    permission: smartlogin.use
+  changepassword:
+    description: Change your current password
+    aliases: [changepw, changepass, cpw]
+    permission: smartlogin.use
+  2fa:
+    description: Manage Multi-Factor Authentication (Discord / Google Auth)
+    aliases: [mfa, twofactor]
+    permission: smartlogin.use
+  premium:
+    description: Toggle or verify your Java Premium Mojang auto-login status
+    permission: smartlogin.use
+  cracked:
+    description: Switch back to offline/password mode
+    permission: smartlogin.use
+  smartlogin:
+    description: Main administrative management command
+    aliases: [sl, slogin]
+    permission: smartlogin.admin
+
+permissions:
+  smartlogin.use:
+    description: Allows players to use login, register and 2fa
+    default: true
+  smartlogin.admin:
+    description: Allows administration of SmartLogin
+    default: op
+  smartlogin.bypass.lockdown:
+    description: Bypass lockdown (emergency only)
+    default: false

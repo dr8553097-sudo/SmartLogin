@@ -200,6 +200,21 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin migrate <authme|nlogin|fastlogin></#F5D0FE>"));
                 }
                 break;
+            case "lang":
+            case "language":
+            case "idioma":
+                if (args.length > 1) {
+                    String targetLang = args[1].toLowerCase();
+                    boolean ok = plugin.getLocaleManager().setDefaultLanguage(targetLang);
+                    if (ok) {
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Idioma predeterminado cambiado a: <#C084FC><bold>" + targetLang.toUpperCase() + "</bold></#C084FC></#E9D5FF>"));
+                    } else {
+                        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ Idioma no reconocido. Disponibles: <#C084FC>es, en, pt, fr, de, ru, zh</#C084FC></#F5D0FE>"));
+                    }
+                } else {
+                    sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /smartlogin lang <es|en|pt|fr|de|ru|zh></#F5D0FE>"));
+                }
+                break;
             default:
                 if (sender instanceof Player player) {
                     plugin.getAdminPanelGUI().openPanel(player);
@@ -217,6 +232,7 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — ADMINISTRACIÓN ] ━━━━━━━━━━━━</bold></gradient>"));
         sendCmdLine(sender, "/smartlogin gui", "Abre el panel de control interactivo");
         sendCmdLine(sender, "/smartlogin reload", "Recarga configuraciones, 2FA e idiomas");
+        sendCmdLine(sender, "/smartlogin lang <es|en|pt|fr|de|ru|zh>", "Cambia el idioma global del plugin");
         sendCmdLine(sender, "/smartlogin setpassword <user> <pass>", "Cambia la clave de cualquier jugador");
         sendCmdLine(sender, "/smartlogin unregister <user>", "Elimina la cuenta de un jugador");
         sendCmdLine(sender, "/smartlogin history <user>", "Auditoría de IPs, fechas y seguridad");
@@ -240,8 +256,12 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("smartlogin.admin")) return List.of();
 
         if (args.length == 1) {
-            List<String> subs = Arrays.asList("gui", "help", "reload", "setpassword", "unregister", "history", "migrate", "setspawn", "backup", "resetsetup", "setup");
+            List<String> subs = Arrays.asList("gui", "help", "reload", "lang", "setpassword", "unregister", "history", "migrate", "setspawn", "backup", "resetsetup", "setup");
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
+
+        if (args.length == 2 && (args[0].equalsIgnoreCase("lang") || args[0].equalsIgnoreCase("language") || args[0].equalsIgnoreCase("idioma"))) {
+            return Arrays.asList("es", "en", "pt", "fr", "de", "ru", "zh").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
         }
 
         if (args.length == 2 && (args[0].equalsIgnoreCase("migrate") || args[0].equalsIgnoreCase("import"))) {

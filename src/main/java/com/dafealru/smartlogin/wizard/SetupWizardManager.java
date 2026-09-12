@@ -307,34 +307,20 @@ public class SetupWizardManager {
                     if (p != null) return java.util.concurrent.CompletableFuture.completedFuture(p);
                     return plugin.getDatabaseManager().loadProfileByName(player.getName());
                 }).thenAccept(profile -> {
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    Bukkit.getScheduler().runTask(plugin, () -> {
                         if (!player.isOnline() || plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
                         if (profile == null || profile.getPasswordHash() == null || profile.getPasswordHash().trim().isEmpty()) {
                             // Non-premium unregistered admin -> NEEDS /register
-                            Title regTitle = Title.title(
-                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>"),
-                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>"),
-                                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(4), Duration.ofMillis(500))
-                            );
-                            player.showTitle(regTitle);
-                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                            plugin.getAuthHudManager().startHud(player, true);
                             player.sendMessage(Component.empty());
                             player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Por favor regístrate en el servidor usando: <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>"));
-                            plugin.getAuthHudManager().startHud(player, true);
                         } else {
                             // Registered admin -> NEEDS /login
-                            Title logTitle = Title.title(
-                                    plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
-                                    plugin.getLocaleManager().parse("<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"),
-                                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(4), Duration.ofMillis(500))
-                            );
-                            player.showTitle(logTitle);
-                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                            plugin.getAuthHudManager().startHud(player, false);
                             player.sendMessage(Component.empty());
                             player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Por favor inicia sesión usando: <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"));
-                            plugin.getAuthHudManager().startHud(player, false);
                         }
-                    }, 30L);
+                    });
                 });
             } else {
                 player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>Abre el panel en cualquier momento con </#E9D5FF><#C084FC><click:run_command:/smartlogin gui>/smartlogin gui</click></#C084FC>"));

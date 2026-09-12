@@ -112,5 +112,20 @@ public class LocaleManager {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(raw);
     }
 
+    public boolean setDefaultLanguage(String lang) {
+        String code = lang.toLowerCase();
+        if (languageFiles.containsKey(code)) {
+            this.defaultLanguage = code;
+            plugin.getModularConfig().getConfig().set("general.default-language", code);
+            plugin.getModularConfig().saveConfig();
+            return true;
+        }
+        return false;
+    }
+
+    public java.util.Set<String> getAvailableLanguages() {
+        return languageFiles.keySet();
+    }
+
     public String getDefaultLanguage() { return defaultLanguage; }
 }

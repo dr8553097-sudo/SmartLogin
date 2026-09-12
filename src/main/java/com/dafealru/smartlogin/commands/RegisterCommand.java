@@ -23,7 +23,7 @@ public class RegisterCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("This command is only for players.");
+            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Este comando es solo para jugadores.</#F5D0FE>"));
             return true;
         }
 
@@ -32,26 +32,20 @@ public class RegisterCommand implements CommandExecutor {
             return true;
         }
 
-        PlayerProfile existing = plugin.getAuthManager().getProfile(player.getUniqueId());
-        if (existing != null && existing.getPasswordHash() != null) {
-            player.sendMessage(plugin.getLocaleManager().getComponent("error-already-registered", player));
-            return true;
-        }
-
-        if (args.length < 2) {
+        if (args.length < 1) {
             player.sendMessage(plugin.getLocaleManager().getComponent("prompt-register", player));
             return true;
         }
 
         String pass1 = args[0];
-        String pass2 = args[1];
+        String pass2 = args.length >= 2 ? args[1] : pass1;
 
         if (!pass1.equals(pass2)) {
             player.sendMessage(plugin.getLocaleManager().getComponent("error-passwords-mismatch", player));
             return true;
         }
 
-        int minLen = plugin.getModularConfig().getConfig().getInt("password-policy.min-length", 6);
+        int minLen = plugin.getModularConfig().getConfig().getInt("password-policy.min-length", 4);
         int maxLen = plugin.getModularConfig().getConfig().getInt("password-policy.max-length", 32);
 
         if (pass1.length() < minLen || pass1.length() > maxLen) {
@@ -60,31 +54,43 @@ public class RegisterCommand implements CommandExecutor {
         }
 
         var disallowed = plugin.getModularConfig().getConfig().getStringList("password-policy.disallowed-passwords");
-        if (disallowed.contains(pass1.toLowerCase()) || pass1.equalsIgnoreCase(player.getName())) {
+        if (disallowed != null && (disallowed.contains(pass1.toLowerCase()) || pass1.equalsIgnoreCase(player.getName()))) {
             player.sendMessage(plugin.getLocaleManager().getComponent("error-password-too-weak", player));
             return true;
         }
 
-        String salt = PasswordHasher.generateSalt();
-        String hash = PasswordHasher.hash(pass1, salt);
+        plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenCompose(p -> {
+            if (p != null) return java.util.concurrent.CompletableFuture.completedFuture(p);
+            return plugin.getDatabaseManager().loadProfileByName(player.getName());
+        }).thenAccept(existing -> {
+            if (existing != null && existing.getPasswordHash() != null && !existing.getPasswordHash().trim().isEmpty()) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-already-registered", player));
+                return;
+            }
 
-        PlayerProfile newProfile = new PlayerProfile(
-                player.getUniqueId(),
-                player.getName(),
-                hash,
-                salt,
-                false,
-                null,
-                null,
-                player.getAddress().getAddress().getHostAddress(),
-                System.currentTimeMillis(),
-                false,
-                plugin.getAutoLoginDetector().isBedrockPlayer(player)
-        );
+            String salt = PasswordHasher.generateSalt();
+            String hash = PasswordHasher.hash(pass1, salt);
 
-        plugin.getDatabaseManager().saveProfile(newProfile).thenRun(() -> {
-            plugin.getAuthManager().cacheProfile(player.getUniqueId(), newProfile);
-            plugin.getAuthManager().completeAuthentication(player, "success-registered");
+            PlayerProfile newProfile = new PlayerProfile(
+                    player.getUniqueId(),
+                    player.getName(),
+                    hash,
+                    salt,
+                    false,
+                    null,
+                    null,
+                    player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "127.0.0.1",
+                    System.currentTimeMillis(),
+                    false,
+                    plugin.getAutoLoginDetector().isBedrockPlayer(player)
+            );
+
+            plugin.getDatabaseManager().saveProfile(newProfile).thenRun(() -> {
+                plugin.getAuthManager().cacheProfile(player.getUniqueId(), newProfile);
+                org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                    plugin.getAuthManager().completeAuthentication(player, "success-registered");
+                });
+            });
         });
 
         return true;

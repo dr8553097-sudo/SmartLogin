@@ -24,7 +24,7 @@ public class LoginCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("This command is only for players.");
+            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Este comando es solo para jugadores.</#F5D0FE>"));
             return true;
         }
 
@@ -38,37 +38,48 @@ public class LoginCommand implements CommandExecutor {
             return true;
         }
 
-        PlayerProfile profile = plugin.getAuthManager().getProfile(player.getUniqueId());
-        if (profile == null || profile.getPasswordHash() == null) {
-            player.sendMessage(plugin.getLocaleManager().getComponent("error-not-registered", player));
-            return true;
-        }
-
         String inputPassword = args[0];
-        boolean valid = PasswordHasher.verify(inputPassword, profile.getSalt(), profile.getPasswordHash());
 
-        if (valid) {
-            // Auto-upgrade legacy hash (AuthMe/nLogin/MD5/etc.) to SmartLogin PBKDF2WithHmacSHA512
-            if (profile.getSalt() == null || profile.getSalt().isEmpty() || !PasswordHasher.verifyPassword(inputPassword, profile.getSalt(), profile.getPasswordHash())) {
-                String newSalt = PasswordHasher.generateSalt();
-                String newHash = PasswordHasher.hashPassword(inputPassword, newSalt);
-                profile.setSalt(newSalt);
-                profile.setPasswordHash(newHash);
+        plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenCompose(p -> {
+            if (p != null) return java.util.concurrent.CompletableFuture.completedFuture(p);
+            return plugin.getDatabaseManager().loadProfileByName(player.getName());
+        }).thenAccept(profile -> {
+            if (profile == null || profile.getPasswordHash() == null || profile.getPasswordHash().trim().isEmpty()) {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-not-registered", player));
+                return;
             }
 
-            if (profile.is2FAEnabled()) {
-                player.sendMessage(plugin.getLocaleManager().getComponent("prompt-2fa-verify", player));
-                return true;
+            boolean valid = PasswordHasher.verify(inputPassword, profile.getSalt(), profile.getPasswordHash());
+
+            if (valid) {
+                // Auto-upgrade legacy hash (AuthMe/nLogin/MD5/etc.) to SmartLogin PBKDF2WithHmacSHA512
+                if (profile.getSalt() == null || profile.getSalt().isEmpty() || !PasswordHasher.verifyPassword(inputPassword, profile.getSalt(), profile.getPasswordHash())) {
+                    String newSalt = PasswordHasher.generateSalt();
+                    String newHash = PasswordHasher.hashPassword(inputPassword, newSalt);
+                    profile.setSalt(newSalt);
+                    profile.setPasswordHash(newHash);
+                }
+
+                if (profile.is2FAEnabled()) {
+                    player.sendMessage(plugin.getLocaleManager().getComponent("prompt-2fa-verify", player));
+                    return;
+                }
+
+                if (player.getAddress() != null) {
+                    profile.setLastIp(player.getAddress().getAddress().getHostAddress());
+                }
+                profile.setLastLoginTimestamp(System.currentTimeMillis());
+                plugin.getDatabaseManager().saveProfile(profile);
+                plugin.getAuthManager().cacheProfile(player.getUniqueId(), profile);
+
+                org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                    plugin.getAuthManager().completeAuthentication(player, "success-logged-in");
+                });
+            } else {
+                player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-password", player));
             }
+        });
 
-            profile.setLastIp(player.getAddress().getAddress().getHostAddress());
-            profile.setLastLoginTimestamp(System.currentTimeMillis());
-            plugin.getDatabaseManager().saveProfile(profile);
-
-            plugin.getAuthManager().completeAuthentication(player, "success-logged-in");
-        } else {
-            player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-password", player));
-        }
         return true;
     }
 }

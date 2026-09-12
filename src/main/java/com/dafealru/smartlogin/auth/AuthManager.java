@@ -111,11 +111,13 @@ public class AuthManager {
         player.removePotionEffect(PotionEffectType.SLOWNESS);
         player.removePotionEffect(PotionEffectType.DARKNESS);
 
-        // 4. Restore flight settings
+        // 4. Restore flight and vulnerability settings
         if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
             player.setAllowFlight(false);
             player.setFlying(false);
+            player.setInvulnerable(false);
         }
+        player.setCollidable(true);
 
         // 5. Restore player position/inventory if spawned
         plugin.getSpawnManager().handleLoginRestore(player);

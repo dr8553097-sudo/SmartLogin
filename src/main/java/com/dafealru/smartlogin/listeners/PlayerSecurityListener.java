@@ -98,6 +98,26 @@ public class PlayerSecurityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
+    public void onEntityTarget(org.bukkit.event.entity.EntityTargetLivingEntityEvent event) {
+        if (event.getTarget() instanceof Player player) {
+            if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+                event.setCancelled(true);
+                event.setTarget(null);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onEntityTargetGeneral(org.bukkit.event.entity.EntityTargetEvent event) {
+        if (event.getTarget() instanceof Player player) {
+            if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+                event.setCancelled(true);
+                event.setTarget(null);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
@@ -107,7 +127,15 @@ public class PlayerSecurityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onDamageOther(EntityDamageByEntityEvent event) {
+    public void onDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+                event.setCancelled(true);
+                if (event.getDamager() instanceof org.bukkit.entity.Mob mob) {
+                    mob.setTarget(null);
+                }
+            }
+        }
         if (event.getDamager() instanceof Player player) {
             if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
                 event.setCancelled(true);

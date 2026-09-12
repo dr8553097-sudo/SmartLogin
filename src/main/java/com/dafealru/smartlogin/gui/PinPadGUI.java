@@ -95,12 +95,8 @@ public class PinPadGUI implements Listener {
             String entered = pin.toString();
             PlayerProfile profile = plugin.getAuthManager().getProfile(player.getUniqueId());
             if (profile != null && PasswordHasher.verify(entered, profile.getSalt(), profile.getPasswordHash())) {
-                plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
-                player.removePotionEffect(PotionEffectType.BLINDNESS);
-                player.removePotionEffect(PotionEffectType.SLOWNESS);
-                plugin.getSpawnManager().handleLoginRestore(player);
                 player.closeInventory();
-                player.sendMessage(plugin.getLocaleManager().getComponent("success-logged-in", player));
+                plugin.getAuthManager().completeAuthentication(player, "success-logged-in");
             } else {
                 player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-password", player));
                 pin.setLength(0);

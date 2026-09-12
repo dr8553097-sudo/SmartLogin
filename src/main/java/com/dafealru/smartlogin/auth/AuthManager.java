@@ -2,7 +2,12 @@ package com.dafealru.smartlogin.auth;
 
 import com.dafealru.smartlogin.SmartLogin;
 import com.dafealru.smartlogin.database.PlayerProfile;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
+
+import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -79,5 +84,53 @@ public class AuthManager {
 
     public void resetAttempts(UUID uuid) {
         loginAttempts.remove(uuid);
+    }
+
+    public void completeAuthentication(Player player, String messageKey) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(plugin, () -> completeAuthentication(player, messageKey));
+            return;
+        }
+
+        UUID uuid = player.getUniqueId();
+        setAuthenticated(uuid, true);
+        resetAttempts(uuid);
+
+        // 1. Stop HUD BossBar and wipe Actionbar
+        plugin.getAuthHudManager().stopHud(player);
+        player.sendActionBar(net.kyori.adventure.text.Component.empty());
+
+        // 2. Play Level Up & Success Sound
+        plugin.getAuthHudManager().playSuccessSound(player);
+
+        // 3. Remove Potion Effects
+        player.removePotionEffect(PotionEffectType.BLINDNESS);
+        player.removePotionEffect(PotionEffectType.SLOWNESS);
+        player.removePotionEffect(PotionEffectType.DARKNESS);
+
+        // 4. Restore flight settings
+        if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
+            player.setAllowFlight(false);
+            player.setFlying(false);
+        }
+
+        // 5. Restore player position/inventory if spawned
+        plugin.getSpawnManager().handleLoginRestore(player);
+
+        // 6. Send to Proxy Lobby if enabled
+        plugin.getProxyBridge().sendToLobby(player);
+
+        // 7. Show Welcome Title
+        Title welcomeTitle = Title.title(
+                plugin.getLocaleManager().parse("<green><bold>✔ ¡AUTENTICADO!</bold></green>"),
+                plugin.getLocaleManager().parse("<gold>Bienvenido, <yellow>" + player.getName() + "</yellow></gold>"),
+                Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(500))
+        );
+        player.showTitle(welcomeTitle);
+
+        // 8. Send Chat Message
+        if (messageKey != null) {
+            player.sendMessage(plugin.getLocaleManager().getComponent(messageKey, player));
+        }
     }
 }

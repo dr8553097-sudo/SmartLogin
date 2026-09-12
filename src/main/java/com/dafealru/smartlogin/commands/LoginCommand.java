@@ -53,23 +53,11 @@ public class LoginCommand implements CommandExecutor {
                 return true;
             }
 
-            plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
-            plugin.getAuthHudManager().stopHud(player);
-            plugin.getAuthHudManager().playSuccessSound(player);
-            plugin.getProxyBridge().sendToLobby(player);
-            player.removePotionEffect(PotionEffectType.BLINDNESS);
-            player.removePotionEffect(PotionEffectType.SLOWNESS);
-            if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
-                player.setAllowFlight(false);
-                player.setFlying(false);
-            }
-
             profile.setLastIp(player.getAddress().getAddress().getHostAddress());
             profile.setLastLoginTimestamp(System.currentTimeMillis());
             plugin.getDatabaseManager().saveProfile(profile);
 
-            plugin.getSpawnManager().handleLoginRestore(player);
-            player.sendMessage(plugin.getLocaleManager().getComponent("success-logged-in", player));
+            plugin.getAuthManager().completeAuthentication(player, "success-logged-in");
         } else {
             player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-password", player));
         }

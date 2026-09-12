@@ -84,20 +84,7 @@ public class RegisterCommand implements CommandExecutor {
 
         plugin.getDatabaseManager().saveProfile(newProfile).thenRun(() -> {
             plugin.getAuthManager().cacheProfile(player.getUniqueId(), newProfile);
-            plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
-
-            plugin.getAuthHudManager().stopHud(player);
-            plugin.getAuthHudManager().playSuccessSound(player);
-            plugin.getProxyBridge().sendToLobby(player);
-            player.removePotionEffect(PotionEffectType.BLINDNESS);
-            player.removePotionEffect(PotionEffectType.SLOWNESS);
-            if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
-                player.setAllowFlight(false);
-                player.setFlying(false);
-            }
-
-            plugin.getSpawnManager().handleLoginRestore(player);
-            player.sendMessage(plugin.getLocaleManager().getComponent("success-registered", player));
+            plugin.getAuthManager().completeAuthentication(player, "success-registered");
         });
 
         return true;

@@ -105,14 +105,7 @@ public class PlayerConnectionListener implements Listener {
     }
 
     private void completeAuth(Player player, PlayerProfile profile, String successMsgKey) {
-        plugin.getAuthManager().setAuthenticated(player.getUniqueId(), true);
-        plugin.getAuthHudManager().stopHud(player);
-        plugin.getAuthHudManager().playSuccessSound(player);
-        plugin.getSpawnManager().handleLoginRestore(player);
-        plugin.getProxyBridge().sendToLobby(player);
-        player.removePotionEffect(PotionEffectType.BLINDNESS);
-        player.removePotionEffect(PotionEffectType.SLOWNESS);
-        player.sendMessage(plugin.getLocaleManager().getComponent(successMsgKey, player));
+        plugin.getAuthManager().completeAuthentication(player, successMsgKey);
     }
 
     private void sendAuthPrompt(Player player, boolean isRegister) {

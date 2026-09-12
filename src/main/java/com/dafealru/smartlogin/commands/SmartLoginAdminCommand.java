@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -137,9 +138,21 @@ public class SmartLoginAdminCommand implements CommandExecutor, TabCompleter {
                         if (p != null) {
                             plugin.getDatabaseManager().deleteProfile(p.getUuid()).thenRun(() -> {
                                 plugin.getAuthManager().uncache(p.getUuid());
+                                Bukkit.getScheduler().runTask(plugin, () -> {
+                                    Player online = Bukkit.getPlayerExact(targetName);
+                                    if (online != null && online.isOnline()) {
+                                        online.kick(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient>\n\n<#F5D0FE>Tu cuenta ha sido eliminada por un administrador.</#F5D0FE>"));
+                                    }
+                                });
                                 sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Cuenta de <#C084FC>" + targetName + "</#C084FC> eliminada correctamente.</#E9D5FF>"));
                             });
                         } else {
+                            Bukkit.getScheduler().runTask(plugin, () -> {
+                                Player online = Bukkit.getPlayerExact(targetName);
+                                if (online != null && online.isOnline()) {
+                                    online.kick(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient>\n\n<#F5D0FE>Tu cuenta ha sido eliminada por un administrador.</#F5D0FE>"));
+                                }
+                            });
                             sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>✖ No se encontró al jugador <#C084FC>" + targetName + "</#C084FC> en la base de datos.</#F5D0FE>"));
                         }
                     });

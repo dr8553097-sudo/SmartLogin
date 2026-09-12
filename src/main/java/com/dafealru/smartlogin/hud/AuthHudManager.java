@@ -5,6 +5,7 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public class AuthHudManager {
     private final SmartLogin plugin;
     private final Map<UUID, BossBar> playerBars = new HashMap<>();
     private final Map<UUID, Integer> remainingSeconds = new HashMap<>();
+    private final Map<UUID, Boolean> playerRegisterMode = new HashMap<>();
     private BukkitTask tickerTask;
 
     public AuthHudManager(SmartLogin plugin) {
@@ -27,6 +29,16 @@ public class AuthHudManager {
     }
 
     public void startHud(Player player, boolean isRegister) {
+        playerRegisterMode.put(player.getUniqueId(), isRegister);
+
+        // Show immediate title
+        Title initialTitle = Title.title(
+                plugin.getLocaleManager().parse(isRegister ? "<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>" : "<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
+                plugin.getLocaleManager().parse(isRegister ? "<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>" : "<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"),
+                Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
+        );
+        player.showTitle(initialTitle);
+
         if (!plugin.getModularConfig().getConfig().getBoolean("hud-and-immersion.bossbar-countdown", true)) return;
 
         int totalTimeout = plugin.getModularConfig().getConfig().getInt("general.auth-timeout-seconds", 60);
@@ -47,9 +59,11 @@ public class AuthHudManager {
     public void stopHud(Player player) {
         BossBar bar = playerBars.remove(player.getUniqueId());
         remainingSeconds.remove(player.getUniqueId());
+        playerRegisterMode.remove(player.getUniqueId());
         if (bar != null) {
             player.hideBossBar(bar);
         }
+        player.clearTitle();
     }
 
     public void playSuccessSound(Player player) {
@@ -75,6 +89,17 @@ public class AuthHudManager {
 
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) continue;
+
+                // 1. Maintain persistent, seamless title on screen
+                Boolean isReg = playerRegisterMode.get(player.getUniqueId());
+                if (isReg != null) {
+                    Title continuousTitle = Title.title(
+                            plugin.getLocaleManager().parse(isReg ? "<gradient:#9333EA:#C084FC><bold>¡REGÍSTRATE!</bold></gradient>" : "<gradient:#9333EA:#C084FC><bold>¡INICIA SESIÓN!</bold></gradient>"),
+                            plugin.getLocaleManager().parse(isReg ? "<#E9D5FF>Escribe <#C084FC><bold>/register <contraseña> <repetir></bold></#C084FC></#E9D5FF>" : "<#E9D5FF>Escribe <#C084FC><bold>/login <contraseña></bold></#C084FC></#E9D5FF>"),
+                            Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
+                    );
+                    player.showTitle(continuousTitle);
+                }
 
                 Integer remaining = remainingSeconds.get(player.getUniqueId());
                 if (remaining == null) continue;

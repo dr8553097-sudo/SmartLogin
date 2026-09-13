@@ -76,8 +76,7 @@ public class AntiBotEngine implements Listener {
         // Whitelist / localhost / config bypass
         var ipBypassList = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-users");
         var ipBypassIps = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-ips");
-        if (ip.equals("127.0.0.1") || ip.startsWith("192.168.") || ip.startsWith("10.") ||
-            ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username)) ||
+        if ((!ipBypassList.isEmpty() && ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username))) ||
             ipBypassIps.contains(ip)) {
             return;
         }

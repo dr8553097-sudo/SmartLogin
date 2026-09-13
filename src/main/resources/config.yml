@@ -41,9 +41,8 @@ general:
   max-accounts-per-ip: 10
 
   # List of usernames exempt from the IP account limit (bypass).
-  ip-limit-bypass-users:
-    - "Admin"
-    - "Owner"
+  # Leave empty [] by default to avoid granting privileges to generic names.
+  ip-limit-bypass-users: []
 
   # List of IP addresses exempt from the IP account limit (bypass).
   ip-limit-bypass-ips:

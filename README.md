@@ -1,12 +1,12 @@
-﻿# <div align="center">🛡️ SmartLogin v1.0.0-BETA</div>
+# <div align="center">🛡️ SmartLogin v1.0.1-BETA</div>
 
 <div align="center">
-  <img src="assets/logo.png" alt="SmartLogin Logo" width="180"/>
+  <img src="https://raw.githubusercontent.com/dr8553097-sudo/SmartLogin/main/assets/logo.png" alt="SmartLogin Logo" width="180"/>
   <br/>
-  <strong>La Suite de Identidad, Autenticación y Seguridad que Minecraft Moderno se Merecía.</strong>
+  <strong>La Suite Definitiva de Autenticación, Identidad y Ciberseguridad para Servidores Modernos de Minecraft.</strong>
   <br/><br/>
   
-  [![Release](https://img.shields.io/badge/Release-v1.0.0--BETA-9333EA?style=for-the-badge&logo=github)](https://github.com/dr8553097-sudo/SmartLogin/releases)
+  [![Release](https://img.shields.io/badge/Release-v1.0.1--BETA-9333EA?style=for-the-badge&logo=github)](https://github.com/dr8553097-sudo/SmartLogin/releases)
   [![Platform](https://img.shields.io/badge/Platform-Paper%20%2F%20Purpur%201.21.x-9333EA?style=for-the-badge&logo=minecraft)](https://papermc.io)
   [![Java](https://img.shields.io/badge/Java-21-9333EA?style=for-the-badge&logo=openjdk)](https://adoptium.net)
   [![Security](https://img.shields.io/badge/Crypto-Argon2id%20OWASP-9333EA?style=for-the-badge&logo=lock)](https://github.com/dr8553097-sudo/SmartLogin)
@@ -101,7 +101,7 @@ Cambia a SmartLogin desde **AuthMe, nLogin, FastLogin, CrazyLogin, xAuth o Login
 
 ## 📦 Instalación Rápida
 
-1. Descarga el archivo **`SmartLogin-1.0.0.jar`** desde [Releases](https://github.com/dr8553097-sudo/SmartLogin/releases) o [Modrinth](https://modrinth.com/plugin/smartlogin).
+1. Descarga el archivo **`SmartLogin-1.0.1.jar`** desde [Releases](https://github.com/dr8553097-sudo/SmartLogin/releases) o [Modrinth](https://modrinth.com/plugin/smartlogin-suite).
 2. Coloca el archivo en la carpeta `/plugins/` de tu servidor **Paper / Purpur 1.21.x** (requiere **Java 21**).
 3. Inicia el servidor.
 4. *(Opcional)* Si vienes de otro plugin de login, ejecuta `/smartlogin migrate all` para transferir todas las cuentas al instante.

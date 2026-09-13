@@ -1,5 +1,5 @@
 name: SmartLogin
-version: '1.0.0'
+version: '1.0.1-BETA'
 main: com.dafealru.smartlogin.SmartLogin
 api-version: '1.21'
 author: Dafealru

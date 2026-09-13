@@ -16,6 +16,7 @@ import java.util.Map;
 public class LoginCommand implements CommandExecutor {
 
     private final SmartLogin plugin;
+    private final Map<java.util.UUID, Integer> failedAttempts = new java.util.concurrent.ConcurrentHashMap<>();
 
     public LoginCommand(SmartLogin plugin) {
         this.plugin = plugin;
@@ -52,6 +53,8 @@ public class LoginCommand implements CommandExecutor {
             boolean valid = PasswordHasher.verify(inputPassword, profile.getSalt(), profile.getPasswordHash());
 
             if (valid) {
+                failedAttempts.remove(player.getUniqueId());
+
                 // Auto-upgrade legacy or different algorithm hashes to server's configured primary algorithm
                 if (!PasswordHasher.isCurrentAlgorithm(profile.getPasswordHash())) {
                     String newSalt = PasswordHasher.generateSalt();
@@ -78,7 +81,24 @@ public class LoginCommand implements CommandExecutor {
                     plugin.getAuthManager().completeAuthentication(player, "success-logged-in");
                 });
             } else {
-                player.sendMessage(plugin.getLocaleManager().getComponent("error-wrong-password", player));
+                int maxAttempts = plugin.getModularConfig().getAuthConfig().getInt("security.max-login-attempts", 3);
+                int fails = failedAttempts.getOrDefault(player.getUniqueId(), 0) + 1;
+                failedAttempts.put(player.getUniqueId(), fails);
+
+                if (fails >= maxAttempts) {
+                    failedAttempts.remove(player.getUniqueId());
+                    String ip = player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "desconocida";
+                    
+                    org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                        player.kick(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin Security</bold></gradient>\n\n<red>Has superado el límite de " + maxAttempts + " intentos fallidos de contraseña.\nPor favor espera unos minutos antes de volver a ingresar.</red>"));
+                    });
+
+                    plugin.getDiscordManager().sendWebhookAlert("🚨 [LOGIN] FUERZA BRUTA DETECTADA", "El usuario **" + player.getName() + "** (`" + ip + "`) fue expulsado tras superar " + maxAttempts + " intentos fallidos de contraseña.", 0xEF4444);
+                } else {
+                    int remaining = maxAttempts - fails;
+                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>Contraseña incorrecta. Intentos restantes: <bold>" + remaining + "/" + maxAttempts + "</bold></red>"));
+                    player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                }
             }
         });
 

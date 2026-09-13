@@ -64,8 +64,18 @@ public class TwoFactorCommand implements CommandExecutor {
         }
 
         if (sub.equals("setup")) {
+            if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin 2FA</bold></gradient> <dark_gray>»</dark_gray> <red>Debes iniciar sesión con tu contraseña antes de vincular 2FA.</red>"));
+                return true;
+            }
+
             if (profile == null || profile.getPasswordHash() == null) {
                 player.sendMessage(plugin.getLocaleManager().getComponent("error-not-registered", player));
+                return true;
+            }
+
+            if (profile.is2FAEnabled()) {
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin 2FA</bold></gradient> <dark_gray>»</dark_gray> <red>2FA ya está activo en tu cuenta. Para reconfigurarlo usa <#C084FC>/2fa disable <code></#C084FC> primero.</red>"));
                 return true;
             }
 
@@ -132,6 +142,11 @@ public class TwoFactorCommand implements CommandExecutor {
         }
 
         if (sub.equals("disable")) {
+            if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+                player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin 2FA</bold></gradient> <dark_gray>»</dark_gray> <red>Debes iniciar sesión con tu contraseña antes de desactivar 2FA.</red>"));
+                return true;
+            }
+
             if (args.length < 2) {
                 player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Uso: /2fa disable <código></#F5D0FE>"));
                 return true;
@@ -144,7 +159,7 @@ public class TwoFactorCommand implements CommandExecutor {
             String cleaned = args[1].replaceAll("[^0-9]", "").trim();
             try {
                 int code = Integer.parseInt(cleaned);
-                if (TotpEngine.verifyCode(profile.getTotpSecret(), code, 3)) {
+                if (TotpEngine.verifyCode(profile.getTotpSecret(), code, 1)) {
                     profile.set2FAEnabled(false);
                     profile.setTotpSecret(null);
                     profile.setBackupCodes(null);
@@ -180,7 +195,7 @@ public class TwoFactorCommand implements CommandExecutor {
 
         try {
             int code = Integer.parseInt(cleaned);
-            if (TotpEngine.verifyCode(profile.getTotpSecret(), code, 3)) {
+            if (TotpEngine.verifyCode(profile.getTotpSecret(), code, 1)) {
                 failedAttempts.remove(player.getUniqueId());
                 boolean wasAlreadyEnabled = profile.is2FAEnabled();
                 profile.set2FAEnabled(true);

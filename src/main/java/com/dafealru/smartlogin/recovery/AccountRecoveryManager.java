@@ -21,7 +21,21 @@ public class AccountRecoveryManager {
     private final SmartLogin plugin;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public record RecoverySession(String otp, long expiresAt) {}
+    public static class RecoverySession {
+        private final String otp;
+        private final long expiresAt;
+        private int failedAttempts = 0;
+
+        public RecoverySession(String otp, long expiresAt) {
+            this.otp = otp;
+            this.expiresAt = expiresAt;
+        }
+
+        public String otp() { return otp; }
+        public long expiresAt() { return expiresAt; }
+        public int getFailedAttempts() { return failedAttempts; }
+        public int incrementFailedAttempts() { return ++this.failedAttempts; }
+    }
 
     private final Map<UUID, RecoverySession> activeSessions = new ConcurrentHashMap<>();
 
@@ -70,6 +84,7 @@ public class AccountRecoveryManager {
     public enum RecoveryResult {
         SUCCESS,
         INVALID_CODE,
+        TOO_MANY_ATTEMPTS,
         EXPIRED,
         WEAK_PASSWORD,
         NO_SESSION,
@@ -88,6 +103,11 @@ public class AccountRecoveryManager {
         }
 
         if (!session.otp().equals(code.trim())) {
+            int fails = session.incrementFailedAttempts();
+            if (fails >= 3) {
+                activeSessions.remove(player.getUniqueId());
+                return RecoveryResult.TOO_MANY_ATTEMPTS;
+            }
             return RecoveryResult.INVALID_CODE;
         }
 

@@ -48,7 +48,7 @@ public class TotpEngine {
         try {
             String cleaned = inputCode.replaceAll("[^0-9]", "").trim();
             if (cleaned.isEmpty()) return false;
-            return verifyCode(secret, Integer.parseInt(cleaned), 3);
+            return verifyCode(secret, Integer.parseInt(cleaned), 1);
         } catch (Exception e) {
             return false;
         }

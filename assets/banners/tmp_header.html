@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 860px;
+    height: 220px;
+    background: transparent;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .banner-card {
+    width: 848px;
+    height: 208px;
+    background: linear-gradient(135deg, #0c0818 0%, #170d2c 50%, #0d091b 100%);
+    border: 2px solid #7c3aed;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding: 0 36px;
+    position: relative;
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.45), inset 0 0 15px rgba(147, 51, 234, 0.15);
+  }
+  .banner-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #c084fc, transparent);
+  }
+  .icon-box {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(79, 70, 229, 0.25));
+    border: 1.5px solid #a855f7;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    margin-right: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .tag {
+    display: inline-block;
+    color: #c084fc;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .title {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #ffffff 0%, #f3e8ff 60%, #d8b4fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+  .subtitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-top: 3px;
+  }
+  .accent-line {
+    position: absolute;
+    right: 28px;
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7c3aed;
+    box-shadow: 0 0 8px #a855f7;
+  }
+</style>
+</head>
+<body>
+  <div class="banner-card">
+    <div class="icon-box">🛡️</div>
+    <div class="content">
+      <div class="tag">CYBERSECURITY SUITE</div>
+      <div class="title">SMARTLOGIN</div>
+      <div class="subtitle">The Next-Gen Authentication & Identity Suite Minecraft Deserved</div>
+    </div>
+    <div class="accent-line">
+      <div class="dot" style="opacity: 0.4;"></div>
+      <div class="dot" style="opacity: 0.7;"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</body>
+</html>

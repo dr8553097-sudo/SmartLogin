@@ -43,7 +43,11 @@ public class RecoverCommand implements CommandExecutor {
                     player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin Recovery</bold></gradient> <dark_gray>»</dark_gray> <green>¡Tu contraseña ha sido restablecida con éxito con máxima seguridad Argon2id! Ya puedes iniciar sesión.</green>"));
                 }
                 case INVALID_CODE -> {
-                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin Recovery</bold></gradient> <dark_gray>»</dark_gray> <red>El código OTP ingresado es incorrecto.</red>"));
+                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin Recovery</bold></gradient> <dark_gray>»</dark_gray> <red>El código OTP ingresado es incorrecto.</red>"));
+                }
+                case TOO_MANY_ATTEMPTS -> {
+                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin Recovery</bold></gradient> <dark_gray>»</dark_gray> <red>Has superado el límite de 3 intentos fallidos. Tu sesión de recuperación ha sido cancelada por seguridad.</red>"));
+                    player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                 }
                 case EXPIRED -> {
                     player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin Recovery</bold></gradient> <dark_gray>»</dark_gray> <red>El código OTP ha expirado. Solicita uno nuevo con /recover request.</red>"));

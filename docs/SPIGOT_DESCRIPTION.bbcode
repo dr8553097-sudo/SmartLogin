@@ -1,0 +1,150 @@
+[CENTER]
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/SmartLogin/main/assets/logo.png[/IMG]
+
+[SIZE=7][B][COLOR=#9333EA]SmartLogin[/COLOR][/B][/SIZE]
+[SIZE=4][B][COLOR=#A855F7]The Next-Gen Authentication, Identity & Cybersecurity Suite Minecraft Deserved[/COLOR][/B][/SIZE]
+
+[SIZE=3][COLOR=#6B7280]Engineered for modern Paper & Purpur 1.21+ | Powered by Java 21 & Argon2id OWASP Standard[/COLOR][/SIZE]
+
+[URL='https://github.com/dr8553097-sudo/SmartLogin/releases'][IMG]https://img.shields.io/badge/Release-v1.0.0--BETA-9333EA?style=for-the-badge&logo=github[/IMG][/URL] [URL='https://modrinth.com/plugin/smartlogin-suite'][IMG]https://img.shields.io/badge/Modrinth-Verified_Plugin-00AF5C?style=for-the-badge&logo=modrinth[/IMG][/URL] [URL='https://github.com/dr8553097-sudo/SmartLogin/wiki'][IMG]https://img.shields.io/badge/Wiki-Comprehensive_Docs-3B82F6?style=for-the-badge&logo=gitbook[/IMG][/URL] [URL='https://github.com/dr8553097-sudo/SmartLogin/issues'][IMG]https://img.shields.io/badge/Support-GitHub_Issues-E11D48?style=for-the-badge&logo=github[/IMG][/URL]
+
+[/CENTER]
+
+---
+
+[CENTER]
+[SIZE=5][B]🎙️ WHY SMARTLOGIN?[/B][/SIZE]
+[SIZE=3][I]"For almost a decade, server owners have been forced to use legacy authentication plugins conceived in 2015, filled with archaic SHA256 hashes, unoptimized queries, and boring chat-only prompts. We built SmartLogin from scratch to set a new standard in Minecraft server security."[/I][/SIZE]
+[/CENTER]
+
+[HR][/HR]
+
+[CENTER][SIZE=6][B]⚔️ THE FEATURE MATRIX[/B][/SIZE][/CENTER]
+
+[TABLE]
+[TR]
+[TH][B]Feature[/B][/TH]
+[TH][COLOR=#9333EA][B]SmartLogin[/B][/COLOR][/TH]
+[TH][COLOR=#6B7280][B]Legacy Plugins (AuthMe / nLogin)[/B][/COLOR][/TH]
+[/TR]
+[TR]
+[TD][B]Default Hashing Algorithm[/B][/TD]
+[TD][COLOR=#10B981][B]Argon2id (OWASP Military-Grade, GPU-proof)[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]SHA256 / BCrypt / Plain MD5[/COLOR][/TD]
+[/TR]
+[TR]
+[TD][B]Two-Factor Authentication (2FA)[/B][/TD]
+[TD][COLOR=#10B981][B]Physical In-Game QR Code Map (5s scan)[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]Chat URLs / Secret String Copying[/COLOR][/TD]
+[/TR]
+[TR]
+[TD][B]Bedrock / Floodgate UX[/B][/TD]
+[TD][COLOR=#10B981][B]Tactile Touch PinPad GUI + Auto-Login[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]Clunky Chat Commands[/COLOR][/TD]
+[/TR]
+[TR]
+[TD][B]Streamer Privacy Shield[/B][/TD]
+[TD][COLOR=#10B981][B]Real-time Chat Interceptor + IP/Email Masking[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]None (Passwords leak if / is missed)[/COLOR][/TD]
+[/TR]
+[TR]
+[TD][B]Account Recovery System[/B][/TD]
+[TD][COLOR=#10B981][B]Autonomous Discord & Telegram Bots in 10s[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]Manual Admin Intervention / Email only[/COLOR][/TD]
+[/TR]
+[TR]
+[TD][B]Engine Performance[/B][/TD]
+[TD][COLOR=#10B981][B]100% Asynchronous (ForkJoinPool, 0.00% TPS Loss)[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]Partial Main-Thread Blocking[/COLOR][/TD]
+[/TR]
+[TR]
+[TD][B]Database Migration[/B][/TD]
+[TD][COLOR=#10B981][B]Universal Batch Migration (50k accounts in ~1s)[/B][/COLOR][/TD]
+[TD][COLOR=#EF4444]Manual SQL queries / Slow row-by-row[/COLOR][/TD]
+[/TR]
+[/TABLE]
+
+[HR][/HR]
+
+[CENTER][SIZE=6][B]✨ CORE HIGHLIGHTS & CAPABILITIES[/B][/SIZE][/CENTER]
+
+[LIST]
+[*][SIZE=4][B]🗺️ In-Game QR Code Two-Factor Authentication (2FA)[/B][/SIZE]
+Players receive a physical rendered Minecraft Map with an instant QR Code. Compatible with [B]Google Authenticator, Authy, Microsoft Authenticator, and 1Password[/B]. Link accounts in 5 seconds without typing long secrets. Includes emergency backup recovery keys.
+
+[*][SIZE=4][B]🛡️ Next-Gen Argon2id OWASP Cryptography[/B][/SIZE]
+Protects player passwords with the gold standard in modern cybersecurity. Configurable memory cost, time iterations, and parallelism to resist brute-force attacks from modern GPU farms and ASICs.
+
+[*][SIZE=4][B]📱 Native Bedrock & Floodgate Mobile PinPad[/B][/SIZE]
+Bedrock players on mobile, tablets, or consoles are greeted with an interactive visual [B]PinPad Touch GUI[/B] or zero-command cryptographic auto-login. No more painful mobile chat typing.
+
+[*][SIZE=4][B]🤖 Autonomous Discord & Telegram Recovery Bots[/B][/SIZE]
+Players link their accounts via [B]/link[/B] or [B]/tlink[/B]. If they ever forget their password, they can reset it autonomously in 10 seconds through interactive bot buttons or commands, eliminating 90% of support tickets for your staff team.
+
+[*][SIZE=4][B]🎥 Streamer Anti-Leak Shield[/B][/SIZE]
+Did a content creator forget the [B]/[/B] slash and type their password into global chat? SmartLogin's neural pattern matching intercepts the packet before it reaches the server chat pipeline. Sensitive IPs and emails are masked in all GUIs.
+
+[*][SIZE=4][B]⚡ Universal 1-Second Database Migration[/B][/SIZE]
+Switching from another plugin? Run [COLOR=#9333EA][B]/smartlogin migrate all[/B][/COLOR]! High-speed SQL batch transactions import over 50,000 accounts in approximately 1 second from [B]AuthMe, nLogin, FastLogin, CrazyLogin, xAuth, or LoginSecurity[/B]. Legacy hashes are automatically upgraded to Argon2id on player login.
+
+[*][SIZE=4][B]📊 Visual Admin Dashboard & Live Diagnostics[/B][/SIZE]
+Manage players, unregister accounts, reset 2FA, benchmark CPU hashing speed, and audit real-time engine latency with interactive inventory GUIs ([B]/smartlogin gui[/B] and [B]/smartlogin diag[/B]).
+[/LIST]
+
+[HR][/HR]
+
+[CENTER][SIZE=6][B]📋 COMMANDS & PERMISSIONS[/B][/SIZE][/CENTER]
+
+[SPOILER="Click to view Player Commands (Default Permissions)"]
+[B]Authentication & Security[/B]
+[LIST]
+[*][COLOR=#9333EA][B]/login <password>[/B][/COLOR] (Alias: /l) - Authenticate your session.
+[*][COLOR=#9333EA][B]/register <password> <confirm>[/B][/COLOR] (Alias: /reg) - Register a new account.
+[*][COLOR=#9333EA][B]/changepassword <old> <new>[/B][/COLOR] (Alias: /cp, /changepass) - Update your password.
+[*][COLOR=#9333EA][B]/security[/B][/COLOR] (Alias: /seguridad) - Open the Security & 2FA Control GUI.
+[*][COLOR=#9333EA][B]/streamer[/B][/COLOR] - Toggle Streamer Privacy Shield mode.
+[*][COLOR=#9333EA][B]/2fa <setup|verify|disable>[/B][/COLOR] - Manage Google Authenticator 2FA.
+[*][COLOR=#9333EA][B]/link[/B][/COLOR] - Generate linking token for Discord Bot integration.
+[*][COLOR=#9333EA][B]/tlink[/B][/COLOR] - Connect with Telegram Bot recovery.
+[*][COLOR=#9333EA][B]/email <add|verify>[/B][/COLOR] - Link recovery email address.
+[*][COLOR=#9333EA][B]/anvil <login|register>[/B][/COLOR] - Visual login using Minecraft Anvil GUI.
+[*][COLOR=#9333EA][B]/lang <en|es|...>[/B][/COLOR] - Change player interface language.
+[/LIST]
+[/SPOILER]
+
+[SPOILER="Click to view Administrator Commands (smartlogin.admin)"]
+[LIST]
+[*][COLOR=#9333EA][B]/smartlogin gui[/B][/COLOR] - Open the visual Administrator Control Panel GUI.
+[*][COLOR=#9333EA][B]/smartlogin diag[/B][/COLOR] - Run a live system audit (YAML integrity, Latency, TPS).
+[*][COLOR=#9333EA][B]/smartlogin benchmark[/B][/COLOR] - Test CPU performance on Argon2id hashing.
+[*][COLOR=#9333EA][B]/smartlogin migrate <all|authme|nlogin|...>[/B][/COLOR] - Instant batch migration.
+[*][COLOR=#9333EA][B]/smartlogin setpassword <user> <password>[/B][/COLOR] - Force change player password.
+[*][COLOR=#9333EA][B]/smartlogin reset2fa <user>[/B][/COLOR] - Unlink and reset player 2FA.
+[*][COLOR=#9333EA][B]/smartlogin unlink <user> [discord|email|all][/B][/COLOR] - Remove security credentials.
+[*][COLOR=#9333EA][B]/smartlogin unregister <user>[/B][/COLOR] - Delete player account from database.
+[*][COLOR=#9333EA][B]/smartlogin history <user>[/B][/COLOR] - Inspect player login & IP audit logs.
+[*][COLOR=#9333EA][B]/smartlogin setspawn[/B][/COLOR] - Set pre-login authentication spawn location.
+[*][COLOR=#9333EA][B]/smartlogin backup[/B][/COLOR] - Create an instant SQLite database backup.
+[*][COLOR=#9333EA][B]/smartlogin reload[/B][/COLOR] - Hot-reload configurations and language files.
+[/LIST]
+[/SPOILER]
+
+[HR][/HR]
+
+[CENTER][SIZE=6][B]⚙️ INSTALLATION IN 3 EASY STEPS[/B][/SIZE][/CENTER]
+
+[LIST=1]
+[*][B]Download:[/B] Grab the latest [URL='https://github.com/dr8553097-sudo/SmartLogin/releases'][COLOR=#9333EA]SmartLogin-1.0.0.jar[/COLOR][/URL] and drop it into your server's [B]/plugins/[/B] folder.
+[*][B]Boot & Setup:[/B] Start your server (Paper/Purpur 1.21+ with Java 21). When an OP joins, the interactive Setup Wizard GUI will guide you through storage selection (SQLite / MySQL) and security levels.
+[*][B]Migrate (Optional):[/B] If switching from AuthMe or nLogin, simply type [B]/smartlogin migrate all[/B] and you are done in 1 second!
+[/LIST]
+
+[HR][/HR]
+
+[CENTER]
+[SIZE=5][B]🌐 OFFICIAL LINKS & COMMUNITY[/B][/SIZE]
+
+[URL='https://github.com/dr8553097-sudo/SmartLogin'][B]💻 Source Code (GitHub)[/B][/URL] • [URL='https://github.com/dr8553097-sudo/SmartLogin/wiki'][B]📖 Official Full Wiki[/B][/URL] • [URL='https://modrinth.com/plugin/smartlogin-suite'][B]🟢 Modrinth Page[/B][/URL] • [URL='https://github.com/dr8553097-sudo/SmartLogin/issues'][B]🐛 Bug Tracker & Issues[/B][/URL]
+
+[SIZE=2][COLOR=#6B7280]Crafted with passion for the Minecraft community. Licensed under GPL v3.0.[/COLOR][/SIZE]
+[/CENTER]

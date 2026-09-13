@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,7 +56,18 @@ public class AuditManager {
             String hash = PasswordHasher.hash(newPassword, salt);
             profile.setSalt(salt);
             profile.setPasswordHash(hash);
+            profile.setLastLoginTimestamp(0);
             plugin.getDatabaseManager().saveProfile(profile);
+            plugin.getAuthManager().cacheProfile(profile.getUuid(), profile);
+
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                Player online = org.bukkit.Bukkit.getPlayerExact(username);
+                if (online != null && online.isOnline()) {
+                    plugin.getAuthManager().removeAuthenticated(online.getUniqueId());
+                    online.kick(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient>\n\n<#F5D0FE>Tu contraseña fue modificada por un administrador.\nPor favor vuelve a ingresar con tu nueva clave.</#F5D0FE>"));
+                }
+            });
+
             return true;
         });
     }

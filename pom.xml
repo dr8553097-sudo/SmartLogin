@@ -60,6 +60,12 @@
             <version>3.47.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- BouncyCastle for Military-Grade Argon2id Password Hashing -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.78.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -87,6 +93,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <minimizeJar>true</minimizeJar>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -97,11 +104,23 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
                                 </filter>
+                                <filter>
+                                    <artifact>org.bouncycastle:bcprov-jdk18on</artifact>
+                                    <includes>
+                                        <include>org/bouncycastle/crypto/**</include>
+                                        <include>org/bouncycastle/util/**</include>
+                                        <include>org/bouncycastle/asn1/**</include>
+                                    </includes>
+                                </filter>
                             </filters>
                             <relocations>
                                 <relocation>
                                     <pattern>com.google.zxing</pattern>
                                     <shadedPattern>com.dafealru.smartlogin.libs.zxing</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.bouncycastle</pattern>
+                                    <shadedPattern>com.dafealru.smartlogin.libs.bouncycastle</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

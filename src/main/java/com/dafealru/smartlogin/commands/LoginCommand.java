@@ -24,7 +24,7 @@ public class LoginCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Este comando es solo para jugadores.</#F5D0FE>"));
+            sender.sendMessage(plugin.getLocaleManager().getComponent("error-only-players", null));
             return true;
         }
 
@@ -52,15 +52,17 @@ public class LoginCommand implements CommandExecutor {
             boolean valid = PasswordHasher.verify(inputPassword, profile.getSalt(), profile.getPasswordHash());
 
             if (valid) {
-                // Auto-upgrade legacy hash (AuthMe/nLogin/MD5/etc.) to SmartLogin PBKDF2WithHmacSHA512
-                if (profile.getSalt() == null || profile.getSalt().isEmpty() || !PasswordHasher.verifyPassword(inputPassword, profile.getSalt(), profile.getPasswordHash())) {
+                // Auto-upgrade legacy or different algorithm hashes to server's configured primary algorithm
+                if (!PasswordHasher.isCurrentAlgorithm(profile.getPasswordHash())) {
                     String newSalt = PasswordHasher.generateSalt();
-                    String newHash = PasswordHasher.hashPassword(inputPassword, newSalt);
+                    String newHash = PasswordHasher.hash(inputPassword, newSalt);
                     profile.setSalt(newSalt);
                     profile.setPasswordHash(newHash);
                 }
 
                 if (profile.is2FAEnabled()) {
+                    plugin.getAuthManager().cacheProfile(player.getUniqueId(), profile);
+                    plugin.getAuthManager().setState(player.getUniqueId(), AuthManager.AuthState.AWAITING_2FA);
                     player.sendMessage(plugin.getLocaleManager().getComponent("prompt-2fa-verify", player));
                     return;
                 }

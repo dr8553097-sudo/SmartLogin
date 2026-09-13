@@ -1,0 +1,23 @@
+name: "💡 Sugerencia / Nueva Funcion (Feature Request)"
+description: "Propon una nueva caracteristica o mejora para SmartLogin."
+title: "[IDEA]: "
+labels: ["enhancement", "feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¿Tienes una idea para hacer SmartLogin aun mas potente o comodo para jugadores y streamers? ¡Cuentanosla!
+  - type: textarea
+    id: problem
+    attributes:
+      label: "¿Que problema o necesidad resuelve esta funcion?"
+      description: "Explica el contexto o caso de uso."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Descripcion de la Solucion Propuesta"
+      description: "¿Como te gustaria que funcionara esta caracteristica?"
+    validations:
+      required: true

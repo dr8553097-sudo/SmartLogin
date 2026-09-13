@@ -1,0 +1,49 @@
+name: "🐛 Reporte de Bug / Error (Bug Report)"
+description: "Informa sobre un error, fallo o comportamiento inesperado en SmartLogin (BETA)."
+title: "[BUG]: "
+labels: ["bug", "beta-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por tomarte el tiempo de reportar un problema. Como **SmartLogin** se encuentra en fase **BETA**, tu feedback es fundamental para perfeccionar la estabilidad de la suite.
+  - type: input
+    id: server_version
+    attributes:
+      label: "Version del Servidor (Server Software & Version)"
+      description: "Ejemplo: Paper 1.21.4 build 92, Purpur 1.21.3"
+      placeholder: "Paper 1.21.4"
+    validations:
+      required: true
+  - type: input
+    id: java_version
+    attributes:
+      label: "Version de Java (Java Runtime)"
+      description: "Ejemplo: Java 21 Temurin / OpenJDK 21"
+      placeholder: "Java 21"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Descripcion del Error (Bug Description)"
+      description: "Explica detalladamente que sucedio y que esperabas que ocurriera."
+    validations:
+      required: true
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: "Pasos para Reproducir (Steps to Reproduce)"
+      description: "1. Ejecutar comando...
+2. Conectar jugador Bedrock/Java...
+3. Abrir menu..."
+    validations:
+      required: true
+  - type: textarea
+    id: console_logs
+    attributes:
+      label: "Registros de la Consola / StackTrace (Console Logs)"
+      description: "Pega aqui cualquier error relevante de logs/latest.log o el resultado de /smartlogin diag."
+      render: shell
+    validations:
+      required: false

@@ -121,6 +121,12 @@ public class AuthManager {
 
         // 5. Restore player position/inventory if spawned
         plugin.getSpawnManager().handleLoginRestore(player);
+        if (plugin.getGhostInventoryManager() != null) {
+            plugin.getGhostInventoryManager().restoreInventory(player);
+        }
+
+        // Resend full command tree so commands like /fly, /spawn, etc. are not shown in red or hidden
+        player.updateCommands();
 
         // 6. Send to Proxy Lobby if enabled
         plugin.getProxyBridge().sendToLobby(player);
@@ -144,11 +150,13 @@ public class AuthManager {
             }
         }
 
-        // 9. Launch Setup Wizard for OP / Admin if first time
+        // 9. Launch Setup Wizard for OP / Admin if first time (Java only)
         if (!plugin.getSetupWizardManager().isSetupCompleted() && (player.isOp() || player.hasPermission("smartlogin.admin"))) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                plugin.getSetupWizardManager().startWizard(player);
-            }, 30L);
+            if (!plugin.getAutoLoginDetector().isBedrockPlayer(player)) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    plugin.getSetupWizardManager().startWizard(player);
+                }, 30L);
+            }
         }
     }
 }

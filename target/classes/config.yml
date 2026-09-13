@@ -15,13 +15,19 @@
 # If set to false, the first operator (OP) joining will be prompted with the interactive Setup Wizard GUI.
 setup-completed: false
 
-# ------------------------------------------------------------------------------
-# ⚙️ GENERAL CONFIGURATION
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#    ____                           _ 
+#   / ___| ___ _ __   ___ _ __ __ _| |
+#  | |  _ / _ \ '_ \ / _ \ '__/ _` | |
+#  | |_| |  __/ | | |  __/ | | (_| | |
+#   \____|\___|_| |_|\___|_|  \__,_|_|
+#
+#  ⚙️ GENERAL SERVER CONFIGURATION
+# ==============================================================================
 general:
   # Default language for new players when joining the server.
-  # Available languages: es (Spanish), en (English), pt (Portuguese), fr (French), de (German), ru (Russian), zh (Chinese).
-  default-language: "es"
+  # Available languages: en (English), es (Spanish), pt (Portuguese), fr (French), de (German), ru (Russian), zh (Chinese).
+  default-language: "en"
 
   # Automatically detect and apply the player's Minecraft client language.
   # When set to false or when an admin sets the language via '/smartlogin lang <lang>', explicit settings take precedence.
@@ -36,18 +42,22 @@ general:
 
   # List of usernames exempt from the IP account limit (bypass).
   ip-limit-bypass-users:
-    - "Dafealru"
-    - "xylos5"
-    - "xylos5_alt"
+    - "Admin"
+    - "Owner"
 
   # List of IP addresses exempt from the IP account limit (bypass).
   ip-limit-bypass-ips:
-    - "177.8.78.74"
     - "127.0.0.1"
 
-# ------------------------------------------------------------------------------
-# 👤 NICKNAME PROTECTION (ANTI-IMPOSTOR)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#   _   _ _      _                                 
+#  | \ | (_) ___| | ___ __   __ _ _ __ ___   ___   
+#  |  \| | |/ __| |/ / '_ \ / _` | '_ ` _ \ / _ \  
+#  | |\  | | (__|   <| | | | (_| | | | | | |  __/  
+#  |_| \_|_|\___|_|\_\_| |_|\__,_|_| |_| |_|\___|  
+#
+#  👤 NICKNAME PROTECTION & ANTI-IMPOSTOR
+# ==============================================================================
 nickname-protection:
   # Enforces exact character case matching with the registered username.
   # Prevents impostors from joining with modified casing (e.g. 'dafealru' vs 'Dafealru').
@@ -56,9 +66,15 @@ nickname-protection:
   # Regular expression pattern defining valid username characters and length.
   allowed-regex: "^[a-zA-Z0-9_]{3,16}$"
 
-# ------------------------------------------------------------------------------
-# 🔑 PASSWORD POLICIES & BRUTE-FORCE PROTECTION
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#   ____                                        _ 
+#  |  _ \ __ _ ___ _____      _____  _ __ __| |
+#  | |_) / _` / __/ __\ \ /\ / / _ \| '__/ _` |
+#  |  __/ (_| \__ \__ \\ V  V / (_) | | | (_| |
+#  |_|   \__,_|___/___/ \_/\_/ \___/|_|  \__,_|
+#
+#  🔑 PASSWORD POLICIES & BRUTE-FORCE DEFENSE
+# ==============================================================================
 password-policy:
   # Minimum required length for passwords.
   min-length: 6
@@ -79,9 +95,15 @@ password-policy:
     - "qwerty"
     - "minecraft"
 
-# ------------------------------------------------------------------------------
-# 🧩 DYNAMIC ANTI-BOT CAPTCHA SHIELD
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#    ____             _       _           
+#   / ___|__ _ _ __  | |_ ___| |__   __ _ 
+#  | |   / _` | '_ \ | __/ __| '_ \ / _` |
+#  | |__| (_| | |_) || || (__| | | | (_| |
+#   \____\__,_| .__/  \__\___|_| |_|\__,_|
+#             |_|                         
+#  🧩 DYNAMIC ANTI-BOT CAPTCHA SHIELD
+# ==============================================================================
 captcha:
   # Opens an interactive graphical item-matching captcha after X failed password attempts (0 = disabled).
   trigger-after-failed-attempts: 2
@@ -89,9 +111,15 @@ captcha:
   # Enforce solving a captcha before completing initial registration for new players.
   enforce-on-register: false
 
-# ------------------------------------------------------------------------------
-# 🔨 ANVIL GUI INPUT SYSTEM
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#      _              _ _    ____ _   _ ___ 
+#     / \   _ ____   _(_) |  / ___| | | |_ _|
+#    / _ \ | '_ \ \ / / | | | |  _| | | || | 
+#   / ___ \| | | \ V /| | | | |_| | |_| || | 
+#  /_/   \_\_| |_|\_/ |_|_|  \____|\___/|___|
+#
+#  🔨 INTERACTIVE ANVIL GUI INPUT SYSTEM
+# ==============================================================================
 anvil-gui:
   # Enables visual authentication via Anvil interfaces (/anvil login, /anvil register).
   enabled: true
@@ -99,9 +127,15 @@ anvil-gui:
   # Automatically opens the Anvil GUI upon player join instead of requiring chat input.
   auto-open-on-join: false
 
-# ------------------------------------------------------------------------------
-# 🌍 GEO-IP & IMPOSSIBLE TRAVEL SECURITY
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#    ____             ___ ____  
+#   / ___| ___  ___  |_ _|  _ \ 
+#  | |  _ / _ \/ _ \  | || |_) |
+#  | |_| |  __/ (_) | | ||  __/ 
+#   \____|\___|\___/ |___|_|    
+#
+#  🌍 GEO-IP & IMPOSSIBLE TRAVEL SECURITY
+# ==============================================================================
 geo-protection:
   # Enables geographic location and country detection for connecting players.
   enabled: true
@@ -112,9 +146,15 @@ geo-protection:
   # Automatically requires 2-Factor Authentication (2FA) if an unexpected country change is detected.
   enforce-2fa-on-country-change: true
 
-# ------------------------------------------------------------------------------
-# 🔮 VISUAL HUD, PURPLE THEME & AUDIO IMMERSION
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#   _   _ _   _ ____    ____        _            
+#  | | | | | | |  _ \  | __ )  __ _| |_ ___  ___ 
+#  | |_| | | | | | | | |  _ \ / _` | __/ _ \/ __|
+#  |  _  | |_| | |_| | | |_) | (_| | ||  __/\__ \
+#  |_| |_|\__,_|____/  |____/ \__,_|\__\___||___/
+#
+#  🔮 VISUAL HUD, PURPLE THEME & AUDIO IMMERSION
+# ==============================================================================
 hud-and-immersion:
   # Displays an animated countdown BossBar at the top of the screen during authentication.
   bossbar-countdown: true
@@ -128,9 +168,15 @@ hud-and-immersion:
   # Plays sound effects on successful authentication, errors, and countdown ticks.
   play-sounds: true
 
-# ------------------------------------------------------------------------------
-# 🔒 PRE-LOGIN RESTRICTIONS (LOCKDOWN ENGINE)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#   _                _       _                     
+#  | |    ___   ____| | ____| | _____      ___ __  
+#  | |   / _ \ / ___| |/ / _` |/ _ \ \ /\ / / '_ \ 
+#  | |__| (_) | |___|   < (_| | (_) \ V  V /| | | |
+#  |_____\___/ \____|_|\_\__,_|\___/ \_/\_/ |_| |_|
+#
+#  🔒 PRE-LOGIN RESTRICTIONS (LOCKDOWN ENGINE)
+# ==============================================================================
 lockdown:
   # Applies blindness potion effect to unauthenticated players for enhanced visual privacy.
   apply-blindness: true
@@ -174,9 +220,15 @@ lockdown:
     - "/language"
     - "/idioma"
 
-# ------------------------------------------------------------------------------
-# 📍 AUTHENTICATION SPAWN & LIMBO
-# ------------------------------------------------------------------------------
+# ==============================================================================
+#      _         _   _       ____                              
+#     / \  _   _| |_| |__   / ___| _ __   __ ___      ___ __   
+#    / _ \| | | | __| '_ \  \___ \| '_ \ / _` \ \ /\ / / '_ \  
+#   / ___ \ |_| | |_| | | |  ___) | |_) | (_| |\ V  V /| | | | 
+#  /_/   \_\__,_|\__|_| |_| |____/| .__/ \__,_| \_/\_/ |_| |_| 
+#                                 |_|                          
+#  📍 AUTHENTICATION SPAWN & LIMBO
+# ==============================================================================
 auth-spawn:
   # Teleports unauthenticated players to a dedicated authentication hub or spawn point.
   enabled: false
@@ -193,3 +245,31 @@ auth-spawn:
 
   # Teleports player back to their original disconnection location upon successful login.
   teleport-back-on-login: true
+
+# ==============================================================================
+#   ____  _                                    
+#  / ___|| |_ _ __ ___  __ _ _ __ ___   ___ _ __ 
+#  \___ \| __| '__/ _ \/ _` | '_ ` _ \ / _ \ '__|
+#   ___) | |_| | |  __/ (_| | | | | | |  __/ |   
+#  |____/ \__|_|  \___|\__,_|_| |_| |_|\___|_|   
+#
+#  🎥 STREAMER & CONTENT CREATOR SHIELD (/streamer)
+# ==============================================================================
+streamer-protection:
+  # Enables the streamer mode security engine.
+  enabled: true
+
+  # Automatically masks real IP addresses in GUIs and commands (***.***.***.***).
+  mask-ips: true
+
+  # Automatically masks email addresses (u***@domain.com) and Discord IDs in GUIs.
+  mask-emails-and-ids: true
+
+  # Intercepts and deletes accidental chat leaks of passwords without leading slashes.
+  anti-chat-password-leak: true
+
+  # Plays an alert sound and sends a private warning when a leak is intercepted.
+  alert-on-intercepted-leak: true
+
+  # Warns streamers in chat before generating and holding a QR map with /2fa setup.
+  warn-on-2fa-qr-setup: true

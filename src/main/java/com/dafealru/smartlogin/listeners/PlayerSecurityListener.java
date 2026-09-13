@@ -42,11 +42,18 @@ public class PlayerSecurityListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) return;
+        if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+            // Cancel chat completely to prevent leaking password into public chat
+            event.setCancelled(true);
+            player.sendMessage(plugin.getLocaleManager().getComponent("error-chat-locked", player));
+            return;
+        }
 
-        // Cancel chat completely to prevent leaking password into public chat
-        event.setCancelled(true);
-        player.sendMessage(plugin.getLocaleManager().getComponent("error-chat-locked", player));
+        // Accidental password leak prevention for authenticated players
+        if (plugin.getStreamerManager() != null && plugin.getStreamerManager().isSuspiciousChat(event.getMessage())) {
+            event.setCancelled(true);
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin Security</bold></gradient> <dark_gray>»</dark_gray> <red>¡Tu mensaje fue bloqueado automáticamente para evitar que tu contraseña se publique en el chat público!</red>"));
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -87,6 +94,32 @@ public class PlayerSecurityListener implements Listener {
     public void onDrop(PlayerDropItemEvent event) {
         if (!plugin.getAuthManager().isAuthenticated(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
+            if (event.getItemDrop() != null && event.getItemDrop().isValid()) {
+                event.getItemDrop().remove();
+            }
+            event.getPlayer().updateInventory();
+            return;
+        }
+
+        // Prevent dropping the 2FA QR map or Guide book
+        if (event.getItemDrop() != null) {
+            org.bukkit.inventory.ItemStack dropped = event.getItemDrop().getItemStack();
+            if (plugin.getQrMapManager().isQrMap(dropped) || plugin.getGhostInventoryManager().isGuideBook(dropped)) {
+                event.setCancelled(true);
+                if (event.getItemDrop().isValid()) {
+                    event.getItemDrop().remove();
+                }
+                event.getPlayer().updateInventory();
+                event.getPlayer().sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>No puedes tirar este ítem de seguridad al suelo.</red>"));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onSwapHand(PlayerSwapHandItemsEvent event) {
+        if (!plugin.getAuthManager().isAuthenticated(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            event.getPlayer().updateInventory();
         }
     }
 
@@ -152,12 +185,63 @@ public class PlayerSecurityListener implements Listener {
                     return;
                 }
                 event.setCancelled(true);
+                return;
+            }
+
+            // Prevent placing or moving the 2FA QR map or Guide Book into other inventories or dropping it outside
+            org.bukkit.inventory.ItemStack current = event.getCurrentItem();
+            org.bukkit.inventory.ItemStack cursor = event.getCursor();
+            if (plugin.getQrMapManager().isQrMap(current) || plugin.getQrMapManager().isQrMap(cursor) || plugin.getGhostInventoryManager().isGuideBook(current) || plugin.getGhostInventoryManager().isGuideBook(cursor)) {
+                if (event.getRawSlot() == -999 || (event.getClickedInventory() != null && event.getClickedInventory() != player.getInventory())) {
+                    event.setCancelled(true);
+                    player.updateInventory();
+                    player.sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>No puedes almacenar ni tirar este ítem de seguridad.</red>"));
+                }
             }
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        org.bukkit.inventory.ItemStack item = event.getItem();
+        if (item != null && plugin.getGhostInventoryManager() != null && plugin.getGhostInventoryManager().isGuideBook(item)) {
+            event.setCancelled(true);
+            plugin.getGhostInventoryManager().openGuideBook(player);
+            return;
+        }
+
+        if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+        if (!plugin.getAuthManager().isAuthenticated(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Prevent placing QR map or Guide Book in ItemFrames or ArmorStands
+        if (event.getRightClicked() instanceof org.bukkit.entity.ItemFrame || event.getRightClicked() instanceof org.bukkit.entity.ArmorStand) {
+            org.bukkit.inventory.ItemStack main = event.getPlayer().getInventory().getItemInMainHand();
+            org.bukkit.inventory.ItemStack off = event.getPlayer().getInventory().getItemInOffHand();
+            if (plugin.getQrMapManager().isQrMap(main) || plugin.getQrMapManager().isQrMap(off) || plugin.getGhostInventoryManager().isGuideBook(main) || plugin.getGhostInventoryManager().isGuideBook(off)) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <red>No puedes colocar este ítem de seguridad en marcos ni soportes.</red>"));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent event) {
+        // Automatically delete 2FA QR map upon death so it is never dropped on the ground
+        event.getDrops().removeIf(item -> plugin.getQrMapManager().isQrMap(item));
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPortal(PlayerPortalEvent event) {
         if (!plugin.getAuthManager().isAuthenticated(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
         }

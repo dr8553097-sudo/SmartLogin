@@ -2,26 +2,25 @@
 # 🤖 SmartLogin — 2FA: Discord Bot & Security Webhooks
 # ==============================================================================
 
+enabled: false
+bot-token: "YOUR_DISCORD_BOT_TOKEN_HERE"
+
 bot:
   enabled: false
   token: "YOUR_DISCORD_BOT_TOKEN_HERE"
-  guild-id: "YOUR_GUILD_ID_HERE"
-  verified-role-id: "YOUR_VERIFIED_ROLE_ID_HERE"
+  guild-id: ""
+  verified-role-id: ""
 
 # Discord 2FA Approval by Direct Message (DM)
 dm-2fa-approval:
   enabled: true
-  # Require Discord DM button approval when logging in from a new/different IP
   only-on-new-ip: true
-  # Timeout in seconds before expiring the login approval request
   approval-timeout-seconds: 60
 
 # Staff & Security Webhooks
 webhooks:
   enabled: false
-  # Discord webhook URL for security logs
-  staff-security-logs-url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL_HERE"
-  # Alert triggers
+  staff-security-logs-url: ""
   notify-on-admin-login: true
   notify-on-brute-force-fail: true
   notify-on-2fa-change: true

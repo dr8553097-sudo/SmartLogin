@@ -1,6 +1,8 @@
 package com.dafealru.smartlogin;
 
 import com.dafealru.smartlogin.audit.AuditManager;
+import com.dafealru.smartlogin.audit.DiagnosticManager;
+import com.dafealru.smartlogin.gui.SecurityCenterGUI;
 import com.dafealru.smartlogin.auth.AuthManager;
 import com.dafealru.smartlogin.auth.AutoLoginDetector;
 import com.dafealru.smartlogin.auth.SessionShield;
@@ -48,8 +50,17 @@ public final class SmartLogin extends JavaPlugin {
     private CaptchaManager captchaManager;
     private GeoIpManager geoIpManager;
     private AdminPanelGUI adminPanelGUI;
+    private PinPadGUI pinPadGUI;
     private AuditManager auditManager;
     private ProxyBridge proxyBridge;
+    private com.dafealru.smartlogin.audit.DiagnosticManager diagnosticManager;
+    private com.dafealru.smartlogin.gui.SecurityCenterGUI securityCenterGUI;
+    private com.dafealru.smartlogin.inventory.GhostInventoryManager ghostInventoryManager;
+    private com.dafealru.smartlogin.bedrock.BedrockFormManager bedrockFormManager;
+    private com.dafealru.smartlogin.recovery.AccountRecoveryManager accountRecoveryManager;
+    private com.dafealru.smartlogin.streamer.StreamerManager streamerManager;
+    private com.dafealru.smartlogin.email.EmailManager emailManager;
+    private com.dafealru.smartlogin.antibot.AntiBotEngine antiBotEngine;
 
     @Override
     public void onEnable() {
@@ -101,13 +112,25 @@ public final class SmartLogin extends JavaPlugin {
         this.adminPanelGUI = new AdminPanelGUI(this);
         this.auditManager = new AuditManager(this);
         this.proxyBridge = new ProxyBridge(this);
+        this.diagnosticManager = new DiagnosticManager(this);
+        this.securityCenterGUI = new SecurityCenterGUI(this);
+        this.ghostInventoryManager = new com.dafealru.smartlogin.inventory.GhostInventoryManager(this);
+        this.bedrockFormManager = new com.dafealru.smartlogin.bedrock.BedrockFormManager(this);
+        this.accountRecoveryManager = new com.dafealru.smartlogin.recovery.AccountRecoveryManager(this);
+        this.streamerManager = new com.dafealru.smartlogin.streamer.StreamerManager(this);
+        this.emailManager = new com.dafealru.smartlogin.email.EmailManager(this);
+        this.antiBotEngine = new com.dafealru.smartlogin.antibot.AntiBotEngine(this);
 
-        // 4. Listeners
+        // Initialize GUI components
+        this.pinPadGUI = new PinPadGUI(this);
+        // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerSecurityListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
-        getServer().getPluginManager().registerEvents(new PinPadGUI(this), this);
+        getServer().getPluginManager().registerEvents(this.antiBotEngine, this);
+        getServer().getPluginManager().registerEvents(this.pinPadGUI, this);
         getServer().getPluginManager().registerEvents(this.captchaManager, this);
         getServer().getPluginManager().registerEvents(this.adminPanelGUI, this);
+        getServer().getPluginManager().registerEvents(this.securityCenterGUI, this);
 
         // 5. Commands
         getCommand("register").setExecutor(new RegisterCommand(this));
@@ -121,7 +144,14 @@ public final class SmartLogin extends JavaPlugin {
         getCommand("smartlogin").setTabCompleter(adminCmd);
 
         if (getCommand("link") != null) {
-            getCommand("link").setExecutor(new LinkCommand(this));
+            LinkCommand linkCmd = new LinkCommand(this);
+            getCommand("link").setExecutor(linkCmd);
+            getCommand("link").setTabCompleter(linkCmd);
+        }
+        if (getCommand("unlink") != null) {
+            UnlinkCommand unlinkCmd = new UnlinkCommand(this);
+            getCommand("unlink").setExecutor(unlinkCmd);
+            getCommand("unlink").setTabCompleter(unlinkCmd);
         }
         if (getCommand("tlink") != null) {
             getCommand("tlink").setExecutor(new TelegramLinkCommand(this));
@@ -130,6 +160,18 @@ public final class SmartLogin extends JavaPlugin {
             LanguageCommand langCmd = new LanguageCommand(this);
             getCommand("lang").setExecutor(langCmd);
             getCommand("lang").setTabCompleter(langCmd);
+        }
+        if (getCommand("security") != null) {
+            getCommand("security").setExecutor(new SecurityCommand(this));
+        }
+        if (getCommand("recover") != null) {
+            getCommand("recover").setExecutor(new RecoverCommand(this));
+        }
+        if (getCommand("streamer") != null) {
+            getCommand("streamer").setExecutor(new StreamerCommand(this));
+        }
+        if (getCommand("email") != null) {
+            getCommand("email").setExecutor(new EmailCommand(this));
         }
 
         long elapsed = System.currentTimeMillis() - startMs;
@@ -141,10 +183,47 @@ public final class SmartLogin extends JavaPlugin {
         if (this.authHudManager != null) {
             this.authHudManager.shutdown();
         }
+        if (this.ghostInventoryManager != null) {
+            this.ghostInventoryManager.restoreAll();
+        }
         if (this.databaseManager != null) {
             this.databaseManager.close();
         }
-        getLogger().info("SmartLogin successfully disabled. Bye!");
+        getServer().getScheduler().cancelTasks(this);
+    }
+
+    // Refresh UI elements for a player after language change
+    public void refreshPlayerUI(org.bukkit.entity.Player player) {
+        // Refresh HUD if player is not authenticated
+        if (!this.authManager.isAuthenticated(player.getUniqueId())) {
+            // Stop any existing HUD and restart with correct language
+            this.authHudManager.stopHud(player);
+            this.databaseManager.loadProfile(player.getUniqueId()).thenAccept(profile -> {
+                boolean isRegister = profile == null || profile.getPasswordHash() == null;
+                org.bukkit.Bukkit.getScheduler().runTask(this, () -> {
+                    this.authHudManager.startHud(player, isRegister);
+                });
+            });
+        }
+        // Refresh PinPad GUI if open
+        if (player.getOpenInventory() != null && player.getOpenInventory().getTitle() != null) {
+            String title = player.getOpenInventory().getTitle().toString();
+            if (title.contains("🔒")) { // PinPad title contains lock emoji
+                if (this.pinPadGUI != null) {
+                    this.pinPadGUI.openPinPad(player);
+                }
+            }
+        }
+        // Refresh Admin Panel GUI if open (more robust detection)
+        if (player.getOpenInventory() != null && player.getOpenInventory().getTitle() != null) {
+            String title = player.getOpenInventory().getTitle().toString();
+            // Detect any admin panel title that includes the plugin name or the lock emoji
+            if (title.contains("SmartLogin") || title.contains("⚡")) {
+                if (this.adminPanelGUI != null) {
+                    this.adminPanelGUI.openPanel(player);
+                }
+            }
+        }
     }
 
     public static SmartLogin getInstance() { return instance; }
@@ -167,4 +246,12 @@ public final class SmartLogin extends JavaPlugin {
     public AdminPanelGUI getAdminPanelGUI() { return adminPanelGUI; }
     public AuditManager getAuditManager() { return auditManager; }
     public ProxyBridge getProxyBridge() { return proxyBridge; }
+    public com.dafealru.smartlogin.audit.DiagnosticManager getDiagnosticManager() { return diagnosticManager; }
+    public com.dafealru.smartlogin.gui.SecurityCenterGUI getSecurityCenterGUI() { return securityCenterGUI; }
+    public com.dafealru.smartlogin.inventory.GhostInventoryManager getGhostInventoryManager() { return ghostInventoryManager; }
+    public com.dafealru.smartlogin.bedrock.BedrockFormManager getBedrockFormManager() { return bedrockFormManager; }
+    public com.dafealru.smartlogin.recovery.AccountRecoveryManager getAccountRecoveryManager() { return accountRecoveryManager; }
+    public com.dafealru.smartlogin.streamer.StreamerManager getStreamerManager() { return streamerManager; }
+    public com.dafealru.smartlogin.email.EmailManager getEmailManager() { return emailManager; }
+    public com.dafealru.smartlogin.antibot.AntiBotEngine getAntiBotEngine() { return antiBotEngine; }
 }

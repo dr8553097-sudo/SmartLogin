@@ -45,10 +45,9 @@ public class ChangePasswordCommand implements CommandExecutor {
             return true;
         }
 
-        int minLen = plugin.getModularConfig().getConfig().getInt("password-policy.min-length", 6);
-        int maxLen = plugin.getModularConfig().getConfig().getInt("password-policy.max-length", 32);
-        if (newPass.length() < minLen || newPass.length() > maxLen) {
-            player.sendMessage(plugin.getLocaleManager().getComponent("error-password-length", player));
+        var validation = com.dafealru.smartlogin.crypto.PasswordValidator.validate(plugin, player.getName(), newPass);
+        if (!validation.valid()) {
+            player.sendMessage(plugin.getLocaleManager().getComponent(validation.errorKey(), player));
             return true;
         }
 

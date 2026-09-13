@@ -124,6 +124,56 @@ public class MySQLDatabase implements DatabaseManager {
     }
 
     @Override
+    public CompletableFuture<Integer> saveProfilesBatch(java.util.List<PlayerProfile> profiles) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (profiles == null || profiles.isEmpty()) return 0;
+            int saved = 0;
+            String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, backup_codes, last_ip, last_login, is_premium, is_bedrock) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                    "ON DUPLICATE KEY UPDATE " +
+                    "username=VALUES(username), password_hash=VALUES(password_hash), salt=VALUES(salt), " +
+                    "two_factor_enabled=VALUES(two_factor_enabled), totp_secret=VALUES(totp_secret), backup_codes=VALUES(backup_codes), " +
+                    "last_ip=VALUES(last_ip), last_login=VALUES(last_login), is_premium=VALUES(is_premium), is_bedrock=VALUES(is_bedrock)";
+            try (Connection conn = dataSource.getConnection()) {
+                boolean originalAutoCommit = conn.getAutoCommit();
+                conn.setAutoCommit(false);
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    int count = 0;
+                    for (PlayerProfile p : profiles) {
+                        ps.setString(1, p.getUuid().toString());
+                        ps.setString(2, p.getUsername());
+                        ps.setString(3, p.getPasswordHash());
+                        ps.setString(4, p.getSalt());
+                        ps.setInt(5, p.is2FAEnabled() ? 1 : 0);
+                        ps.setString(6, p.getTotpSecret());
+                        ps.setString(7, p.getBackupCodes());
+                        ps.setString(8, p.getLastIp());
+                        ps.setLong(9, p.getLastLoginTimestamp());
+                        ps.setInt(10, p.isPremium() ? 1 : 0);
+                        ps.setInt(11, p.isBedrock() ? 1 : 0);
+                        ps.addBatch();
+                        count++;
+                        if (count % 1000 == 0) {
+                            ps.executeBatch();
+                        }
+                    }
+                    ps.executeBatch();
+                    conn.commit();
+                    saved = count;
+                } catch (Exception ex) {
+                    conn.rollback();
+                    ex.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return saved;
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> deleteProfile(UUID uuid) {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection();

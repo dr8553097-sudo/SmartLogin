@@ -117,6 +117,31 @@ public class LocaleManager {
         return getRawMessage(key, getPlayerLanguage(player));
     }
 
+    public String getSenderLanguage(org.bukkit.command.CommandSender sender) {
+        if (sender instanceof Player player) {
+            return getPlayerLanguage(player);
+        }
+        return defaultLanguage;
+    }
+
+    public Component getComponent(String key, org.bukkit.command.CommandSender sender, Map<String, String> placeholders) {
+        String lang = getSenderLanguage(sender);
+        String raw = getRawMessage(key, lang);
+        if (placeholders != null) {
+            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                raw = raw.replace(entry.getKey(), entry.getValue());
+            }
+        }
+        if (raw.contains("<") && raw.contains(">")) {
+            return miniMessage.deserialize(raw);
+        }
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(raw);
+    }
+
+    public Component getComponent(String key, org.bukkit.command.CommandSender sender) {
+        return getComponent(key, sender, null);
+    }
+
     public Component getComponent(String key, Player player, Map<String, String> placeholders) {
         String raw = getRawMessage(key, player);
         if (placeholders != null) {

@@ -34,9 +34,7 @@ public class PlayerConnectionListener implements Listener {
         var ipBypassList = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-users");
         var ipBypassIps = plugin.getModularConfig().getConfig().getStringList("general.ip-limit-bypass-ips");
 
-        boolean isBypass = username.equalsIgnoreCase("Dafealru") ||
-                           username.toLowerCase().startsWith("xylos") ||
-                           ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username)) ||
+        boolean isBypass = ipBypassList.stream().anyMatch(u -> u.equalsIgnoreCase(username)) ||
                            ipBypassIps.contains(ip) ||
                            ipBypassIps.stream().anyMatch(bIp -> bIp.equalsIgnoreCase(ip));
 
@@ -66,6 +64,12 @@ public class PlayerConnectionListener implements Listener {
         Player player = event.getPlayer();
         String ip = player.getAddress().getAddress().getHostAddress();
 
+        // Check Anti-Proxy Bypass (Direct backend port connection protection)
+        if (plugin.getProxyBridge() != null && plugin.getProxyBridge().isDirectConnectionBlocked(player)) {
+            player.kick(plugin.getLocaleManager().parse("<gradient:#EF4444:#F87171><bold>SmartLogin Proxy</bold></gradient> <dark_gray>»</dark_gray> <red>Conexión directa bloqueada. Debes conectarte a través del Proxy de la red.</red>"));
+            return;
+        }
+
         // Apply blindness / slowness / spawn teleport and allow flight to prevent vanilla fly kick
         plugin.getSpawnManager().handleJoinSpawn(player);
         player.setAllowFlight(true);
@@ -79,10 +83,17 @@ public class PlayerConnectionListener implements Listener {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 60 * 5, 3, false, false, false));
         }
 
-        // Check if first-admin setup wizard is pending
+        // Hide real inventory while unauthenticated (Ghost Inventory Protection)
+        if (plugin.getGhostInventoryManager() != null) {
+            plugin.getGhostInventoryManager().hideInventory(player);
+        }
+
+        // Check if first-admin setup wizard is pending (Java only, Bedrock clients cannot click chat wizard)
         if (!plugin.getSetupWizardManager().isSetupCompleted() && (player.isOp() || player.hasPermission("smartlogin.admin"))) {
-            plugin.getSetupWizardManager().startWizard(player);
-            return;
+            if (!plugin.getAutoLoginDetector().isBedrockPlayer(player)) {
+                plugin.getSetupWizardManager().startWizard(player);
+                return;
+            }
         }
 
         plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenCompose(p -> {
@@ -92,6 +103,16 @@ public class PlayerConnectionListener implements Listener {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (profile != null && profile.getPasswordHash() != null && !profile.getPasswordHash().trim().isEmpty()) {
                     plugin.getAuthManager().cacheProfile(player.getUniqueId(), profile);
+
+                    // GeoIP & Impossible Travel Security Check
+                    plugin.getGeoIpManager().lookup(ip).thenAccept(geo -> {
+                        if (geo != null && plugin.getGeoIpManager().checkImpossibleTravel(player.getUniqueId(), ip, geo.countryCode())) {
+                            // Impossible Travel detected! Invalidate session shield and force re-auth
+                            plugin.getSessionShield().invalidateSession(player.getUniqueId());
+                            plugin.getLogger().warning("[SECURITY ALERT] Impossible travel detected for " + player.getName() + " from IP " + ip + " (" + geo.country() + ")");
+                            plugin.getDiscordManager().sendWebhookAlert("🚨 [ALERTA DE VIAJE IMPOSIBLE]", "El jugador **" + player.getName() + "** intentó ingresar desde **" + geo.country() + "** (`" + ip + "`) en un lapso de tiempo físicamente imposible respecto a su última conexión.", 0xEF4444);
+                        }
+                    });
 
                     // Check Bedrock / Floodgate Auto-Login
                     if (plugin.getAutoLoginDetector().isBedrockPlayer(player)) {
@@ -139,6 +160,11 @@ public class PlayerConnectionListener implements Listener {
         );
         player.showTitle(title);
         player.sendMessage(plugin.getLocaleManager().getComponent(msgKey, player));
+
+        // Open native Bedrock Form if Floodgate Bedrock player
+        if (plugin.getBedrockFormManager() != null) {
+            plugin.getBedrockFormManager().openAuthForm(player, isRegister);
+        }
     }
 
     @EventHandler
@@ -162,7 +188,11 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        if (plugin.getGhostInventoryManager() != null) {
+            plugin.getGhostInventoryManager().handleQuit(player);
+        }
         plugin.getAuthHudManager().stopHud(player);
+        plugin.getSetupWizardManager().removeWizardActive(player.getUniqueId());
         plugin.getAuthManager().removeAuthenticated(player.getUniqueId());
         plugin.getQrMapManager().cleanup(player.getUniqueId());
     }

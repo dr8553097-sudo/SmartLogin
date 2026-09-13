@@ -1,28 +1,99 @@
 # ==============================================================================
-# 💎 SmartLogin — Authentication & Proxy Hub Redirection
+#   ____  _   _ _____ _   _ 
+#  / _  || | | |_   _| | | |
+# / /_\ || | | | | | | |_| |
+# |  _  || |_| | | | |  _  |
+# \_| |_/ \___/  \_/ |_| |_|
+#
+# 💎 SmartLogin — Cryptographic Authentication & Proxy Redirection
 # ==============================================================================
 
-# Password Hashing Engine ("FAST_PBKDF2" or "SECURE_PBKDF2")
+# ==============================================================================
+#   _   _           _     _             
+#  | | | | __ _ ___| |__ (_)_ __   __ _ 
+#  | |_| |/ _` / __| '_ \| | '_ \ / _` |
+#  |  _  | (_| \__ \ | | | | | | | (_| |
+#  |_| |_|\__,_|___/_| |_|_|_| |_|\__, |
+#                                 |___/ 
+#  🔒 PASSWORD HASHING ENGINE
+# ==============================================================================
+# Choose the cryptographic hashing algorithm for storing passwords.
+# Options:
+#  - "ARGON2ID": Military-Grade OWASP Standard (64MB RAM, 3 iterations) - GPU/ASIC resistant [RECOMMENDED]
+#  - "PBKDF2_SHA512": High-Performance PBKDF2 with 65,536 iterations
+#  - "BCRYPT": Traditional Web/Panels standard (cost 12)
+#  - "SHA256": Salted lightweight mode
 hashing:
-  mode: "FAST_PBKDF2"
+  algorithm: "ARGON2ID"
   salt-bytes: 32
 
-# SessionShield: Skip login if reconnecting from the same IP
+# ==============================================================================
+#   ____               _             
+#  / ___|  ___  ___ __(_) ___  _ __  
+#  \___ \ / _ \/ __/ __| |/ _ \| '_ \ 
+#   ___) |  __/\__ \__ \ | (_) | | | |
+#  |____/ \___||___/___/_|\___/|_| |_|
+#
+#  ⚡ SESSIONSHIELD: FAST RECONNECTION
+# ==============================================================================
+# Skips the password prompt when a player reconnects from the exact same IP address within the valid window.
 session-shield:
   enabled: true
   session-duration-minutes: 60
 
-# Bedrock / Floodgate auto-login
+# ==============================================================================
+#   ____           _                 _    
+#  | __ )  ___  __| |_ __ ___   ____| | __
+#  |  _ \ / _ \/ _` | '__/ _ \ / ___| |/ /
+#  | |_) |  __/ (_| | | | (_) | |___|   < 
+#  |____/ \___|\__,_|_|  \___/ \____|_|\_\
+#
+#  📱 BEDROCK EDITION (GEYSERMC & FLOODGATE AUTO-LOGIN)
+# ==============================================================================
 bedrock:
+  # Automatically authenticates Bedrock players connecting through Geyser / Floodgate.
   auto-login-enabled: true
 
-# Java Premium Mojang Auto-Login
+  # Strict Floodgate API Validation:
+  # When set to true, only players cryptographically verified by Floodgate can auto-login.
+  # Impostors joining with a Bedrock prefix like '.' or '*' on cracked Java clients will be BLOCKED.
+  strict-floodgate-validation: true
+
+  # Recognized prefix characters used by Geyser/Floodgate for Bedrock usernames.
+  allowed-prefixes:
+    - "."
+    - "*"
+    - "_"
+
+# ==============================================================================
+#   ____  ____  _____ __  __ ___ _   _ __  __ 
+#  |  _ \|  _ \| ____|  \/  |_ _| | | |  \/  |
+#  | |_) | |_) |  _| | |\/| || || | | | |\/| |
+#  |  __/|  _ <| |___| |  | || || |_| | |  | |
+#  |_|   |_| \_\_____|_|  |_|___|\___/|_|  |_|
+#
+#  👑 JAVA PREMIUM MOJANG AUTO-LOGIN
+# ==============================================================================
 premium:
+  # Automatically authenticates genuine Mojang Java Edition accounts without asking for password.
   auto-login-enabled: true
 
-# Multi-Server / Proxy Support (Velocity & BungeeCord)
+  # Validates authentic Mojang session textures and public-key signatures.
+  # Prevents cracked launcher impostors from spoofing premium player accounts.
+  strict-texture-signature-check: true
+
+# ==============================================================================
+#   ____  ____   _____  ____   __
+#  |  _ \|  _ \ / _ \ \/ /\ \ / /
+#  | |_) | |_) | | | \  /  \ V / 
+#  |  __/|  _ <| |_| /  \   | |  
+#  |_|   |_| \_\\___/_/\_\  |_|  
+#
+#  🚀 PROXY & MULTI-LOBBY REDIRECTION (BUNGEECORD / VELOCITY)
+# ==============================================================================
 proxy:
+  # Enables proxy bridge forwarding and post-auth server redirection.
   enabled: false
-  # Automatically send player to a lobby or game server upon successful login
+
+  # Target lobby or hub server name to send players to upon successful login (e.g. "lobby-1").
   send-to-server-on-login: ""
-  # Example: send-to-server-on-login: "lobby-1"

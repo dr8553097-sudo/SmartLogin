@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Discord de Soporte Oficial
+    url: https://discord.gg/smartlogin
+    about: Recibe asistencia en tiempo real de la comunidad y del desarrollador.
+  - name: 🌐 Wiki Oficial y Documentacion
+    url: https://github.com/dr8553097-sudo/SmartLogin/wiki
+    about: Consulta guias de instalacion, permisos, comandos y configuracion.

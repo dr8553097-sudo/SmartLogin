@@ -1,6 +1,7 @@
 package com.dafealru.smartlogin.hud;
 
 import com.dafealru.smartlogin.SmartLogin;
+import com.dafealru.smartlogin.auth.AuthManager;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -87,19 +88,42 @@ public class AuthHudManager {
             int total = plugin.getModularConfig().getConfig().getInt("general.auth-timeout-seconds", 60);
 
             for (Player player : Bukkit.getOnlinePlayers()) {
+                // If admin is in the initial setup wizard, maintain constant on-screen alert
+                if (plugin.getSetupWizardManager().isWizardActive(player.getUniqueId())) {
+                    int step = plugin.getSetupWizardManager().getCurrentStep(player.getUniqueId());
+                    if (step >= 1) {
+                        Title wizardTitle = Title.title(
+                                plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient>"),
+                                plugin.getLocaleManager().parse("<#F5D0FE>⚠ Tienes una verificación pendiente en el chat</#F5D0FE>"),
+                                Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
+                        );
+                        player.showTitle(wizardTitle);
+                        player.sendActionBar(plugin.getLocaleManager().parse("<#E9D5FF>Abre el chat <yellow>[T]</yellow> para completar la configuración inicial</#E9D5FF>"));
+                    }
+                    continue;
+                }
+
                 if (plugin.getAuthManager().isAuthenticated(player.getUniqueId())) continue;
 
-                // 1. Maintain persistent, seamless localized title on screen
-                Boolean isReg = playerRegisterMode.get(player.getUniqueId());
-                if (isReg != null) {
-                    String titleKey = isReg ? "title-register" : "title-login";
-                    String subtitleKey = isReg ? "subtitle-register" : "subtitle-login";
-                    Title continuousTitle = Title.title(
-                            plugin.getLocaleManager().getComponent(titleKey, player),
-                            plugin.getLocaleManager().getComponent(subtitleKey, player),
+                if (plugin.getAuthManager().getState(player.getUniqueId()) == AuthManager.AuthState.AWAITING_2FA) {
+                    Title continuous2faTitle = Title.title(
+                            plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>🔐 VERIFICACIÓN 2FA</bold></gradient>"),
+                            plugin.getLocaleManager().parse("<#E9D5FF>Escribe <#C084FC><bold>/2fa <código></bold></#C084FC> de tu app</#E9D5FF>"),
                             Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
                     );
-                    player.showTitle(continuousTitle);
+                    player.showTitle(continuous2faTitle);
+                } else {
+                    Boolean isReg = playerRegisterMode.get(player.getUniqueId());
+                    if (isReg != null) {
+                        String titleKey = isReg ? "title-register" : "title-login";
+                        String subtitleKey = isReg ? "subtitle-register" : "subtitle-login";
+                        Title continuousTitle = Title.title(
+                                plugin.getLocaleManager().getComponent(titleKey, player),
+                                plugin.getLocaleManager().getComponent(subtitleKey, player),
+                                Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofMillis(1500), java.time.Duration.ZERO)
+                        );
+                        player.showTitle(continuousTitle);
+                    }
                 }
 
                 Integer remaining = remainingSeconds.get(player.getUniqueId());
@@ -117,15 +141,24 @@ public class AuthHudManager {
                 if (bar != null) {
                     float progress = Math.max(0.0f, Math.min(1.0f, (float) remaining / (float) total));
                     bar.progress(progress);
-                    String bossbarKey = (isReg != null && isReg) ? "bossbar-register" : "bossbar-login";
-                    bar.name(plugin.getLocaleManager().getComponent(bossbarKey, player));
+                    if (plugin.getAuthManager().getState(player.getUniqueId()) == AuthManager.AuthState.AWAITING_2FA) {
+                        bar.name(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>🔐 Código 2FA: /2fa <código de 6 dígitos></bold></gradient>"));
+                    } else {
+                        Boolean isReg = playerRegisterMode.get(player.getUniqueId());
+                        String bossbarKey = (isReg != null && isReg) ? "bossbar-register" : "bossbar-login";
+                        bar.name(plugin.getLocaleManager().getComponent(bossbarKey, player));
+                    }
                     bar.color(BossBar.Color.PURPLE);
                 }
 
                 // Actionbar prompt
                 if (plugin.getModularConfig().getConfig().getBoolean("hud-and-immersion.actionbar-prompt", true)) {
-                    Map<String, String> placeholders = Map.of("{seconds}", String.valueOf(remaining));
-                    player.sendActionBar(plugin.getLocaleManager().getComponent("actionbar-timeout", player, placeholders));
+                    if (plugin.getAuthManager().getState(player.getUniqueId()) == AuthManager.AuthState.AWAITING_2FA) {
+                        player.sendActionBar(plugin.getLocaleManager().parse("<#E9D5FF>Abre <#C084FC>Google Authenticator</#C084FC> y escribe <yellow>/2fa <código></yellow> (<#F5D0FE>" + remaining + "s</#F5D0FE>)</#E9D5FF>"));
+                    } else {
+                        Map<String, String> placeholders = Map.of("{seconds}", String.valueOf(remaining));
+                        player.sendActionBar(plugin.getLocaleManager().getComponent("actionbar-timeout", player, placeholders));
+                    }
                 }
             }
         }, 20L, 20L);

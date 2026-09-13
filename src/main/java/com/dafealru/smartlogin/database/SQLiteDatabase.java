@@ -134,6 +134,63 @@ public class SQLiteDatabase implements DatabaseManager {
     }
 
     @Override
+    public CompletableFuture<Integer> saveProfilesBatch(java.util.List<PlayerProfile> profiles) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (profiles == null || profiles.isEmpty()) return 0;
+            int saved = 0;
+            String sql = "INSERT INTO smart_users (uuid, username, password_hash, salt, two_factor_enabled, totp_secret, backup_codes, discord_id, telegram_chat_id, email, last_ip, last_login, is_premium, is_bedrock) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                    "ON CONFLICT(uuid) DO UPDATE SET " +
+                    "username=excluded.username, password_hash=excluded.password_hash, salt=excluded.salt, " +
+                    "two_factor_enabled=excluded.two_factor_enabled, totp_secret=excluded.totp_secret, backup_codes=excluded.backup_codes, " +
+                    "discord_id=excluded.discord_id, telegram_chat_id=excluded.telegram_chat_id, email=excluded.email, " +
+                    "last_ip=excluded.last_ip, last_login=excluded.last_login, is_premium=excluded.is_premium, is_bedrock=excluded.is_bedrock";
+            
+            try {
+                Connection conn = getConnection();
+                boolean originalAutoCommit = conn.getAutoCommit();
+                conn.setAutoCommit(false);
+
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    int count = 0;
+                    for (PlayerProfile p : profiles) {
+                        ps.setString(1, p.getUuid().toString());
+                        ps.setString(2, p.getUsername());
+                        ps.setString(3, p.getPasswordHash());
+                        ps.setString(4, p.getSalt());
+                        ps.setInt(5, p.is2FAEnabled() ? 1 : 0);
+                        ps.setString(6, p.getTotpSecret());
+                        ps.setString(7, p.getBackupCodes());
+                        ps.setString(8, p.getDiscordId());
+                        ps.setString(9, p.getTelegramChatId());
+                        ps.setString(10, p.getEmail());
+                        ps.setString(11, p.getLastIp());
+                        ps.setLong(12, p.getLastLoginTimestamp());
+                        ps.setInt(13, p.isPremium() ? 1 : 0);
+                        ps.setInt(14, p.isBedrock() ? 1 : 0);
+                        ps.addBatch();
+                        count++;
+                        if (count % 1000 == 0) {
+                            ps.executeBatch();
+                        }
+                    }
+                    ps.executeBatch();
+                    conn.commit();
+                    saved = count;
+                } catch (Exception ex) {
+                    conn.rollback();
+                    ex.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return saved;
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> deleteProfile(UUID uuid) {
         return CompletableFuture.runAsync(() -> {
             try {

@@ -52,38 +52,51 @@ public class LanguageCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             plugin.getLocaleManager().setPlayerLanguage(player.getUniqueId(), targetLang);
             String langName = langNames.getOrDefault(targetLang, targetLang.toUpperCase());
-            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Idioma actualizado a: <#C084FC><bold>" + langName + " (" + targetLang.toUpperCase() + ")</bold></#C084FC></#E9D5FF>"));
-
-            // Immediately refresh HUD prompts if player is not logged in yet
-            if (!plugin.getAuthManager().isAuthenticated(player.getUniqueId())) {
-                plugin.getAuthHudManager().stopHud(player);
-                plugin.getDatabaseManager().loadProfile(player.getUniqueId()).thenAccept(profile -> {
-                    boolean isRegister = profile == null || profile.getPasswordHash() == null;
-                    plugin.getAuthHudManager().startHud(player, isRegister);
-                });
+            Component msg = plugin.getLocaleManager().getComponent("lang-changed", player);
+            if (msg == null || msg.equals(Component.empty())) {
+                msg = plugin.getLocaleManager().parse("<#E9D5FF>✔ Language updated to: <#C084FC><bold>" + langName + " (" + targetLang.toUpperCase() + ")</bold></#C084FC></#E9D5FF>");
             }
+            player.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> ").append(msg));
+
+            // Refresh UI after language change
+            plugin.refreshPlayerUI(player);
         } else {
             plugin.getLocaleManager().setDefaultLanguage(targetLang);
-            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#E9D5FF>✔ Server default language set to: <#C084FC><bold>" + targetLang.toUpperCase() + "</bold></#C084FC></#E9D5FF>"));
+            // Reload configs and language dictionaries
+            plugin.getModularConfig().loadAll();
+            plugin.getLocaleManager().loadLanguages();
+            // Refresh UI for all online players when changing global language
+            plugin.getServer().getOnlinePlayers().forEach(plugin::refreshPlayerUI);
+
+            Map<String, String> ph = Map.of("{lang}", targetLang.toUpperCase());
+            Component changedMsg = plugin.getLocaleManager().getComponent("lang-server-changed", sender, ph);
+            sender.sendMessage(plugin.getLocaleManager().parse(plugin.getLocaleManager().getRawMessage("prefix", targetLang)).append(changedMsg));
+            sender.sendMessage(plugin.getLocaleManager().getComponent("admin-reloaded", sender));
         }
 
         return true;
     }
 
     private void sendLanguageMenu(CommandSender sender) {
-        sender.sendMessage(plugin.getLocaleManager().parse("\n<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━ [ SMARTLOGIN — SELECT LANGUAGE ] ━━━━━━━━━━━━</bold></gradient>"));
-        sender.sendMessage(plugin.getLocaleManager().parse(" <#E9D5FF>Haz clic en tu idioma / Click a language below:</#E9D5FF>\n"));
+        Player player = sender instanceof Player p ? p : null;
+        sender.sendMessage(Component.empty());
+        sender.sendMessage(plugin.getLocaleManager().getComponent("lang-menu-header", player));
+        sender.sendMessage(plugin.getLocaleManager().getComponent("lang-menu-subtitle", player));
+        sender.sendMessage(Component.empty());
 
         Component buttons = Component.empty();
         for (String code : supportedLanguages) {
             String name = langNames.getOrDefault(code, code.toUpperCase());
+            Map<String, String> ph = Map.of("{name}", name);
+            Component hover = plugin.getLocaleManager().getComponent("lang-menu-hover", player, ph);
             Component btn = plugin.getLocaleManager().parse("<gradient:#C084FC:#F5D0FE>[ " + name + " (" + code.toUpperCase() + ") ]</gradient> ")
                     .clickEvent(ClickEvent.runCommand("/lang " + code))
-                    .hoverEvent(HoverEvent.showText(plugin.getLocaleManager().parse("<#E9D5FF>Click para seleccionar / Click to select <#C084FC>" + name + "</#C084FC></#E9D5FF>")));
+                    .hoverEvent(HoverEvent.showText(hover));
             buttons = buttons.append(btn);
         }
         sender.sendMessage(buttons);
-        sender.sendMessage(plugin.getLocaleManager().parse("\n<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>\n"));
+        sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</bold></gradient>"));
+        sender.sendMessage(Component.empty());
     }
 
     @Override

@@ -46,7 +46,9 @@ public class TotpEngine {
 
     public static boolean verifyCode(String secret, String inputCode) {
         try {
-            return verifyCode(secret, Integer.parseInt(inputCode.trim()), 1);
+            String cleaned = inputCode.replaceAll("[^0-9]", "").trim();
+            if (cleaned.isEmpty()) return false;
+            return verifyCode(secret, Integer.parseInt(cleaned), 3);
         } catch (Exception e) {
             return false;
         }
@@ -62,7 +64,7 @@ public class TotpEngine {
 
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
-            mac.init(new SecretKeySpec(key, "RAW"));
+            mac.init(new SecretKeySpec(key, "HmacSHA1"));
             byte[] hash = mac.doFinal(data);
 
             int offset = hash[hash.length - 1] & 0x0F;

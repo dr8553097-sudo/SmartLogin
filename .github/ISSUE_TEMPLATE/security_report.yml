@@ -1,0 +1,23 @@
+name: "🛡️ Divulgacion Responsable de Seguridad (Security Report)"
+description: "Reporta una vulnerabilidad o fallo de seguridad de forma privada."
+title: "[SECURITY]: "
+labels: ["security", "high-priority"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tomamos la seguridad muy en serio. Si descubres una vulnerabilidad critica, por favor reportala con la mayor discrecion posible.
+  - type: textarea
+    id: security_summary
+    attributes:
+      label: "Resumen de la Vulnerabilidad"
+      description: "Describe el vector de ataque o riesgo encontrado."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Prueba de Concepto (PoC)"
+      description: "Pasos para reproducir la condicion de vulnerabilidad."
+    validations:
+      required: true

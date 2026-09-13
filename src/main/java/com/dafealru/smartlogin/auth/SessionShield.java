@@ -47,4 +47,29 @@ public class SessionShield {
         if (addr == null) return "127.0.0.1";
         return addr.getAddress().getHostAddress();
     }
+
+    public void invalidateSession(java.util.UUID uuid) {
+        PlayerProfile cached = plugin.getAuthManager().getProfile(uuid);
+        if (cached != null) {
+            cached.setLastLoginTimestamp(0);
+            plugin.getDatabaseManager().saveProfile(cached);
+            return;
+        }
+        plugin.getDatabaseManager().loadProfile(uuid).thenAccept(profile -> {
+            if (profile != null) {
+                profile.setLastLoginTimestamp(0);
+                plugin.getDatabaseManager().saveProfile(profile);
+            }
+        });
+    }
+
+    public void clearAllSessions() {
+        for (Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+            PlayerProfile profile = plugin.getAuthManager().getProfile(p.getUniqueId());
+            if (profile != null) {
+                profile.setLastLoginTimestamp(0);
+                plugin.getDatabaseManager().saveProfile(profile);
+            }
+        }
+    }
 }

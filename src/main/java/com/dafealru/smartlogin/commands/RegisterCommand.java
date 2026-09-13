@@ -23,7 +23,7 @@ public class RegisterCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>SmartLogin</bold></gradient> <dark_gray>»</dark_gray> <#F5D0FE>Este comando es solo para jugadores.</#F5D0FE>"));
+            sender.sendMessage(plugin.getLocaleManager().getComponent("error-only-players", null));
             return true;
         }
 
@@ -45,17 +45,9 @@ public class RegisterCommand implements CommandExecutor {
             return true;
         }
 
-        int minLen = plugin.getModularConfig().getConfig().getInt("password-policy.min-length", 4);
-        int maxLen = plugin.getModularConfig().getConfig().getInt("password-policy.max-length", 32);
-
-        if (pass1.length() < minLen || pass1.length() > maxLen) {
-            player.sendMessage(plugin.getLocaleManager().getComponent("error-password-length", player));
-            return true;
-        }
-
-        var disallowed = plugin.getModularConfig().getConfig().getStringList("password-policy.disallowed-passwords");
-        if (disallowed != null && (disallowed.contains(pass1.toLowerCase()) || pass1.equalsIgnoreCase(player.getName()))) {
-            player.sendMessage(plugin.getLocaleManager().getComponent("error-password-too-weak", player));
+        var validation = com.dafealru.smartlogin.crypto.PasswordValidator.validate(plugin, player.getName(), pass1);
+        if (!validation.valid()) {
+            player.sendMessage(plugin.getLocaleManager().getComponent(validation.errorKey(), player));
             return true;
         }
 

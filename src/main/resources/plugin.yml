@@ -5,6 +5,7 @@ api-version: '1.21'
 author: Dafealru
 description: Next-Gen Authentication, Identity & 2FA Suite for Paper/Spigot 1.21.x
 website: https://github.com/dr8553097-sudo/SmartLogin
+softdepend: [Floodgate, Geyser-Spigot, LuckPerms, FastLogin]
 
 commands:
   login:
@@ -37,6 +38,10 @@ commands:
     description: Link your account with the Discord Bot
     aliases: [discordlink]
     permission: smartlogin.use
+  unlink:
+    description: Unlink your Discord, Email, or 2FA methods
+    aliases: [desvincular, discordunlink]
+    permission: smartlogin.use
   tlink:
     description: Link your account with the Telegram Bot
     aliases: [telegramlink]
@@ -44,6 +49,22 @@ commands:
   lang:
     description: Select or switch your preferred language
     aliases: [language, idioma]
+    permission: smartlogin.use
+  security:
+    description: Open the SmartLogin Security Center GUI
+    aliases: [sec, seg, seguridad, perfilseguridad]
+    permission: smartlogin.use
+  recover:
+    description: Self-service password recovery via linked Discord/Telegram OTP
+    aliases: [recuperar, passwordrecovery]
+    permission: smartlogin.use
+  streamer:
+    description: Toggle streamer mode protection against password leaks and IP exposure
+    aliases: [streamermode, modostreamer]
+    permission: smartlogin.use
+  email:
+    description: Link and manage your Gmail / Email 2FA authentication
+    aliases: [correo, mail, gmail]
     permission: smartlogin.use
 
 permissions:

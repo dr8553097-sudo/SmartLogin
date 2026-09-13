@@ -29,6 +29,9 @@ public class AdminPanelGUI implements Listener {
     }
 
     public void openPanel(Player player) {
+        String lang = plugin.getLocaleManager().getPlayerLanguage(player);
+        boolean isEn = "en".equalsIgnoreCase(lang);
+
         Inventory inv = Bukkit.createInventory(null, 54, plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>⚡ SmartLogin Master Panel</bold></gradient>"));
 
         ItemStack purpleGlass = new ItemStack(Material.PURPLE_STAINED_GLASS_PANE);
@@ -56,45 +59,48 @@ public class AdminPanelGUI implements Listener {
         // 1. Stats Icon (Slot 4)
         ItemStack stats = new ItemStack(Material.NETHER_STAR);
         ItemMeta statsMeta = stats.getItemMeta();
-        statsMeta.displayName(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>📊 Estadísticas del Sistema</bold></gradient>"));
+        String statsTitle = isEn ? "<gradient:#9333EA:#C084FC><bold>📊 System Statistics & Language</bold></gradient>" : "<gradient:#9333EA:#C084FC><bold>📊 Estadísticas del Sistema</bold></gradient>";
+        statsMeta.displayName(plugin.getLocaleManager().parse(statsTitle));
         List<Component> lore = new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(plugin.getLocaleManager().parse(" <gray>• Versión:</gray> <#C084FC>v" + plugin.getPluginMeta().getVersion() + "</#C084FC>"));
-        lore.add(plugin.getLocaleManager().parse(" <gray>• Base de Datos:</gray> <#C084FC>" + plugin.getModularConfig().getDatabaseConfig().getString("type", "SQLITE") + "</#C084FC>"));
-        lore.add(plugin.getLocaleManager().parse(" <gray>• Idioma Auto:</gray> " + (config.getBoolean("general.auto-detect-client-language", true) ? "<#C084FC>✔ Activado</#C084FC>" : "<#F5D0FE>✖ Desactivado</#F5D0FE>")));
-        lore.add(plugin.getLocaleManager().parse(" <gray>• SessionShield:</gray> " + (auth.getBoolean("session-shield.enabled", true) ? "<#C084FC>✔ Activo</#C084FC>" : "<#F5D0FE>✖ Inactivo</#F5D0FE>")));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• " + (isEn ? "Version:" : "Versión:") + "</gray> <#C084FC>v" + plugin.getPluginMeta().getVersion() + "</#C084FC>"));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• " + (isEn ? "Database:" : "Base de Datos:") + "</gray> <#C084FC>" + plugin.getModularConfig().getDatabaseConfig().getString("type", "SQLITE") + "</#C084FC>"));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• " + (isEn ? "Active Language:" : "Idioma Activo:") + "</gray> <#C084FC><bold>" + lang.toUpperCase() + "</bold></#C084FC>"));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• " + (isEn ? "Auto-Detect:" : "Idioma Auto:") + "</gray> " + (config.getBoolean("general.auto-detect-client-language", true) ? "<#C084FC>✔ " + (isEn ? "Enabled" : "Activado") + "</#C084FC>" : "<#F5D0FE>✖ " + (isEn ? "Disabled" : "Desactivado") + "</#F5D0FE>")));
+        lore.add(plugin.getLocaleManager().parse(" <gray>• SessionShield:</gray> " + (auth.getBoolean("session-shield.enabled", true) ? "<#C084FC>✔ " + (isEn ? "Active" : "Activo") + "</#C084FC>" : "<#F5D0FE>✖ " + (isEn ? "Inactive" : "Inactivo") + "</#F5D0FE>")));
         lore.add(Component.empty());
+        lore.add(plugin.getLocaleManager().parse(" <#C084FC>👉 " + (isEn ? "Click to cycle server language" : "Haz clic para cambiar idioma del servidor") + "</#C084FC>"));
         statsMeta.lore(lore);
         stats.setItemMeta(statsMeta);
         inv.setItem(4, stats);
 
         // 2. Feature Toggles
-        inv.setItem(20, createToggleItem(Material.TOTEM_OF_UNDYING, "2FA Google Authenticator", totp.getBoolean("enabled", true)));
-        inv.setItem(21, createToggleItem(Material.ENDER_EYE, "Discord Webhook / Bot", discord.getBoolean("bot.enabled", false)));
-        inv.setItem(22, createToggleItem(Material.PAPER, "Telegram Bot Alertas", telegram.getBoolean("enabled", false)));
-        inv.setItem(23, createToggleItem(Material.BEDROCK, "Bedrock Floodgate Auto-Login", auth.getBoolean("bedrock.auto-login-enabled", true)));
-        inv.setItem(24, createToggleItem(Material.GOLD_INGOT, "Mojang Premium Auto-Login", auth.getBoolean("premium.auto-login-enabled", true)));
-        inv.setItem(29, createToggleItem(Material.SHIELD, "SessionShield Reconexión", auth.getBoolean("session-shield.enabled", true)));
-        inv.setItem(30, createToggleItem(Material.NAME_TAG, "Protección Nick Strict-Case", config.getBoolean("nickname-protection.strict-case", true)));
-        inv.setItem(31, createToggleItem(Material.BLAZE_POWDER, "Anti-Bot Captcha Dinámico", config.getInt("captcha.trigger-after-failed-attempts", 2) > 0));
-        inv.setItem(32, createToggleItem(Material.COMPASS, "Geo-IP Detección de País", config.getBoolean("geo-protection.enabled", true)));
-        inv.setItem(33, createToggleItem(Material.BEACON, "Limbo / Spawn Auth", config.getBoolean("auth-spawn.enabled", false)));
+        inv.setItem(20, createToggleItem(Material.TOTEM_OF_UNDYING, "2FA Google Authenticator", totp.getBoolean("enabled", true), isEn));
+        inv.setItem(21, createToggleItem(Material.ENDER_EYE, isEn ? "Discord Webhook / Bot" : "Discord Webhook / Bot", discord.getBoolean("bot.enabled", false), isEn));
+        inv.setItem(22, createToggleItem(Material.PAPER, isEn ? "Telegram Bot Alerts" : "Telegram Bot Alertas", telegram.getBoolean("enabled", false), isEn));
+        inv.setItem(23, createToggleItem(Material.BEDROCK, "Bedrock Floodgate Auto-Login", auth.getBoolean("bedrock.auto-login-enabled", true), isEn));
+        inv.setItem(24, createToggleItem(Material.GOLD_INGOT, "Mojang Premium Auto-Login", auth.getBoolean("premium.auto-login-enabled", true), isEn));
+        inv.setItem(29, createToggleItem(Material.SHIELD, isEn ? "SessionShield Reconnect" : "SessionShield Reconexión", auth.getBoolean("session-shield.enabled", true), isEn));
+        inv.setItem(30, createToggleItem(Material.NAME_TAG, isEn ? "Strict-Case Nick Protection" : "Protección Nick Strict-Case", config.getBoolean("nickname-protection.strict-case", true), isEn));
+        inv.setItem(31, createToggleItem(Material.BLAZE_POWDER, isEn ? "Dynamic Anti-Bot Captcha" : "Anti-Bot Captcha Dinámico", config.getInt("captcha.trigger-after-failed-attempts", 2) > 0, isEn));
+        inv.setItem(32, createToggleItem(Material.COMPASS, isEn ? "Geo-IP Country Detection" : "Geo-IP Detección de País", config.getBoolean("geo-protection.enabled", true), isEn));
+        inv.setItem(33, createToggleItem(Material.BEACON, "Limbo / Spawn Auth", config.getBoolean("auth-spawn.enabled", false), isEn));
 
         // 3. Action Buttons
         ItemStack backup = new ItemStack(Material.CHEST);
         ItemMeta bMeta = backup.getItemMeta();
-        bMeta.displayName(plugin.getLocaleManager().parse("<gradient:#A855F7:#C084FC><bold>💾 Crear Backup Instantáneo</bold></gradient>"));
+        bMeta.displayName(plugin.getLocaleManager().parse(isEn ? "<gradient:#A855F7:#C084FC><bold>💾 Create Instant Database Backup</bold></gradient>" : "<gradient:#A855F7:#C084FC><bold>💾 Crear Backup Instantáneo</bold></gradient>"));
         List<Component> bLore = new ArrayList<>();
-        bLore.add(Component.text("Haz clic para crear un snapshot completo de la DB.", NamedTextColor.GRAY));
+        bLore.add(Component.text(isEn ? "Click to create a full database snapshot." : "Haz clic para crear un snapshot completo de la DB.", NamedTextColor.GRAY));
         bMeta.lore(bLore);
         backup.setItemMeta(bMeta);
         inv.setItem(48, backup);
 
         ItemStack reload = new ItemStack(Material.REDSTONE);
         ItemMeta rMeta = reload.getItemMeta();
-        rMeta.displayName(plugin.getLocaleManager().parse("<gradient:#7C3AED:#9333EA><bold>🔄 Recargar Configuraciones & Idiomas</bold></gradient>"));
+        rMeta.displayName(plugin.getLocaleManager().parse(isEn ? "<gradient:#7C3AED:#9333EA><bold>🔄 Reload Configurations & Languages</bold></gradient>" : "<gradient:#7C3AED:#9333EA><bold>🔄 Recargar Configuraciones & Idiomas</bold></gradient>"));
         List<Component> rLore = new ArrayList<>();
-        rLore.add(Component.text("Haz clic para hot-reload de configs y mensajes.", NamedTextColor.GRAY));
+        rLore.add(Component.text(isEn ? "Click for hot-reload of configs and messages." : "Haz clic para hot-reload de configs y mensajes.", NamedTextColor.GRAY));
         rMeta.lore(rLore);
         reload.setItemMeta(rMeta);
         inv.setItem(50, reload);
@@ -103,14 +109,15 @@ public class AdminPanelGUI implements Listener {
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.8f);
     }
 
-    private ItemStack createToggleItem(Material iconMat, String name, boolean state) {
+    private ItemStack createToggleItem(Material iconMat, String name, boolean state, boolean isEn) {
         ItemStack item = new ItemStack(iconMat);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(plugin.getLocaleManager().parse((state ? "<#C084FC>✔ [ON] " : "<#F5D0FE>✖ [OFF] ") + "<#E9D5FF><bold>" + name + "</bold></#E9D5FF>"));
         List<Component> lore = new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(plugin.getLocaleManager().parse(" <gray>Estado actual:</gray> " + (state ? "<#C084FC><bold>HABILITADO</bold></#C084FC>" : "<#F5D0FE><bold>DESHABILITADO</bold></#F5D0FE>")));
-        lore.add(plugin.getLocaleManager().parse(" <#C084FC>👉 Haz clic para alternar</#C084FC>"));
+        String statusText = state ? (isEn ? "ENABLED" : "HABILITADO") : (isEn ? "DISABLED" : "DESHABILITADO");
+        lore.add(plugin.getLocaleManager().parse(" <gray>" + (isEn ? "Current state:" : "Estado actual:") + "</gray> " + (state ? "<#C084FC><bold>" + statusText + "</bold></#C084FC>" : "<#F5D0FE><bold>" + statusText + "</bold></#F5D0FE>")));
+        lore.add(plugin.getLocaleManager().parse(" <#C084FC>👉 " + (isEn ? "Click to toggle" : "Haz clic para alternar") + "</#C084FC>"));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -119,7 +126,9 @@ public class AdminPanelGUI implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!event.getView().title().equals(plugin.getLocaleManager().parse("<gradient:#9333EA:#C084FC><bold>⚡ SmartLogin Master Panel</bold></gradient>"))) return;
+        if (event.getView().title() == null) return;
+        String viewTitle = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(event.getView().title());
+        if (!viewTitle.contains("SmartLogin") && !viewTitle.contains("Master Panel")) return;
 
         event.setCancelled(true);
         int slot = event.getSlot();
